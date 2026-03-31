@@ -2374,8 +2374,7 @@
     getDoc,
     setDoc,
     updateDoc,
-    addDoc,
-    where
+    addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -2428,37 +2427,31 @@
     }
 
     try {
-      const codeQuery = query(collection(db, "redeemCodes"), where("code", "==", codeValue));
-      const codeSnap = await getDocs(codeQuery);
+      const codeRef = doc(db, "redeem_codes", codeValue);
+      const codeSnap = await getDoc(codeRef);
 
-      if (codeSnap.empty) {
+      if (!codeSnap.exists()) {
         if (status) status.textContent = "";
         showCustomPopup("Invalid Code", "The code you entered is invalid.");
         return;
       }
 
-      const codeDoc = codeSnap.docs[0];
-      const codeData = codeDoc.data();
-      const codeRef = doc(db, "redeemCodes", codeDoc.id);
+      const codeData = codeSnap.data();
 
-      const claimLogQuery = query(
-        collection(db, "redeemClaims"),
-        where("userId", "==", String(user.telegramId)),
-        where("code", "==", codeValue)
-      );
-      const claimLogSnap = await getDocs(claimLogQuery);
+      const userClaimRef = doc(db, "redeem_claims", codeValue + "_" + String(user.telegramId));
+      const userClaimSnap = await getDoc(userClaimRef);
 
-      if (!claimLogSnap.empty) {
+      if (userClaimSnap.exists()) {
         if (status) status.textContent = "";
         showCustomPopup("Already Claimed", "You already claimed this code.");
         return;
       }
 
-      const maxClaims = Number(codeData.maxClaims || 0);
-      const claimedCount = Number(codeData.claimedCount || 0);
-      const rewardCoins = Number(codeData.rewardCoins || 0);
+      const userLimit = Number(codeData.userLimit || 0);
+      const totalClaims = Number(codeData.totalClaims || 0);
+      const rewardCoins = Number(codeData.amount || 0);
 
-      if (claimedCount >= maxClaims) {
+      if (totalClaims >= userLimit) {
         if (status) status.textContent = "";
         showCustomPopup("Code Finished", "This code has already been fully claimed.");
         return;
@@ -2481,13 +2474,13 @@
       }, { merge: true });
 
       await updateDoc(codeRef, {
-        claimedCount: claimedCount + 1
+        totalClaims: totalClaims + 1
       });
 
-      await addDoc(collection(db, "redeemClaims"), {
+      await setDoc(userClaimRef, {
+        code: codeValue,
         userId: String(user.telegramId),
         name: user.username || user.first_name || "User",
-        code: codeValue,
         claimedAt: new Date().toISOString()
       });
 
