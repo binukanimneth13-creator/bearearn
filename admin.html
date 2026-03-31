@@ -227,6 +227,7 @@
         <h3>Create Redeem Code</h3>
         <input type="text" id="redeemCodeText" placeholder="Enter redeem code">
         <input type="number" id="redeemCodeAmount" placeholder="Reward amount">
+        <input type="number" id="redeemCodeUserLimit" placeholder="No of users">
         <button class="btn" onclick="createRedeemCode()">Create Code</button>
         <p id="redeemCreateStatus"></p>
       </div>
@@ -238,6 +239,7 @@
             <tr>
               <th>Code</th>
               <th>Amount</th>
+              <th>No of Users</th>
               <th>Created At</th>
               <th>Total Claims</th>
             </tr>
@@ -411,10 +413,11 @@
   window.createRedeemCode = async function() {
     const code = document.getElementById("redeemCodeText").value.trim();
     const amount = Number(document.getElementById("redeemCodeAmount").value);
+    const userLimit = Number(document.getElementById("redeemCodeUserLimit").value);
     const status = document.getElementById("redeemCreateStatus");
 
-    if (!code || !amount) {
-      status.innerText = "Please enter redeem code and reward amount";
+    if (!code || !amount || !userLimit) {
+      status.innerText = "Please enter redeem code, reward amount and no of users";
       return;
     }
 
@@ -430,6 +433,7 @@
       await setDoc(codeRef, {
         code: code,
         amount: amount,
+        userLimit: userLimit,
         createdAt: new Date().toISOString(),
         totalClaims: 0
       });
@@ -437,6 +441,7 @@
       status.innerText = "Redeem code created successfully";
       document.getElementById("redeemCodeText").value = "";
       document.getElementById("redeemCodeAmount").value = "";
+      document.getElementById("redeemCodeUserLimit").value = "";
       loadRedeemCodes();
       loadDashboard();
     } catch (error) {
@@ -456,6 +461,7 @@
         <tr>
           <td>${codeData.code || docSnap.id}</td>
           <td>${codeData.amount || 0}</td>
+          <td>${codeData.userLimit || 0}</td>
           <td>${codeData.createdAt || "-"}</td>
           <td>${codeData.totalClaims || 0}</td>
         </tr>
