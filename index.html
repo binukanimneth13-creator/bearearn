@@ -1074,6 +1074,92 @@
     margin-top: 8px;
   }
 
+  .redeem-card {
+    background: #232326;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 22px 16px;
+    margin-top: 6px;
+  }
+
+  .redeem-icon {
+    font-size: 38px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .redeem-title {
+    text-align: center;
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 18px;
+  }
+
+  .redeem-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .redeem-input {
+    flex: 1;
+    background: #2d2d33;
+    border: none;
+    border-radius: 14px;
+    padding: 16px 14px;
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+  }
+
+  .redeem-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 16px 18px;
+    background: #9a7416;
+    color: #111;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 88px;
+  }
+
+  .redeem-channel-box {
+    background: #2a2a2f;
+    border-radius: 14px;
+    padding: 14px 14px;
+    margin-bottom: 18px;
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .redeem-channel-box a {
+    color: #f6c400;
+    text-decoration: underline;
+  }
+
+  .redeem-history-title {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .redeem-empty-history {
+    color: #7f8494;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px 0 20px;
+  }
+
+  .redeem-status {
+    margin-top: 12px;
+    color: #f6c400;
+    font-size: 13px;
+    text-align: center;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -1781,10 +1867,28 @@
 
       content.innerHTML = html;
       restoreSpinCooldownUI();
+      applyTelegramUserToHome();
       return;
     }
 
     if (type === "redeem") {
+      const redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
+      let historyHtml = "";
+
+      if (redeemHistory.length === 0) {
+        historyHtml = `<div class="redeem-empty-history">No codes redeemed yet</div>`;
+      } else {
+        historyHtml = redeemHistory.map(function(item) {
+          return `
+            <div class="notify-item" style="margin-bottom:10px;">
+              <div class="notify-item-title">${item.code}</div>
+              <div class="notify-item-text">Reward: ${item.reward}</div>
+              <div class="notify-item-time">${item.time}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -1792,9 +1896,32 @@
             <button class="back-btn" onclick="backToEarn()">←</button>
             <div class="sub-page-title">Redeem Code</div>
           </div>
-          <p>Enter your promo code to claim a reward.</p>
-          <div class="content-card">
-            <p>Promo code redemption area can go here.</p>
+
+          <div class="redeem-card">
+            <div class="redeem-icon">🎁</div>
+            <div class="redeem-title">Redeem Code</div>
+
+            <div class="redeem-row">
+              <input type="text" class="redeem-input" id="redeemCodeInput" placeholder="Enter code...">
+              <button class="redeem-btn" onclick="claimRedeemCode()">Claim</button>
+            </div>
+
+            <div class="redeem-channel-box">
+              💡 Get codes from our <a href="https://t.me/yourcommunitychannel" target="_blank">Community Channel</a>
+            </div>
+
+            <div class="redeem-history-title">Redeem History</div>
+            <div id="redeemHistoryBox">${historyHtml}</div>
+            <div class="redeem-status" id="redeemStatusText"></div>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">🎁 Redeem Guide</div>
+            <ul class="earn-guide-list">
+              <li>Enter a valid promo code to earn free DOGS.</li>
+              <li>Codes are shared in our Community Channel.</li>
+              <li>Each code has a claim limit. Be quick!</li>
+            </ul>
           </div>
         </div>
       `;
@@ -1837,16 +1964,62 @@
           </div>
         </div>
       `;
-
-      content.innerHTML = html;
-
-      if (!canClaim) {
-        startDailyCooldown(nextClaim);
-      }
-      return;
     }
 
     content.innerHTML = html;
+    applyTelegramUserToHome();
+  }
+
+  function claimRedeemCode() {
+    const input = document.getElementById("redeemCodeInput");
+    const status = document.getElementById("redeemStatusText");
+    if (!input || !status) return;
+
+    const code = input.value.trim().toUpperCase();
+    const validCodes = {
+      "DOGS100": 100,
+      "FREE50": 50,
+      "BONUS200": 200
+    };
+
+    if (!code) {
+      status.textContent = "Please enter a code.";
+      return;
+    }
+
+    if (!validCodes[code]) {
+      status.textContent = "Invalid code.";
+      return;
+    }
+
+    let usedCodes = JSON.parse(localStorage.getItem("usedRedeemCodes") || "[]");
+    if (usedCodes.includes(code)) {
+      status.textContent = "You already used this code.";
+      return;
+    }
+
+    const reward = validCodes[code];
+    balance += reward;
+    totalEarned += reward;
+
+    localStorage.setItem("dogsBalance", balance.toString());
+    localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+
+    usedCodes.push(code);
+    localStorage.setItem("usedRedeemCodes", JSON.stringify(usedCodes));
+
+    let redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
+    redeemHistory.unshift({
+      code: code,
+      reward: "+" + reward + " DOGS",
+      time: new Date().toLocaleString()
+    });
+    localStorage.setItem("redeemHistory", JSON.stringify(redeemHistory));
+
+    status.textContent = reward + " DOGS claimed successfully!";
+    input.value = "";
+    openEarnWindow('redeem');
+    renderHomeLiveValues();
   }
 
   function toggleTaskCard(taskId) {
