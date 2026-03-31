@@ -1160,6 +1160,53 @@
     text-align: center;
   }
 
+  .custom-popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.62);
+    z-index: 130;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .custom-popup-card {
+    width: 100%;
+    max-width: 320px;
+    background: #232326;
+    border-radius: 22px;
+    padding: 24px 18px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .custom-popup-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .custom-popup-text {
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+
+  .custom-popup-btn {
+    border: none;
+    border-radius: 14px;
+    padding: 14px 18px;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 120px;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -1539,6 +1586,27 @@
     return div.innerHTML;
   }
 
+  function showCustomPopup(title, text) {
+    removeCustomPopup();
+    var appBox = document.getElementById("miniAppBox");
+    var popup = document.createElement("div");
+    popup.className = "custom-popup-overlay";
+    popup.id = "customPopupBox";
+    popup.innerHTML = `
+      <div class="custom-popup-card">
+        <div class="custom-popup-title">${escapeHtml(title)}</div>
+        <div class="custom-popup-text">${escapeHtml(text)}</div>
+        <button class="custom-popup-btn" onclick="removeCustomPopup()">OK</button>
+      </div>
+    `;
+    appBox.appendChild(popup);
+  }
+
+  function removeCustomPopup() {
+    var popup = document.getElementById("customPopupBox");
+    if (popup) popup.remove();
+  }
+
   function backToHomeFromNotification() {
     var homeNav = document.querySelectorAll(".nav-item")[0];
     showTab('home', homeNav);
@@ -1783,6 +1851,7 @@
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
     removeSpinPopup();
+    removeCustomPopup();
 
     var content = document.getElementById("content-area");
     let html = "";
@@ -1970,56 +2039,25 @@
     applyTelegramUserToHome();
   }
 
-  function claimRedeemCode() {
+  async function claimRedeemCode() {
     const input = document.getElementById("redeemCodeInput");
     const status = document.getElementById("redeemStatusText");
     if (!input || !status) return;
 
-    const code = input.value.trim().toUpperCase();
-    const validCodes = {
-      "DOGS100": 100,
-      "FREE50": 50,
-      "BONUS200": 200
-    };
-
-    if (!code) {
+    const codeValue = input.value.trim().toUpperCase();
+    if (!codeValue) {
       status.textContent = "Please enter a code.";
       return;
     }
 
-    if (!validCodes[code]) {
-      status.textContent = "Invalid code.";
+    status.textContent = "Checking code...";
+
+    if (!window.handleRedeemCodeFromFirebase) {
+      status.textContent = "Redeem system not ready.";
       return;
     }
 
-    let usedCodes = JSON.parse(localStorage.getItem("usedRedeemCodes") || "[]");
-    if (usedCodes.includes(code)) {
-      status.textContent = "You already used this code.";
-      return;
-    }
-
-    const reward = validCodes[code];
-    balance += reward;
-    totalEarned += reward;
-
-    localStorage.setItem("dogsBalance", balance.toString());
-    localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-
-    usedCodes.push(code);
-    localStorage.setItem("usedRedeemCodes", JSON.stringify(usedCodes));
-
-    let redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
-    redeemHistory.unshift({
-      code: code,
-      reward: "+" + reward + " DOGS",
-      time: new Date().toLocaleString()
-    });
-    localStorage.setItem("redeemHistory", JSON.stringify(redeemHistory));
-
-    status.textContent = reward + " DOGS claimed successfully!";
-    input.value = "";
-    openEarnWindow('redeem');
-    renderHomeLiveValues();
+    await window.handleRedeemCodeFromFirebase(codeValue);
   }
 
   function toggleTaskCard(taskId) {
@@ -2318,6 +2356,7 @@
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
     removeSpinPopup();
+    removeCustomPopup();
     var earnNav = document.querySelectorAll(".nav-item")[1];
     showTab('earn', earnNav);
   }
@@ -2325,7 +2364,19 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, orderBy, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    doc,
+    getDoc,
+    setDoc,
+    updateDoc,
+    addDoc,
+    where
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDbokxd3P2XhR817cfDnho7G4eDgL0KKwM",
@@ -2363,6 +2414,99 @@
       await setDoc(userRef, userData, { merge: true });
     } catch (error) {
       console.log("User save error:", error.message);
+    }
+  };
+
+  window.handleRedeemCodeFromFirebase = async function(codeValue) {
+    const input = document.getElementById("redeemCodeInput");
+    const status = document.getElementById("redeemStatusText");
+    const user = window.currentTelegramUser;
+
+    if (!user || !user.telegramId) {
+      showCustomPopup("Error", "User not found.");
+      return;
+    }
+
+    try {
+      const codeQuery = query(collection(db, "redeemCodes"), where("code", "==", codeValue));
+      const codeSnap = await getDocs(codeQuery);
+
+      if (codeSnap.empty) {
+        if (status) status.textContent = "";
+        showCustomPopup("Invalid Code", "The code you entered is invalid.");
+        return;
+      }
+
+      const codeDoc = codeSnap.docs[0];
+      const codeData = codeDoc.data();
+      const codeRef = doc(db, "redeemCodes", codeDoc.id);
+
+      const claimLogQuery = query(
+        collection(db, "redeemClaims"),
+        where("userId", "==", String(user.telegramId)),
+        where("code", "==", codeValue)
+      );
+      const claimLogSnap = await getDocs(claimLogQuery);
+
+      if (!claimLogSnap.empty) {
+        if (status) status.textContent = "";
+        showCustomPopup("Already Claimed", "You already claimed this code.");
+        return;
+      }
+
+      const maxClaims = Number(codeData.maxClaims || 0);
+      const claimedCount = Number(codeData.claimedCount || 0);
+      const rewardCoins = Number(codeData.rewardCoins || 0);
+
+      if (claimedCount >= maxClaims) {
+        if (status) status.textContent = "";
+        showCustomPopup("Code Finished", "This code has already been fully claimed.");
+        return;
+      }
+
+      balance += rewardCoins;
+      totalEarned += rewardCoins;
+
+      localStorage.setItem("dogsBalance", balance.toString());
+      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+
+      const userRef = doc(db, "users", String(user.telegramId));
+      await setDoc(userRef, {
+        telegramId: String(user.telegramId),
+        username: user.rawUsername || "",
+        name: user.username || user.first_name || "User",
+        photo_url: user.photo_url || "",
+        balance: balance,
+        lastSeen: new Date().toISOString()
+      }, { merge: true });
+
+      await updateDoc(codeRef, {
+        claimedCount: claimedCount + 1
+      });
+
+      await addDoc(collection(db, "redeemClaims"), {
+        userId: String(user.telegramId),
+        name: user.username || user.first_name || "User",
+        code: codeValue,
+        claimedAt: new Date().toISOString()
+      });
+
+      let redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
+      redeemHistory.unshift({
+        code: codeValue,
+        reward: "+" + rewardCoins + " DOGS",
+        time: new Date().toLocaleString()
+      });
+      localStorage.setItem("redeemHistory", JSON.stringify(redeemHistory));
+
+      if (input) input.value = "";
+      if (status) status.textContent = rewardCoins + " DOGS claimed successfully!";
+
+      renderHomeLiveValues();
+      openEarnWindow('redeem');
+    } catch (error) {
+      if (status) status.textContent = "";
+      showCustomPopup("Error", error.message);
     }
   };
 
