@@ -1,493 +1,528 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Crypto Bot Admin Panel</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #fff;
-    }
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+  }
 
-    .container {
-      display: flex;
-      min-height: 100vh;
-    }
+  body {
+    background: #f2f2f2;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
 
-    .sidebar {
-      width: 250px;
-      background: #1e293b;
-      padding: 20px;
-    }
+  .miniapp-box {
+    width: 100%;
+    max-width: 390px;
+    height: 680px;
+    background: linear-gradient(180deg, #111113, #18181a);
+    border-radius: 22px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    border: 1px solid #2c2c2e;
+  }
 
-    .sidebar h2 {
-      color: #38bdf8;
-      margin-bottom: 30px;
-    }
+  .loading-screen {
+    position: absolute;
+    inset: 0;
+    background: #0f0f12;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+  }
 
-    .sidebar button {
-      width: 100%;
-      background: #334155;
-      color: white;
-      border: none;
-      padding: 12px;
-      margin-bottom: 10px;
-      cursor: pointer;
-      border-radius: 8px;
-      text-align: left;
-    }
+  .loading-screen.hide {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
 
-    .sidebar button:hover {
-      background: #475569;
-    }
+  .loader-ring {
+    position: relative;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+  }
 
-    .main {
-      flex: 1;
-      padding: 20px;
-    }
+  .loader-ring::before {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 4px solid rgba(255, 204, 0, 0.12);
+  }
 
-    .card {
-      background: #1e293b;
-      padding: 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
+  .loader-ring::after {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    border: 4px solid transparent;
+    border-top: 4px solid #d4af00;
+    border-right: 4px solid #d4af00;
+    animation: spin 2s linear infinite;
+  }
 
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
-      gap: 20px;
-    }
+  .inner-ring {
+    position: absolute;
+    width: 125px;
+    height: 125px;
+    border-radius: 50%;
+    border: 2px solid #ff3b30;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #050505;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4) inset;
+  }
 
-    input, textarea, select {
-      width: 100%;
-      padding: 12px;
-      margin-top: 10px;
-      margin-bottom: 15px;
-      border: none;
-      border-radius: 8px;
-      background: #334155;
-      color: #fff;
-    }
+  .logo-img {
+    width: 90px;
+    height: 90px;
+    object-fit: contain;
+    border-radius: 50%;
+  }
 
-    .btn {
-      background: #38bdf8;
-      color: #000;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
+  .loading-title {
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 22px;
+    text-align: center;
+  }
 
-    .btn:hover {
-      background: #0ea5e9;
-    }
+  .progress-bar-wrap {
+    width: 220px;
+    height: 10px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
 
-    #loginBox {
-      max-width: 400px;
-      margin: 100px auto;
-      background: #1e293b;
-      padding: 30px;
-      border-radius: 15px;
-    }
+  .progress-bar {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    border-radius: 20px;
+    animation: loadBar 3s ease forwards;
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+  .loading-text {
+    color: rgba(255,255,255,0.22);
+    font-size: 14px;
+    text-align: center;
+  }
 
-    table th, table td {
-      border-bottom: 1px solid #334155;
-      padding: 10px;
-      text-align: left;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .small-btn {
-      background: #22c55e;
-      color: #000;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-right: 5px;
-    }
-
-    .small-btn:hover {
-      background: #16a34a;
-    }
-
-    .danger-btn {
-      background: #ef4444;
-      color: #fff;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .danger-btn:hover {
-      background: #dc2626;
-    }
-  </style>
-</head>
-<body>
-
-<div id="loginBox">
-  <h2>Admin Login</h2>
-  <input type="email" id="email" placeholder="Admin Email">
-  <input type="password" id="password" placeholder="Password">
-  <button class="btn" onclick="login()">Login</button>
-  <p id="loginStatus"></p>
-</div>
-
-<div id="adminPanel" class="container hidden">
-  <div class="sidebar">
-    <h2>Crypto Admin</h2>
-    <button onclick="showSection('dashboard')">Dashboard</button>
-    <button onclick="showSection('users')">Users</button>
-    <button onclick="showSection('earnings')">Add Earnings</button>
-    <button onclick="showSection('announcement')">Announcement</button>
-    <button onclick="showSection('redeemCodes')">Redeem Codes</button>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <div class="main">
-    <div id="dashboard" class="section">
-      <h1>Dashboard</h1>
-      <div class="cards">
-        <div class="card">
-          <h3>Total Users</h3>
-          <p id="totalUsers">0</p>
-        </div>
-        <div class="card">
-          <h3>Total Earnings Given</h3>
-          <p id="totalEarnings">0</p>
-        </div>
-        <div class="card">
-          <h3>Total Announcements</h3>
-          <p id="totalAnnouncements">0</p>
-        </div>
-        <div class="card">
-          <h3>Total Redeem Codes</h3>
-          <p id="totalRedeemCodes">0</p>
-        </div>
-      </div>
-    </div>
-
-    <div id="users" class="section hidden">
-      <h1>Users</h1>
-      <div class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>Name</th>
-              <th>Balance</th>
-            </tr>
-          </thead>
-          <tbody id="userTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div id="earnings" class="section hidden">
-      <h1>Add User Earnings</h1>
-      <div class="card">
-        <input type="text" id="earnUserId" placeholder="User ID">
-        <input type="number" id="earnAmount" placeholder="Amount">
-        <button class="btn" onclick="addEarning()">Add Earning</button>
-        <p id="earningStatus"></p>
-      </div>
-    </div>
-
-    <div id="announcement" class="section hidden">
-      <h1>Send Announcement</h1>
-      <div class="card">
-        <textarea id="announcementText" rows="5" placeholder="Write announcement..."></textarea>
-        <button class="btn" onclick="sendAnnouncement()">Send</button>
-        <p id="announceStatus"></p>
-      </div>
-    </div>
-
-    <div id="redeemCodes" class="section hidden">
-      <h1>Redeem Codes</h1>
-
-      <div class="card">
-        <h3>Create Redeem Code</h3>
-        <input type="text" id="redeemCodeText" placeholder="Enter redeem code">
-        <input type="number" id="redeemCodeAmount" placeholder="Reward amount">
-        <input type="number" id="redeemCodeUserLimit" placeholder="No of users">
-        <button class="btn" onclick="createRedeemCode()">Create Code</button>
-        <p id="redeemCreateStatus"></p>
-      </div>
-
-      <div class="card">
-        <h3>All Redeem Codes</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>Amount</th>
-              <th>No of Users</th>
-              <th>Created At</th>
-              <th>Total Claims</th>
-            </tr>
-          </thead>
-          <tbody id="redeemCodeTable"></tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h3>Claimed Users</h3>
-        <table>
-          <thead>
-            <tr>
-              <th>Code</th>
-              <th>User ID</th>
-              <th>Name</th>
-              <th>Claimed At</th>
-            </tr>
-          </thead>
-          <tbody id="redeemClaimsTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Firebase SDK -->
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyDbokxd3P2XhR817cfDnho7G4eDgL0KKwM",
-    authDomain: "bearearn-ad.firebaseapp.com",
-    projectId: "bearearn-ad",
-    storageBucket: "bearearn-ad.firebasestorage.app",
-    messagingSenderId: "871597321596",
-    appId: "1:871597321596:web:b8a7c14441ae284e1688f9"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  window.login = async function() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const status = document.getElementById("loginStatus");
-
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      status.innerText = "Login successful";
-    } catch (error) {
-      status.innerText = error.message;
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
     }
   }
 
-  window.logout = async function() {
-    await signOut(auth);
+  @keyframes loadBar {
+    0% { width: 0%; }
+    100% { width: 100%; }
   }
 
-  onAuthStateChanged(auth, async (user) => {
-    if (user) {
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("adminPanel").classList.remove("hidden");
-      loadDashboard();
-      loadUsers();
-      loadRedeemCodes();
-      loadRedeemClaims();
-    } else {
-      document.getElementById("loginBox").classList.remove("hidden");
-      document.getElementById("adminPanel").classList.add("hidden");
-    }
-  });
-
-  window.showSection = function(sectionId) {
-    const sections = document.querySelectorAll(".section");
-    sections.forEach(sec => sec.classList.add("hidden"));
-    document.getElementById(sectionId).classList.remove("hidden");
+  .app-screen {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
-  async function loadDashboard() {
-    const usersSnapshot = await getDocs(collection(db, "users"));
-    const announcementsSnapshot = await getDocs(collection(db, "announcements"));
-    const redeemCodesSnapshot = await getDocs(collection(db, "redeem_codes"));
-
-    let totalUsers = usersSnapshot.size;
-    let totalEarnings = 0;
-
-    usersSnapshot.forEach(docSnap => {
-      const data = docSnap.data();
-      totalEarnings += Number(data.balance || 0);
-    });
-
-    document.getElementById("totalUsers").innerText = totalUsers;
-    document.getElementById("totalEarnings").innerText = totalEarnings;
-    document.getElementById("totalAnnouncements").innerText = announcementsSnapshot.size;
-    document.getElementById("totalRedeemCodes").innerText = redeemCodesSnapshot.size;
+  .miniapp-content {
+    color: #fff;
+    padding: 24px 20px 90px;
+    height: 100%;
+    overflow-y: auto;
   }
 
-  async function loadUsers() {
-    const userTable = document.getElementById("userTable");
-    userTable.innerHTML = "";
-    const usersSnapshot = await getDocs(collection(db, "users"));
-
-    usersSnapshot.forEach(docSnap => {
-      const user = docSnap.data();
-      userTable.innerHTML += `
-        <tr>
-          <td>${docSnap.id}</td>
-          <td>${user.name || "No Name"}</td>
-          <td>${user.balance || 0}</td>
-        </tr>
-      `;
-    });
+  .miniapp-content h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+    color: #fff;
   }
 
-  window.addEarning = async function() {
-    const userId = document.getElementById("earnUserId").value.trim();
-    const amount = Number(document.getElementById("earnAmount").value);
-    const status = document.getElementById("earningStatus");
-
-    if (!userId || !amount) {
-      status.innerText = "Please enter user ID and amount";
-      return;
-    }
-
-    try {
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const currentBalance = Number(userSnap.data().balance || 0);
-        await updateDoc(userRef, {
-          balance: currentBalance + amount
-        });
-        status.innerText = "Earning added successfully";
-        loadDashboard();
-        loadUsers();
-      } else {
-        status.innerText = "User not found";
-      }
-    } catch (error) {
-      status.innerText = error.message;
-    }
+  .miniapp-content p {
+    color: #b4b4b8;
+    font-size: 14px;
+    line-height: 1.7;
   }
 
-  window.sendAnnouncement = async function() {
-    const text = document.getElementById("announcementText").value.trim();
-    const status = document.getElementById("announceStatus");
-
-    if (!text) {
-      status.innerText = "Announcement cannot be empty";
-      return;
-    }
-
-    try {
-      await addDoc(collection(db, "announcements"), {
-        message: text,
-        createdAt: new Date().toISOString()
-      });
-      status.innerText = "Announcement sent successfully";
-      document.getElementById("announcementText").value = "";
-      loadDashboard();
-    } catch (error) {
-      status.innerText = error.message;
-    }
+  .content-card {
+    margin-top: 20px;
+    padding: 18px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
   }
 
-  window.createRedeemCode = async function() {
-    const code = document.getElementById("redeemCodeText").value.trim();
-    const amount = Number(document.getElementById("redeemCodeAmount").value);
-    const userLimit = Number(document.getElementById("redeemCodeUserLimit").value);
-    const status = document.getElementById("redeemCreateStatus");
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 78px;
+    background: rgba(34, 34, 36, 0.98);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -8px 20px rgba(0,0,0,0.25);
+    z-index: 10;
+  }
 
-    if (!code || !amount || !userLimit) {
-      status.innerText = "Please enter redeem code, reward amount and no of users";
-      return;
+  .nav-item {
+    position: relative;
+    flex: 1;
+    text-align: center;
+    color: #8e93a6;
+    text-decoration: none;
+    font-size: 13px;
+    padding: 10px 0 8px;
+    transition: all 0.3s ease;
+    background: transparent !important;
+  }
+
+  .nav-item svg {
+    display: block;
+    margin: 0 auto 4px;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    transition: transform 0.3s ease, filter 0.3s ease;
+  }
+
+  .nav-item span {
+    display: block;
+    transition: all 0.3s ease;
+  }
+
+  .nav-item:hover,
+  .nav-item:focus,
+  .nav-item:active {
+    color: #aeb4c8;
+    background: transparent !important;
+    outline: none;
+    box-shadow: none;
+  }
+
+  .nav-item:hover svg {
+    transform: translateY(-2px) scale(1.05);
+    filter: drop-shadow(0 0 4px rgba(174, 180, 200, 0.15));
+  }
+
+  .nav-item.active {
+    color: #f6c400;
+  }
+
+  .nav-item.active svg {
+    transform: translateY(-4px) scale(1.1);
+    filter: drop-shadow(0 0 6px rgba(246, 196, 0, 0.5));
+  }
+
+  .nav-item.active span {
+    font-weight: bold;
+  }
+
+  .nav-item.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 25%;
+    width: 50%;
+    height: 3px;
+    border-radius: 10px;
+    background: #f6c400;
+    box-shadow: 0 0 12px rgba(246, 196, 0, 0.8);
+  }
+
+  .fade-in {
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
     }
-
-    try {
-      const codeRef = doc(db, "redeem_codes", code);
-      const codeSnap = await getDoc(codeRef);
-
-      if (codeSnap.exists()) {
-        status.innerText = "This redeem code already exists";
-        return;
-      }
-
-      await setDoc(codeRef, {
-        code: code,
-        amount: amount,
-        userLimit: userLimit,
-        createdAt: new Date().toISOString(),
-        totalClaims: 0
-      });
-
-      status.innerText = "Redeem code created successfully";
-      document.getElementById("redeemCodeText").value = "";
-      document.getElementById("redeemCodeAmount").value = "";
-      document.getElementById("redeemCodeUserLimit").value = "";
-      loadRedeemCodes();
-      loadDashboard();
-    } catch (error) {
-      status.innerText = error.message;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
   }
 
-  async function loadRedeemCodes() {
-    const redeemCodeTable = document.getElementById("redeemCodeTable");
-    redeemCodeTable.innerHTML = "";
-
-    const redeemCodesSnapshot = await getDocs(collection(db, "redeem_codes"));
-
-    redeemCodesSnapshot.forEach(docSnap => {
-      const codeData = docSnap.data();
-      redeemCodeTable.innerHTML += `
-        <tr>
-          <td>${codeData.code || docSnap.id}</td>
-          <td>${codeData.amount || 0}</td>
-          <td>${codeData.userLimit || 0}</td>
-          <td>${codeData.createdAt || "-"}</td>
-          <td>${codeData.totalClaims || 0}</td>
-        </tr>
-      `;
-    });
+  .earn-list {
+    margin-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
   }
 
-  async function loadRedeemClaims() {
-    const redeemClaimsTable = document.getElementById("redeemClaimsTable");
-    redeemClaimsTable.innerHTML = "";
-
-    const claimsSnapshot = await getDocs(collection(db, "redeem_claims"));
-
-    claimsSnapshot.forEach(docSnap => {
-      const claim = docSnap.data();
-      redeemClaimsTable.innerHTML += `
-        <tr>
-          <td>${claim.code || "-"}</td>
-          <td>${claim.userId || "-"}</td>
-          <td>${claim.name || "No Name"}</td>
-          <td>${claim.claimedAt || "-"}</td>
-        </tr>
-      `;
-    });
+  .earn-item {
+    width: 100%;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    background: #232326;
+    border-radius: 20px;
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255,255,255,0.05);
   }
-</script>
 
-</body>
-</html>
+  .earn-item:hover {
+    background: #29292d;
+  }
+
+  .earn-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .earn-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #313137;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+  }
+
+  .earn-text strong {
+    display: block;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .earn-text span {
+    display: block;
+    font-size: 13px;
+    color: #a8acba;
+  }
+
+  .earn-arrow {
+    color: #9ca0af;
+    font-size: 28px;
+    line-height: 1;
+    margin-left: 10px;
+  }
+
+  .earn-guide {
+    margin-top: 18px;
+    background: #232326;
+    border-radius: 20px;
+    padding: 18px 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .earn-guide-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 14px;
+  }
+
+  .earn-guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .earn-guide-list li {
+    position: relative;
+    padding-left: 16px;
+    margin-bottom: 12px;
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .earn-guide-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .earn-guide-list li::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    top: 8px;
+  }
+
+  .sub-page-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .back-btn {
+    border: none;
+    background: #2a2a2e;
+    color: #fff;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .sub-page-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+
+  .notify-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #232326;
+    color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .notify-badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(246,196,0,0.7);
+  }
+
+  .top-user-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .top-user-mini-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f6c400;
+    background: #232326;
+    flex-shrink: 0;
+  }
+
+  .top-user-mini-info {
+    min-width: 0;
+  }
+
+  .top-user-mini-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-user-mini-welcome {
+    color: #b4b4b8;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .notify-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notify-item {
+    background: #232326;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .notify-item-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .notify-item-text {
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .notify-item-time {
+    color: #8e93a6;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .redeem-card {
+    background: #232326;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 22px 16px;
+    margin-top: 6px;
+  }
+
+  .redeem-icon {
+    font-size: 38px;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .redeem-title {
+    text-align: center;
+    color: #fff;
+    font-size: 
