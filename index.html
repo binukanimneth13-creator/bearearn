@@ -1546,6 +1546,10 @@
     `;
   }
 
+  window.renderTopButton = renderTopButton;
+  window.escapeHtml = escapeHtml;
+  window.formatDate = formatDate;
+
   function applyTelegramUserToHome() {
     const user = window.currentTelegramUser || {
       username: "@guest_user",
@@ -2373,8 +2377,7 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc,
-    addDoc
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -2451,7 +2454,7 @@
       const totalClaims = Number(codeData.totalClaims || 0);
       const rewardCoins = Number(codeData.amount || 0);
 
-      if (totalClaims >= userLimit) {
+      if (userLimit > 0 && totalClaims >= userLimit) {
         if (status) status.textContent = "";
         showCustomPopup("Code Finished", "This code has already been fully claimed.");
         return;
