@@ -1112,7 +1112,6 @@
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.05);
     padding: 18px 16px;
-    margin-bottom: 18px;
   }
 
   .ref-history-title {
@@ -1164,6 +1163,7 @@
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.05);
     padding: 18px 16px;
+    margin-bottom: 18px;
   }
 
   .ref-extra-title {
@@ -1980,11 +1980,6 @@
             <div class="ref-copy-status" id="refCopyStatus"></div>
           </div>
 
-          <div class="ref-history-card">
-            <div class="earn-guide-title" style="margin-bottom:18px;">📜 Refer History</div>
-            ${renderReferHistory()}
-          </div>
-
           <div class="ref-extra-card">
             <div class="ref-extra-title">Extra Input</div>
             <div class="ref-extra-row">
@@ -1992,6 +1987,11 @@
               <button class="ref-extra-btn" onclick="submitReferralExtra()">Submit</button>
             </div>
             <div class="ref-extra-status" id="refExtraStatus"></div>
+          </div>
+
+          <div class="ref-history-card">
+            <div class="earn-guide-title" style="margin-bottom:18px;">📜 Refer History</div>
+            ${renderReferHistory()}
           </div>
         </div>
       `;
