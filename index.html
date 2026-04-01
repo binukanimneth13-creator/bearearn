@@ -1112,6 +1112,7 @@
     border-radius: 20px;
     border: 1px solid rgba(255,255,255,0.05);
     padding: 18px 16px;
+    margin-bottom: 18px;
   }
 
   .ref-history-title {
@@ -1152,6 +1153,54 @@
   }
 
   .ref-copy-status {
+    color: #f6c400;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .ref-extra-card {
+    background: #232326;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 18px 16px;
+  }
+
+  .ref-extra-title {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .ref-extra-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .ref-extra-input {
+    flex: 1;
+    background: #2d2d33;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 14px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .ref-extra-btn {
+    min-width: 90px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .ref-extra-status {
     color: #f6c400;
     font-size: 13px;
     text-align: center;
@@ -1441,7 +1490,8 @@
       last_name: "",
       photo_url: "https://ui-avatars.com/api/?name=G&background=232326&color=fff",
       referralCode: "guest_user",
-      startParam: ""
+      startParam: "",
+      referralLink: "https://t.me/BearCoinNew_bot?start=guest_user"
     };
 
     try {
@@ -1456,12 +1506,13 @@
         if (user) {
           let usernameText = "@guest_user";
           let rawUsername = "guest_user";
+          let telegramId = String(user.id || "guest_user");
 
           if (user.username && user.username.trim() !== "") {
             rawUsername = user.username;
             usernameText = "@" + user.username;
           } else if (user.first_name) {
-            rawUsername = String(user.id || "user");
+            rawUsername = telegramId;
             usernameText = user.first_name;
           }
 
@@ -1476,14 +1527,15 @@
             avatarUrl = "https://ui-avatars.com/api/?name=U&background=232326&color=fff";
           }
 
-          tgUser.telegramId = String(user.id || rawUsername);
+          tgUser.telegramId = telegramId;
           tgUser.username = usernameText;
           tgUser.rawUsername = rawUsername;
           tgUser.first_name = user.first_name || "User";
           tgUser.last_name = user.last_name || "";
           tgUser.photo_url = avatarUrl;
-          tgUser.referralCode = String(user.id || rawUsername);
+          tgUser.referralCode = telegramId;
           tgUser.startParam = startParam || "";
+          tgUser.referralLink = "https://t.me/BearCoinNew_bot?start=" + telegramId;
         }
       }
     } catch (e) {}
@@ -1852,6 +1904,21 @@
     window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join with my referral link and earn DOGS!"), "_blank");
   }
 
+  function submitReferralExtra() {
+    const input = document.getElementById("refExtraInput");
+    const status = document.getElementById("refExtraStatus");
+    if (!input || !status) return;
+
+    const value = input.value.trim();
+    if (!value) {
+      status.textContent = "Please enter something first.";
+      return;
+    }
+
+    status.textContent = "Submitted: " + value;
+    input.value = "";
+  }
+
   function openEarnWindow(type) {
     clearInterval(dailyTimerInterval);
     clearInterval(spinUnlockTimer);
@@ -1916,6 +1983,15 @@
           <div class="ref-history-card">
             <div class="earn-guide-title" style="margin-bottom:18px;">📜 Refer History</div>
             ${renderReferHistory()}
+          </div>
+
+          <div class="ref-extra-card">
+            <div class="ref-extra-title">Extra Input</div>
+            <div class="ref-extra-row">
+              <input class="ref-extra-input" id="refExtraInput" type="text" placeholder="Enter something...">
+              <button class="ref-extra-btn" onclick="submitReferralExtra()">Submit</button>
+            </div>
+            <div class="ref-extra-status" id="refExtraStatus"></div>
           </div>
         </div>
       `;
@@ -2535,12 +2611,20 @@
       const userSnap = await getDoc(userRef);
 
       let existingReferrals = 0;
+      let existingReferralLink = "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId);
+
       if (userSnap.exists()) {
         existingReferrals = Number(userSnap.data().referrals || 0);
+        existingReferralLink = userSnap.data().referralLink || existingReferralLink;
       }
 
       totalRefers = existingReferrals;
+      referralEarned = existingReferrals * 100;
       localStorage.setItem("dogsTotalRefers", totalRefers.toString());
+      localStorage.setItem("dogsReferralEarned", referralEarned.toString());
+
+      user.referralLink = existingReferralLink;
+      window.currentTelegramUser = user;
 
       const userData = {
         telegramId: String(user.telegramId),
@@ -2549,7 +2633,7 @@
         photo_url: user.photo_url || "",
         balance: Number(localStorage.getItem("dogsBalance")) || balance || 160,
         referrals: existingReferrals,
-        referralLink: "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId),
+        referralLink: existingReferralLink,
         lastSeen: new Date().toISOString()
       };
 
@@ -2574,9 +2658,6 @@
       });
 
       localStorage.setItem("referHistory", JSON.stringify(myHistory));
-      referralEarned = existingReferrals * 100;
-      localStorage.setItem("dogsReferralEarned", referralEarned.toString());
-
     } catch (error) {
       console.log("User save error:", error.message);
     }
@@ -2637,7 +2718,7 @@
         photo_url: user.photo_url || "",
         balance: balance,
         referrals: totalRefers,
-        referralLink: "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId),
+        referralLink: user.referralLink || ("https://t.me/BearCoinNew_bot?start=" + String(user.telegramId)),
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
