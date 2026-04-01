@@ -1419,12 +1419,15 @@
 
   window.addEventListener("load", function() {
     initTelegramUser();
-    setTimeout(function() {
+    setTimeout(async function() {
       document.getElementById("loadingScreen").classList.add("hide");
       renderHomeLiveValues();
       applyTelegramUserToHome();
+      if (window.processReferralRegistration) {
+        await window.processReferralRegistration();
+      }
       if (window.saveTelegramUserToFirebase) {
-        window.saveTelegramUserToFirebase();
+        await window.saveTelegramUserToFirebase();
       }
     }, 3000);
   });
@@ -1436,7 +1439,9 @@
       rawUsername: "guest_user",
       first_name: "Guest",
       last_name: "",
-      photo_url: "https://ui-avatars.com/api/?name=G&background=232326&color=fff"
+      photo_url: "https://ui-avatars.com/api/?name=G&background=232326&color=fff",
+      referralCode: "guest_user",
+      startParam: ""
     };
 
     try {
@@ -1446,6 +1451,7 @@
         tg.expand();
 
         const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
+        const startParam = tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param : "";
 
         if (user) {
           let usernameText = "@guest_user";
@@ -1476,6 +1482,8 @@
           tgUser.first_name = user.first_name || "User";
           tgUser.last_name = user.last_name || "";
           tgUser.photo_url = avatarUrl;
+          tgUser.referralCode = String(user.id || rawUsername);
+          tgUser.startParam = startParam || "";
         }
       }
     } catch (e) {}
@@ -1606,7 +1614,7 @@
 
             <div class="home-stat-card">
               <div class="home-stat-title">Total Referrals</div>
-              <div class="home-stat-value">0</div>
+              <div class="home-stat-value">${totalRefers}</div>
             </div>
 
             <div class="home-stat-card">
@@ -1824,8 +1832,8 @@
   }
 
   function getReferralLink() {
-    const user = window.currentTelegramUser || { telegramId: "guest_user" };
-    return "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.telegramId);
+    const user = window.currentTelegramUser || { referralCode: "guest_user" };
+    return "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode);
   }
 
   function copyReferralLink() {
@@ -1841,8 +1849,7 @@
 
   function shareReferralLink() {
     const link = getReferralLink();
-    const shareText = encodeURIComponent("Join with my referral link and earn DOGS: " + link);
-    window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + shareText, "_blank");
+    window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join with my referral link and earn DOGS!"), "_blank");
   }
 
   function openEarnWindow(type) {
@@ -1881,7 +1888,7 @@
 
           <div class="ref-hero-card">
             <div class="ref-hero-icon">👥</div>
-            <div class="ref-hero-number">50</div>
+            <div class="ref-hero-number">100</div>
             <div class="ref-hero-text">Dogs per Referral</div>
           </div>
 
@@ -2476,6 +2483,57 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  window.processReferralRegistration = async function() {
+    try {
+      const user = window.currentTelegramUser;
+      if (!user || !user.telegramId) return;
+
+      const userRef = doc(db, "users", String(user.telegramId));
+      const userSnap = await getDoc(userRef);
+
+      const isNewUser = !userSnap.exists();
+      const startParam = user.startParam || "";
+
+      if (isNewUser && startParam.startsWith("ref_")) {
+        const referrerId = startParam.replace("ref_", "").trim();
+
+        if (referrerId && referrerId !== String(user.telegramId)) {
+          const referrerRef = doc(db, "users", referrerId);
+          const referrerSnap = await getDoc(referrerRef);
+
+          if (referrerSnap.exists()) {
+            const referrerData = referrerSnap.data();
+            const currentRefBalance = Number(referrerData.balance || 0);
+            const currentRefers = Number(referrerData.totalRefers || 0);
+            const currentRefEarned = Number(referrerData.referralEarned || 0);
+
+            await updateDoc(referrerRef, {
+              balance: currentRefBalance + 100,
+              totalRefers: currentRefers + 1,
+              referralEarned: currentRefEarned + 100
+            });
+
+            let localRefHistory = JSON.parse(localStorage.getItem("referHistory") || "[]");
+            let localRefers = parseInt(localStorage.getItem("dogsTotalRefers")) || 0;
+            let localReferralEarned = parseInt(localStorage.getItem("dogsReferralEarned")) || 0;
+
+            if (String(window.currentTelegramUser.telegramId) === referrerId) {
+              localStorage.setItem("dogsTotalRefers", (localRefers + 1).toString());
+              localStorage.setItem("dogsReferralEarned", (localReferralEarned + 100).toString());
+              localRefHistory.unshift({
+                name: user.username || user.first_name || "New User",
+                time: new Date().toLocaleString()
+              });
+              localStorage.setItem("referHistory", JSON.stringify(localRefHistory));
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.log("Referral process error:", error.message);
+    }
+  };
+
   window.saveTelegramUserToFirebase = async function() {
     try {
       const user = window.currentTelegramUser;
@@ -2489,12 +2547,22 @@
         username: user.rawUsername || "",
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
-        balance: Number(localStorage.getItem("dogsBalance")) || 160,
+        balance: Number(localStorage.getItem("dogsBalance")) || balance || 160,
+        totalRefers: Number(localStorage.getItem("dogsTotalRefers")) || totalRefers || 0,
+        referralEarned: Number(localStorage.getItem("dogsReferralEarned")) || referralEarned || 0,
+        referralCode: user.referralCode || String(user.telegramId),
+        referralLink: "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode || String(user.telegramId)),
         lastSeen: new Date().toISOString()
       };
 
       if (!userSnap.exists()) {
         userData.createdAt = new Date().toISOString();
+      } else {
+        const oldData = userSnap.data();
+        totalRefers = Number(oldData.totalRefers || totalRefers || 0);
+        referralEarned = Number(oldData.referralEarned || referralEarned || 0);
+        localStorage.setItem("dogsTotalRefers", totalRefers.toString());
+        localStorage.setItem("dogsReferralEarned", referralEarned.toString());
       }
 
       await setDoc(userRef, userData, { merge: true });
@@ -2557,6 +2625,10 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: balance,
+        totalRefers: Number(localStorage.getItem("dogsTotalRefers")) || totalRefers || 0,
+        referralEarned: Number(localStorage.getItem("dogsReferralEarned")) || referralEarned || 0,
+        referralCode: user.referralCode || String(user.telegramId),
+        referralLink: "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode || String(user.telegramId)),
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
