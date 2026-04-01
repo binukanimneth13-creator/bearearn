@@ -998,246 +998,164 @@
     text-align: center;
   }
 
-  .top-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    gap: 12px;
-  }
-
-  .notify-btn {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    min-width: 42px;
-    border: none;
-    border-radius: 14px;
+  .ref-hero-card {
     background: #232326;
-    color: #fff;
-    cursor: pointer;
-    font-size: 20px;
+    border-radius: 24px;
     border: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .notify-badge {
-    position: absolute;
-    top: 6px;
-    right: 7px;
-    width: 8px;
-    height: 8px;
-    background: #f6c400;
-    border-radius: 50%;
-    box-shadow: 0 0 8px rgba(246,196,0,0.7);
-  }
-
-  .top-user-mini {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .top-user-mini-avatar {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 2px solid #f6c400;
-    background: #232326;
-    flex-shrink: 0;
-  }
-
-  .top-user-mini-info {
-    min-width: 0;
-  }
-
-  .top-user-mini-name {
-    color: #ffffff;
-    font-size: 14px;
-    font-weight: bold;
-    line-height: 1.3;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .top-user-mini-welcome {
-    color: #b4b4b8;
-    font-size: 12px;
-    line-height: 1.3;
-  }
-
-  .notify-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .notify-item {
-    background: #232326;
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 18px;
-    padding: 16px;
-  }
-
-  .notify-item-title {
-    color: #fff;
-    font-size: 15px;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
-
-  .notify-item-text {
-    color: #a8acba;
-    font-size: 14px;
-    line-height: 1.6;
-  }
-
-  .notify-item-time {
-    color: #8e93a6;
-    font-size: 12px;
-    margin-top: 8px;
-  }
-
-  .redeem-card {
-    background: #232326;
-    border-radius: 22px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 22px 16px;
-    margin-top: 6px;
-  }
-
-  .redeem-icon {
-    font-size: 38px;
+    padding: 24px 18px;
     text-align: center;
-    margin-bottom: 10px;
-  }
-
-  .redeem-title {
-    text-align: center;
-    color: #fff;
-    font-size: 18px;
-    font-weight: bold;
     margin-bottom: 18px;
   }
 
-  .redeem-row {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
+  .ref-hero-icon {
+    font-size: 36px;
+    margin-bottom: 10px;
   }
 
-  .redeem-input {
+  .ref-hero-number {
+    color: #f6c400;
+    font-size: 48px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .ref-hero-text {
+    color: #9fa4b5;
+    font-size: 14px;
+  }
+
+  .ref-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .ref-stat-card {
+    background: #232326;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 22px 16px;
+    text-align: center;
+  }
+
+  .ref-stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #f6c400;
+    margin-bottom: 8px;
+  }
+
+  .ref-stat-label {
+    color: #9fa4b5;
+    font-size: 14px;
+  }
+
+  .ref-link-card {
+    background: #232326;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 18px 16px;
+    margin-bottom: 18px;
+  }
+
+  .ref-link-title {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .ref-link-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .ref-link-input {
     flex: 1;
     background: #2d2d33;
     border: none;
     border-radius: 14px;
-    padding: 16px 14px;
+    padding: 14px 14px;
     color: #fff;
-    font-size: 16px;
+    font-size: 14px;
     outline: none;
   }
 
-  .redeem-btn {
+  .ref-copy-btn {
+    width: 56px;
+    min-width: 56px;
     border: none;
     border-radius: 14px;
-    padding: 16px 18px;
-    background: #555;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
     color: #111;
-    font-size: 16px;
+    font-size: 22px;
+    cursor: pointer;
     font-weight: bold;
-    cursor: not-allowed;
-    min-width: 88px;
-    transition: 0.3s ease;
   }
 
-  .redeem-btn.active {
-    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+  .ref-share-btn {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    background: #2d2d33;
+    color: #fff;
+    padding: 16px 14px;
+    font-size: 16px;
+    font-weight: bold;
     cursor: pointer;
   }
 
-  .redeem-channel-box {
-    background: #2a2a2f;
-    border-radius: 14px;
-    padding: 14px 14px;
-    margin-bottom: 18px;
-    color: #a8acba;
-    font-size: 14px;
-    line-height: 1.6;
+  .ref-history-card {
+    background: #232326;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 18px 16px;
   }
 
-  .redeem-channel-box a {
-    color: #f6c400;
-    text-decoration: underline;
+  .ref-history-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 30px;
   }
 
-  .redeem-history-title {
-    color: #9fa4b5;
-    font-size: 14px;
-    margin-bottom: 24px;
-  }
-
-  .redeem-empty-history {
+  .ref-history-empty {
     color: #7f8494;
     text-align: center;
     font-size: 14px;
     padding: 10px 0 20px;
   }
 
-  .redeem-status {
-    margin-top: 12px;
-    color: #f6c400;
-    font-size: 13px;
-    text-align: center;
-  }
-
-  .custom-popup-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.62);
-    z-index: 130;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  .custom-popup-card {
-    width: 100%;
-    max-width: 320px;
-    background: #232326;
-    border-radius: 22px;
-    padding: 24px 18px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-
-  .custom-popup-title {
-    color: #fff;
-    font-size: 20px;
-    font-weight: bold;
+  .ref-history-item {
+    background: #2a2a2f;
+    border-radius: 14px;
+    padding: 14px;
     margin-bottom: 10px;
   }
 
-  .custom-popup-text {
-    color: #a8acba;
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 18px;
+  .ref-history-item:last-child {
+    margin-bottom: 0;
   }
 
-  .custom-popup-btn {
-    border: none;
-    border-radius: 14px;
-    padding: 14px 18px;
-    background: linear-gradient(90deg, #ffcc00, #f59e0b);
-    color: #111;
-    font-size: 16px;
+  .ref-history-name {
+    color: #fff;
+    font-size: 14px;
     font-weight: bold;
-    cursor: pointer;
-    min-width: 120px;
+    margin-bottom: 4px;
+  }
+
+  .ref-history-time {
+    color: #9fa4b5;
+    font-size: 12px;
+  }
+
+  .ref-copy-status {
+    color: #f6c400;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 10px;
   }
 
   @media (max-width: 480px) {
@@ -1408,6 +1326,8 @@
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
+  let totalRefers = parseInt(localStorage.getItem("dogsTotalRefers")) || 0;
+  let referralEarned = parseInt(localStorage.getItem("dogsReferralEarned")) || 0;
 
   let dailyBonusAmount = 50;
   let dailyCooldown = 24 * 60 * 60 * 1000;
@@ -1887,6 +1807,44 @@
     return `<div class="tasks-grid">${cards}</div>`;
   }
 
+  function renderReferHistory() {
+    const referHistory = JSON.parse(localStorage.getItem("referHistory") || "[]");
+    if (referHistory.length === 0) {
+      return `<div class="ref-history-empty">No referrals yet</div>`;
+    }
+
+    return referHistory.map(function(item) {
+      return `
+        <div class="ref-history-item">
+          <div class="ref-history-name">${item.name}</div>
+          <div class="ref-history-time">${item.time}</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function getReferralLink() {
+    const user = window.currentTelegramUser || { telegramId: "guest_user" };
+    return "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.telegramId);
+  }
+
+  function copyReferralLink() {
+    const input = document.getElementById("referralLinkInput");
+    const status = document.getElementById("refCopyStatus");
+    if (!input || !status) return;
+
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    status.textContent = "Referral link copied!";
+  }
+
+  function shareReferralLink() {
+    const link = getReferralLink();
+    const shareText = encodeURIComponent("Join with my referral link and earn DOGS: " + link);
+    window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + shareText, "_blank");
+  }
+
   function openEarnWindow(type) {
     clearInterval(dailyTimerInterval);
     clearInterval(spinUnlockTimer);
@@ -1912,6 +1870,7 @@
     }
 
     if (type === "refer") {
+      const referralLink = getReferralLink();
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -1919,10 +1878,37 @@
             <button class="back-btn" onclick="backToEarn()">←</button>
             <div class="sub-page-title">Refer & Earn</div>
           </div>
-          <p>Invite your friends and earn reward for each referral.</p>
-          <div class="content-card">
-            <p><strong>Reward:</strong> 250 Dogs per referral</p>
-            <p style="margin-top:10px;"><strong>Your Link:</strong><br> https://example.com/ref123</p>
+
+          <div class="ref-hero-card">
+            <div class="ref-hero-icon">👥</div>
+            <div class="ref-hero-number">50</div>
+            <div class="ref-hero-text">Dogs per Referral</div>
+          </div>
+
+          <div class="ref-stats-grid">
+            <div class="ref-stat-card">
+              <div class="ref-stat-value">${totalRefers}</div>
+              <div class="ref-stat-label">Total Refers</div>
+            </div>
+            <div class="ref-stat-card">
+              <div class="ref-stat-value">${referralEarned}</div>
+              <div class="ref-stat-label">Total Earned</div>
+            </div>
+          </div>
+
+          <div class="ref-link-card">
+            <div class="ref-link-title">Your Referral Link</div>
+            <div class="ref-link-row">
+              <input class="ref-link-input" id="referralLinkInput" type="text" value="${referralLink}" readonly>
+              <button class="ref-copy-btn" onclick="copyReferralLink()">📋</button>
+            </div>
+            <button class="ref-share-btn" onclick="shareReferralLink()">🔗 Share via Telegram</button>
+            <div class="ref-copy-status" id="refCopyStatus"></div>
+          </div>
+
+          <div class="ref-history-card">
+            <div class="earn-guide-title" style="margin-bottom:18px;">📜 Refer History</div>
+            ${renderReferHistory()}
           </div>
         </div>
       `;
