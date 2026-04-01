@@ -159,6 +159,7 @@
     <button onclick="showSection('earnings')">Add Earnings</button>
     <button onclick="showSection('announcement')">Announcement</button>
     <button onclick="showSection('redeemCodes')">Redeem Codes</button>
+    <button onclick="showSection('referrals')">Referrals</button>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -263,6 +264,23 @@
         </table>
       </div>
     </div>
+
+    <div id="referrals" class="section hidden">
+      <h1>Referrals</h1>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Name</th>
+              <th>Link</th>
+              <th>Number of Referrals</th>
+            </tr>
+          </thead>
+          <tbody id="referralTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -310,6 +328,7 @@
       loadUsers();
       loadRedeemCodes();
       loadRedeemClaims();
+      loadReferrals();
     } else {
       document.getElementById("loginBox").classList.remove("hidden");
       document.getElementById("adminPanel").classList.add("hidden");
@@ -483,6 +502,30 @@
           <td>${claim.userId || "-"}</td>
           <td>${claim.name || "No Name"}</td>
           <td>${claim.claimedAt || "-"}</td>
+        </tr>
+      `;
+    });
+  }
+
+  async function loadReferrals() {
+    const referralTable = document.getElementById("referralTable");
+    referralTable.innerHTML = "";
+
+    const usersSnapshot = await getDocs(collection(db, "users"));
+
+    usersSnapshot.forEach(docSnap => {
+      const user = docSnap.data();
+      const userId = docSnap.id;
+      const name = user.name || "No Name";
+      const link = user.referralLink || ("https://t.me/your_bot_username?start=" + userId);
+      const referrals = user.referrals || 0;
+
+      referralTable.innerHTML += `
+        <tr>
+          <td>${userId}</td>
+          <td>${name}</td>
+          <td>${link}</td>
+          <td>${referrals}</td>
         </tr>
       `;
     });
