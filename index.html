@@ -405,48 +405,75 @@
     color: #fff;
   }
 
-  .home-header-row {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 14px;
-  }
-
-  .home-user-bar {
+  .top-actions {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
     gap: 12px;
+  }
+
+  .top-user-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     flex: 1;
     min-width: 0;
   }
 
-  .home-user-avatar {
-    width: 54px;
-    height: 54px;
+  .top-user-mini-avatar {
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid #f6c400;
     background: #232326;
+    flex-shrink: 0;
   }
 
-  .home-user-info {
-    flex: 1;
+  .top-user-mini-info {
     min-width: 0;
   }
 
-  .home-user-name {
+  .top-user-mini-name {
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: bold;
     line-height: 1.3;
-    word-break: break-word;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
-  .home-user-welcome {
+  .top-user-mini-welcome {
     color: #b4b4b8;
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .notify-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #232326;
+    color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .notify-badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(246,196,0,0.7);
   }
 
   .home-balance-card {
@@ -1117,12 +1144,18 @@
     border: none;
     border-radius: 14px;
     padding: 16px 18px;
-    background: #9a7416;
+    background: #555;
     color: #111;
     font-size: 16px;
     font-weight: bold;
-    cursor: pointer;
+    cursor: not-allowed;
     min-width: 88px;
+    transition: 0.3s ease;
+  }
+
+  .redeem-btn.active {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    cursor: pointer;
   }
 
   .redeem-channel-box {
@@ -1389,6 +1422,10 @@
   let spinCooldownTimer = null;
   let pendingSpinPrize = 0;
   let pendingSpinClaimed = false;
+
+  let redeemRedirectUrl = "https://example.com";
+  let redeemCountdownTimer = null;
+  let redeemPendingCode = "";
 
   const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
   const spinCooldownDuration = 2 * 60 * 1000;
@@ -1854,6 +1891,7 @@
     clearInterval(dailyTimerInterval);
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
+    clearInterval(redeemCountdownTimer);
     removeSpinPopup();
     removeCustomPopup();
 
@@ -1975,8 +2013,8 @@
             <div class="redeem-title">Redeem Code</div>
 
             <div class="redeem-row">
-              <input type="text" class="redeem-input" id="redeemCodeInput" placeholder="Enter code...">
-              <button class="redeem-btn" onclick="claimRedeemCode()">Claim</button>
+              <input type="text" class="redeem-input" id="redeemCodeInput" placeholder="Enter code..." oninput="toggleRedeemButton()">
+              <button class="redeem-btn" id="redeemClaimBtn" onclick="startRedeemCountdown()" disabled>Claim</button>
             </div>
 
             <div class="redeem-channel-box">
@@ -2043,10 +2081,26 @@
     applyTelegramUserToHome();
   }
 
-  async function claimRedeemCode() {
+  function toggleRedeemButton() {
     const input = document.getElementById("redeemCodeInput");
+    const btn = document.getElementById("redeemClaimBtn");
+    if (!input || !btn) return;
+
+    if (input.value.trim() !== "") {
+      btn.disabled = false;
+      btn.classList.add("active");
+    } else {
+      btn.disabled = true;
+      btn.classList.remove("active");
+    }
+  }
+
+  function startRedeemCountdown() {
+    const input = document.getElementById("redeemCodeInput");
+    const btn = document.getElementById("redeemClaimBtn");
     const status = document.getElementById("redeemStatusText");
-    if (!input || !status) return;
+
+    if (!input || !btn || !status) return;
 
     const codeValue = input.value.trim().toUpperCase();
     if (!codeValue) {
@@ -2054,14 +2108,57 @@
       return;
     }
 
+    redeemPendingCode = codeValue;
+    btn.disabled = true;
+    btn.classList.add("active");
+
+    let seconds = 10;
+    btn.textContent = "Wait " + seconds + "s";
+    status.textContent = "Redirecting... complete the 10 second countdown.";
+
+    window.open(redeemRedirectUrl, "_blank");
+
+    clearInterval(redeemCountdownTimer);
+    redeemCountdownTimer = setInterval(async function() {
+      seconds--;
+      btn.textContent = "Wait " + seconds + "s";
+
+      if (seconds <= 0) {
+        clearInterval(redeemCountdownTimer);
+        btn.textContent = "Claim";
+        status.textContent = "Checking code...";
+        await claimRedeemCode();
+      }
+    }, 1000);
+  }
+
+  async function claimRedeemCode() {
+    const input = document.getElementById("redeemCodeInput");
+    const status = document.getElementById("redeemStatusText");
+    const btn = document.getElementById("redeemClaimBtn");
+
+    if (!input || !status || !btn) return;
+
+    const codeValue = redeemPendingCode || input.value.trim().toUpperCase();
+    if (!codeValue) {
+      status.textContent = "Please enter a code.";
+      toggleRedeemButton();
+      return;
+    }
+
     status.textContent = "Checking code...";
 
     if (!window.handleRedeemCodeFromFirebase) {
       status.textContent = "Redeem system not ready.";
+      toggleRedeemButton();
       return;
     }
 
-    await window.handleRedeemCodeFromFirebase(codeValue);
+    const success = await window.handleRedeemCodeFromFirebase(codeValue);
+
+    if (!success) {
+      toggleRedeemButton();
+    }
   }
 
   function toggleTaskCard(taskId) {
@@ -2359,6 +2456,7 @@
     clearInterval(dailyTimerInterval);
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
+    clearInterval(redeemCountdownTimer);
     removeSpinPopup();
     removeCustomPopup();
     var earnNav = document.querySelectorAll(".nav-item")[1];
@@ -2426,7 +2524,7 @@
 
     if (!user || !user.telegramId) {
       showCustomPopup("Error", "User not found.");
-      return;
+      return false;
     }
 
     try {
@@ -2436,7 +2534,7 @@
       if (!codeSnap.exists()) {
         if (status) status.textContent = "";
         showCustomPopup("Invalid Code", "The code you entered is invalid.");
-        return;
+        return false;
       }
 
       const codeData = codeSnap.data();
@@ -2447,7 +2545,7 @@
       if (userClaimSnap.exists()) {
         if (status) status.textContent = "";
         showCustomPopup("Already Claimed", "You already claimed this code.");
-        return;
+        return false;
       }
 
       const userLimit = Number(codeData.userLimit || 0);
@@ -2457,7 +2555,7 @@
       if (userLimit > 0 && totalClaims >= userLimit) {
         if (status) status.textContent = "";
         showCustomPopup("Code Finished", "This code has already been fully claimed.");
-        return;
+        return false;
       }
 
       balance += rewardCoins;
@@ -2500,9 +2598,12 @@
 
       renderHomeLiveValues();
       openEarnWindow('redeem');
+      showCustomPopup("Success", "The code is correct and the amount is added to your balance.");
+      return true;
     } catch (error) {
       if (status) status.textContent = "";
       showCustomPopup("Error", error.message);
+      return false;
     }
   };
 
