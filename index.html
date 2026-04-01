@@ -1945,6 +1945,7 @@
 
     if (type === "refer") {
       const referralLink = getReferralLink();
+      const userIdValue = window.currentTelegramUser ? window.currentTelegramUser.telegramId : "guest_user";
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -1967,6 +1968,13 @@
             <div class="ref-stat-card">
               <div class="ref-stat-value">${referralEarned}</div>
               <div class="ref-stat-label">Total Earned</div>
+            </div>
+          </div>
+
+          <div class="ref-link-card">
+            <div class="ref-link-title">Your Telegram ID</div>
+            <div class="ref-link-row">
+              <input class="ref-link-input" type="text" value="${userIdValue}" readonly>
             </div>
           </div>
 
