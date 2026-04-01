@@ -1832,8 +1832,8 @@
   }
 
   function getReferralLink() {
-    const user = window.currentTelegramUser || { referralCode: "guest_user" };
-    return "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode);
+    const user = window.currentTelegramUser || { referralLink: "https://t.me/BearCoinNew_bot?start=guest_user" };
+    return user.referralLink || ("https://t.me/BearCoinNew_bot?start=" + encodeURIComponent(user.telegramId || "guest_user"));
   }
 
   function copyReferralLink() {
@@ -2490,45 +2490,37 @@
 
       const userRef = doc(db, "users", String(user.telegramId));
       const userSnap = await getDoc(userRef);
-
       const isNewUser = !userSnap.exists();
+
+      if (!isNewUser) return;
+
       const startParam = user.startParam || "";
+      if (!startParam.startsWith("ref_")) return;
 
-      if (isNewUser && startParam.startsWith("ref_")) {
-        const referrerId = startParam.replace("ref_", "").trim();
+      const referrerId = startParam.replace("ref_", "").trim();
+      if (!referrerId || referrerId === String(user.telegramId)) return;
 
-        if (referrerId && referrerId !== String(user.telegramId)) {
-          const referrerRef = doc(db, "users", referrerId);
-          const referrerSnap = await getDoc(referrerRef);
+      const referrerRef = doc(db, "users", referrerId);
+      const referrerSnap = await getDoc(referrerRef);
 
-          if (referrerSnap.exists()) {
-            const referrerData = referrerSnap.data();
-            const currentRefBalance = Number(referrerData.balance || 0);
-            const currentRefers = Number(referrerData.totalRefers || 0);
-            const currentRefEarned = Number(referrerData.referralEarned || 0);
+      if (!referrerSnap.exists()) return;
 
-            await updateDoc(referrerRef, {
-              balance: currentRefBalance + 100,
-              totalRefers: currentRefers + 1,
-              referralEarned: currentRefEarned + 100
-            });
+      const referrerData = referrerSnap.data();
+      const currentRefBalance = Number(referrerData.balance || 0);
+      const currentRefers = Number(referrerData.referrals || 0);
 
-            let localRefHistory = JSON.parse(localStorage.getItem("referHistory") || "[]");
-            let localRefers = parseInt(localStorage.getItem("dogsTotalRefers")) || 0;
-            let localReferralEarned = parseInt(localStorage.getItem("dogsReferralEarned")) || 0;
+      await updateDoc(referrerRef, {
+        balance: currentRefBalance + 100,
+        referrals: currentRefers + 1
+      });
 
-            if (String(window.currentTelegramUser.telegramId) === referrerId) {
-              localStorage.setItem("dogsTotalRefers", (localRefers + 1).toString());
-              localStorage.setItem("dogsReferralEarned", (localReferralEarned + 100).toString());
-              localRefHistory.unshift({
-                name: user.username || user.first_name || "New User",
-                time: new Date().toLocaleString()
-              });
-              localStorage.setItem("referHistory", JSON.stringify(localRefHistory));
-            }
-          }
-        }
-      }
+      const historyRef = doc(db, "referral_history", referrerId + "_" + String(user.telegramId));
+      await setDoc(historyRef, {
+        referrerId: referrerId,
+        newUserId: String(user.telegramId),
+        newUserName: user.username || user.first_name || "New User",
+        createdAt: new Date().toISOString()
+      });
     } catch (error) {
       console.log("Referral process error:", error.message);
     }
@@ -2542,30 +2534,49 @@
       const userRef = doc(db, "users", String(user.telegramId));
       const userSnap = await getDoc(userRef);
 
+      let existingReferrals = 0;
+      if (userSnap.exists()) {
+        existingReferrals = Number(userSnap.data().referrals || 0);
+      }
+
+      totalRefers = existingReferrals;
+      localStorage.setItem("dogsTotalRefers", totalRefers.toString());
+
       const userData = {
         telegramId: String(user.telegramId),
         username: user.rawUsername || "",
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: Number(localStorage.getItem("dogsBalance")) || balance || 160,
-        totalRefers: Number(localStorage.getItem("dogsTotalRefers")) || totalRefers || 0,
-        referralEarned: Number(localStorage.getItem("dogsReferralEarned")) || referralEarned || 0,
-        referralCode: user.referralCode || String(user.telegramId),
-        referralLink: "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode || String(user.telegramId)),
+        referrals: existingReferrals,
+        referralLink: "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId),
         lastSeen: new Date().toISOString()
       };
 
       if (!userSnap.exists()) {
         userData.createdAt = new Date().toISOString();
-      } else {
-        const oldData = userSnap.data();
-        totalRefers = Number(oldData.totalRefers || totalRefers || 0);
-        referralEarned = Number(oldData.referralEarned || referralEarned || 0);
-        localStorage.setItem("dogsTotalRefers", totalRefers.toString());
-        localStorage.setItem("dogsReferralEarned", referralEarned.toString());
       }
 
       await setDoc(userRef, userData, { merge: true });
+
+      const historyQuery = query(collection(db, "referral_history"), orderBy("createdAt", "desc"));
+      const historySnap = await getDocs(historyQuery);
+
+      let myHistory = [];
+      historySnap.forEach((docSnap) => {
+        const item = docSnap.data();
+        if (String(item.referrerId) === String(user.telegramId)) {
+          myHistory.push({
+            name: item.newUserName || "New User",
+            time: formatDate(item.createdAt)
+          });
+        }
+      });
+
+      localStorage.setItem("referHistory", JSON.stringify(myHistory));
+      referralEarned = existingReferrals * 100;
+      localStorage.setItem("dogsReferralEarned", referralEarned.toString());
+
     } catch (error) {
       console.log("User save error:", error.message);
     }
@@ -2625,10 +2636,8 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: balance,
-        totalRefers: Number(localStorage.getItem("dogsTotalRefers")) || totalRefers || 0,
-        referralEarned: Number(localStorage.getItem("dogsReferralEarned")) || referralEarned || 0,
-        referralCode: user.referralCode || String(user.telegramId),
-        referralLink: "https://t.me/Freedogspaybot1422Bot?startapp=ref_" + encodeURIComponent(user.referralCode || String(user.telegramId)),
+        referrals: totalRefers,
+        referralLink: "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId),
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
