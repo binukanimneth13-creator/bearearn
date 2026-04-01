@@ -273,7 +273,7 @@
             <tr>
               <th>User ID</th>
               <th>Name</th>
-              <th>Link</th>
+              <th>Code</th>
               <th>Number of Referrals</th>
             </tr>
           </thead>
@@ -517,14 +517,14 @@
       const user = docSnap.data();
       const userId = docSnap.id;
       const name = user.name || "No Name";
-      const link = user.referralLink || ("https://t.me/BearCoinNew_bot?start=" + userId);
+      const code = userId;
       const referrals = user.referrals || 0;
 
       referralTable.innerHTML += `
         <tr>
           <td>${userId}</td>
           <td>${name}</td>
-          <td>${link}</td>
+          <td>${code}</td>
           <td>${referrals}</td>
         </tr>
       `;
