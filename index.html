@@ -1240,68 +1240,87 @@
     min-width: 120px;
   }
 
-  .watchads-card {
-    margin-top: 10px;
+  .watchads-panel {
+    margin-top: 6px;
     background: #232326;
-    border-radius: 24px;
-    padding: 18px 16px;
+    border-radius: 26px;
     border: 1px solid rgba(255,255,255,0.05);
+    padding: 26px 16px 18px;
+    text-align: center;
   }
 
-  .watchads-item {
+  .watchads-big-icon {
+    font-size: 42px;
+    margin-bottom: 14px;
+  }
+
+  .watchads-reward-title {
+    color: #ffc61a;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .watchads-reward-sub {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  .watchads-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .watchads-stat-box {
+    background: #2b2b31;
+    border-radius: 20px;
+    padding: 18px 12px 16px;
+  }
+
+  .watchads-stat-value {
+    color: #fff;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .watchads-stat-label {
+    color: #9fa4b5;
+    font-size: 13px;
+  }
+
+  .watchads-main-btn {
     width: 100%;
     border: none;
-    background: #1f1f23;
-    border-radius: 20px;
-    padding: 18px 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #fff;
     cursor: pointer;
-    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 20px;
+    padding: 20px 16px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #111;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    transition: all 0.25s ease;
   }
 
-  .watchads-item:hover {
-    background: #26262b;
+  .watchads-main-btn:hover {
+    transform: scale(1.01);
   }
 
-  .watchads-left {
-    display: flex;
-    align-items: center;
-    gap: 14px;
+  .watchads-main-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.75;
+    transform: none;
   }
 
-  .watchads-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 14px;
-    background: #313137;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
-  }
-
-  .watchads-text strong {
-    display: block;
-    font-size: 16px;
-    color: #fff;
-    margin-bottom: 3px;
-  }
-
-  .watchads-text span {
-    display: block;
-    font-size: 13px;
-    color: #a8acba;
-  }
-
-  .watchads-arrow {
-    color: #9ca0af;
-    font-size: 28px;
-    line-height: 1;
-    margin-left: 10px;
+  .watchads-status {
+    margin-top: 14px;
+    color: #f6c400;
+    font-size: 14px;
+    font-weight: bold;
+    min-height: 20px;
   }
 
   @media (max-width: 480px) {
@@ -1360,7 +1379,7 @@
       <div class="home-stats-grid">
         <div class="home-stat-card">
           <div class="home-stat-title">Total Ads Watched</div>
-          <div class="home-stat-value">0</div>
+          <div class="home-stat-value" id="homeAdsWatchedValue">0</div>
         </div>
 
         <div class="home-stat-card">
@@ -1472,6 +1491,7 @@
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
+  let totalAdsWatched = parseInt(localStorage.getItem("dogsTotalAdsWatched")) || 0;
 
   let dailyBonusAmount = 50;
   let dailyCooldown = 24 * 60 * 60 * 1000;
@@ -1490,6 +1510,12 @@
   let redeemRedirectUrl = "https://example.com";
   let redeemCountdownTimer = null;
   let redeemPendingCode = "";
+
+  let watchAdsRedirectUrl = "https://example.com";
+  let watchAdsReward = 5;
+  let watchAdsHourlyLimit = 100;
+  let watchAdsDailyLimit = 1000;
+  let watchAdsCountdownTimer = null;
 
   const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
   const spinCooldownDuration = 2 * 60 * 1000;
@@ -1673,9 +1699,11 @@
     var balanceEl = document.getElementById("homeBalanceValue");
     var earnedEl = document.getElementById("homeEarnedValue");
     var spinnedEl = document.getElementById("homeSpinnedValue");
+    var adsEl = document.getElementById("homeAdsWatchedValue");
     if (balanceEl) balanceEl.textContent = balance;
     if (earnedEl) earnedEl.textContent = totalEarned;
     if (spinnedEl) spinnedEl.textContent = totalSpinned;
+    if (adsEl) adsEl.textContent = totalAdsWatched;
   }
 
   function formatDate(dateString) {
@@ -1717,6 +1745,148 @@
     showTab('home', homeNav);
   }
 
+  function getWatchAdsState() {
+    const now = Date.now();
+
+    let dailyStart = parseInt(localStorage.getItem("watchAdsDailyStart")) || 0;
+    let dailyCount = parseInt(localStorage.getItem("watchAdsDailyCount")) || 0;
+
+    if (!dailyStart || (now - dailyStart) >= 24 * 60 * 60 * 1000) {
+      dailyStart = now;
+      dailyCount = 0;
+      localStorage.setItem("watchAdsDailyStart", dailyStart.toString());
+      localStorage.setItem("watchAdsDailyCount", dailyCount.toString());
+    }
+
+    let hourlyStart = parseInt(localStorage.getItem("watchAdsHourlyStart")) || 0;
+    let hourlyCount = parseInt(localStorage.getItem("watchAdsHourlyCount")) || 0;
+
+    if (!hourlyStart || (now - hourlyStart) >= 60 * 60 * 1000) {
+      hourlyStart = now;
+      hourlyCount = 0;
+      localStorage.setItem("watchAdsHourlyStart", hourlyStart.toString());
+      localStorage.setItem("watchAdsHourlyCount", hourlyCount.toString());
+    }
+
+    return {
+      now: now,
+      dailyStart: dailyStart,
+      dailyCount: dailyCount,
+      dailyLeft: Math.max(0, watchAdsDailyLimit - dailyCount),
+      hourlyStart: hourlyStart,
+      hourlyCount: hourlyCount,
+      hourlyLeft: Math.max(0, watchAdsHourlyLimit - hourlyCount)
+    };
+  }
+
+  function updateWatchAdsUI() {
+    const state = getWatchAdsState();
+    const hourlyEl = document.getElementById("watchAdsHourlyLeft");
+    const dailyEl = document.getElementById("watchAdsDailyLeft");
+    const btn = document.getElementById("watchAdsBtn");
+    const status = document.getElementById("watchAdsStatusText");
+
+    if (hourlyEl) hourlyEl.textContent = state.hourlyLeft;
+    if (dailyEl) dailyEl.textContent = state.dailyLeft;
+
+    if (!btn || !status) return;
+
+    if (state.dailyLeft <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Daily Limit Reached";
+      status.textContent = "Daily limit reached. Resets after 24 hours.";
+      return;
+    }
+
+    if (state.hourlyLeft <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Hourly Limit Reached";
+      status.textContent = "Hourly limit reached. Resets after 1 hour.";
+      return;
+    }
+
+    if (!btn.getAttribute("data-counting")) {
+      btn.disabled = false;
+      btn.textContent = "▷ Watch Ad";
+      status.textContent = "";
+    }
+  }
+
+  function startWatchAd() {
+    const state = getWatchAdsState();
+    const btn = document.getElementById("watchAdsBtn");
+    const status = document.getElementById("watchAdsStatusText");
+
+    if (!btn || !status) return;
+
+    if (state.dailyLeft <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Daily Limit Reached";
+      status.textContent = "Daily limit reached. Resets after 24 hours.";
+      return;
+    }
+
+    if (state.hourlyLeft <= 0) {
+      btn.disabled = true;
+      btn.textContent = "Hourly Limit Reached";
+      status.textContent = "Hourly limit reached. Resets after 1 hour.";
+      return;
+    }
+
+    btn.disabled = true;
+    btn.setAttribute("data-counting", "1");
+
+    let seconds = 10;
+    btn.textContent = "Wait " + seconds + "s";
+    status.textContent = "Redirecting... complete the 10 second countdown.";
+
+    window.open(watchAdsRedirectUrl, "_blank");
+
+    clearInterval(watchAdsCountdownTimer);
+    watchAdsCountdownTimer = setInterval(function() {
+      seconds--;
+      btn.textContent = "Wait " + seconds + "s";
+
+      if (seconds <= 0) {
+        clearInterval(watchAdsCountdownTimer);
+        completeWatchAdReward();
+      }
+    }, 1000);
+  }
+
+  function completeWatchAdReward() {
+    const btn = document.getElementById("watchAdsBtn");
+    const status = document.getElementById("watchAdsStatusText");
+
+    let state = getWatchAdsState();
+
+    state.dailyCount += 1;
+    state.hourlyCount += 1;
+
+    localStorage.setItem("watchAdsDailyCount", state.dailyCount.toString());
+    localStorage.setItem("watchAdsHourlyCount", state.hourlyCount.toString());
+
+    balance += watchAdsReward;
+    totalEarned += watchAdsReward;
+    totalAdsWatched += 1;
+
+    localStorage.setItem("dogsBalance", balance.toString());
+    localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+    localStorage.setItem("dogsTotalAdsWatched", totalAdsWatched.toString());
+
+    renderHomeLiveValues();
+
+    if (btn) {
+      btn.removeAttribute("data-counting");
+    }
+
+    if (status) {
+      status.textContent = "+" + watchAdsReward + " DOGS added successfully.";
+    }
+
+    updateWatchAdsUI();
+  }
+
   function showTab(tab, element) {
     var content = document.getElementById("content-area");
     var navItems = document.querySelectorAll(".nav-item");
@@ -1745,7 +1915,7 @@
           <div class="home-stats-grid">
             <div class="home-stat-card">
               <div class="home-stat-title">Total Ads Watched</div>
-              <div class="home-stat-value">0</div>
+              <div class="home-stat-value" id="homeAdsWatchedValue">${totalAdsWatched}</div>
             </div>
 
             <div class="home-stat-card">
@@ -1827,7 +1997,7 @@
                 <div class="earn-icon">📺</div>
                 <div class="earn-text">
                   <strong>Watch Ads</strong>
-                  <span>Earn 10 Dogs/Ad</span>
+                  <span>Earn 5 Dogs/Ad</span>
                 </div>
               </div>
               <div class="earn-arrow">›</div>
@@ -1968,6 +2138,7 @@
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
     clearInterval(redeemCountdownTimer);
+    clearInterval(watchAdsCountdownTimer);
     removeSpinPopup();
     removeCustomPopup();
 
@@ -1975,6 +2146,8 @@
     let html = "";
 
     if (type === "watchads") {
+      const state = getWatchAdsState();
+
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -1983,29 +2156,43 @@
             <div class="sub-page-title">Watch Ads</div>
           </div>
 
-          <div class="watchads-card">
-            <button class="watchads-item">
-              <div class="watchads-left">
-                <div class="watchads-icon">📺</div>
-                <div class="watchads-text">
-                  <strong>Watch Ads</strong>
-                  <span>Earn 10 Dogs/Ad</span>
-                </div>
+          <div class="watchads-panel">
+            <div class="watchads-big-icon">📺</div>
+            <div class="watchads-reward-title">5 DOGS</div>
+            <div class="watchads-reward-sub">per ad watched</div>
+
+            <div class="watchads-stats">
+              <div class="watchads-stat-box">
+                <div class="watchads-stat-value" id="watchAdsHourlyLeft">${state.hourlyLeft}</div>
+                <div class="watchads-stat-label">Hourly Left</div>
               </div>
-              <div class="watchads-arrow">›</div>
-            </button>
+              <div class="watchads-stat-box">
+                <div class="watchads-stat-value" id="watchAdsDailyLeft">${state.dailyLeft}</div>
+                <div class="watchads-stat-label">Daily Left</div>
+              </div>
+            </div>
+
+            <button class="watchads-main-btn" id="watchAdsBtn" onclick="startWatchAd()">▷ Watch Ad</button>
+            <div class="watchads-status" id="watchAdsStatusText"></div>
           </div>
 
           <div class="earn-guide">
             <div class="earn-guide-title">📺 Watch Ads Guide</div>
             <ul class="earn-guide-list">
-              <li>Open ad and complete the watch duration.</li>
-              <li>Earn 10 DOGS for each completed ad.</li>
-              <li>More ad rewards can be added later.</li>
+              <li>Watch ads to earn DOGS coins instantly.</li>
+              <li>You can watch up to 100 ads per hour and 1000 per day.</li>
+              <li>After watching, reward is added automatically after 10 seconds.</li>
+              <li>Hourly limit resets every 1 hour.</li>
+              <li>Daily limit resets after 24 hours.</li>
             </ul>
           </div>
         </div>
       `;
+
+      content.innerHTML = html;
+      applyTelegramUserToHome();
+      updateWatchAdsUI();
+      return;
     }
 
     if (type === "tasks") {
@@ -2567,6 +2754,7 @@
     clearInterval(spinUnlockTimer);
     clearInterval(spinCooldownTimer);
     clearInterval(redeemCountdownTimer);
+    clearInterval(watchAdsCountdownTimer);
     removeSpinPopup();
     removeCustomPopup();
     var earnNav = document.querySelectorAll(".nav-item")[1];
