@@ -998,213 +998,310 @@
     text-align: center;
   }
 
-  .ref-hero-card {
-    background: #232326;
-    border-radius: 24px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 24px 18px;
-    text-align: center;
-    margin-bottom: 18px;
+  .top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
   }
 
-  .ref-hero-icon {
-    font-size: 36px;
+  .notify-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #232326;
+    color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .notify-badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(246,196,0,0.7);
+  }
+
+  .top-user-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .top-user-mini-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f6c400;
+    background: #232326;
+    flex-shrink: 0;
+  }
+
+  .top-user-mini-info {
+    min-width: 0;
+  }
+
+  .top-user-mini-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-user-mini-welcome {
+    color: #b4b4b8;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .notify-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .notify-item {
+    background: #232326;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 18px;
+    padding: 16px;
+  }
+
+  .notify-item-title {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .notify-item-text {
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .notify-item-time {
+    color: #8e93a6;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .redeem-card {
+    background: #232326;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 22px 16px;
+    margin-top: 6px;
+  }
+
+  .redeem-icon {
+    font-size: 38px;
+    text-align: center;
     margin-bottom: 10px;
   }
 
-  .ref-hero-number {
-    color: #f6c400;
-    font-size: 48px;
-    font-weight: bold;
-    line-height: 1;
-    margin-bottom: 8px;
-  }
-
-  .ref-hero-text {
-    color: #9fa4b5;
-    font-size: 14px;
-  }
-
-  .ref-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 18px;
-  }
-
-  .ref-stat-card {
-    background: #232326;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 22px 16px;
+  .redeem-title {
     text-align: center;
-  }
-
-  .ref-stat-value {
-    font-size: 24px;
+    color: #fff;
+    font-size: 18px;
     font-weight: bold;
-    color: #f6c400;
-    margin-bottom: 8px;
-  }
-
-  .ref-stat-label {
-    color: #9fa4b5;
-    font-size: 14px;
-  }
-
-  .ref-link-card {
-    background: #232326;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 18px 16px;
     margin-bottom: 18px;
   }
 
-  .ref-link-title {
-    color: #9fa4b5;
-    font-size: 14px;
-    margin-bottom: 12px;
-  }
-
-  .ref-link-row {
+  .redeem-row {
     display: flex;
     gap: 10px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
   }
 
-  .ref-link-input {
+  .redeem-input {
     flex: 1;
     background: #2d2d33;
     border: none;
     border-radius: 14px;
-    padding: 14px 14px;
+    padding: 16px 14px;
     color: #fff;
-    font-size: 14px;
+    font-size: 16px;
     outline: none;
   }
 
-  .ref-copy-btn {
-    width: 56px;
-    min-width: 56px;
+  .redeem-btn {
     border: none;
     border-radius: 14px;
-    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    padding: 16px 18px;
+    background: #555;
     color: #111;
-    font-size: 22px;
-    cursor: pointer;
+    font-size: 16px;
     font-weight: bold;
+    cursor: not-allowed;
+    min-width: 88px;
+    transition: 0.3s ease;
   }
 
-  .ref-share-btn {
-    width: 100%;
-    border: none;
+  .redeem-btn.active {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    cursor: pointer;
+  }
+
+  .redeem-channel-box {
+    background: #2a2a2f;
     border-radius: 14px;
-    background: #2d2d33;
-    color: #fff;
-    padding: 16px 14px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
+    padding: 14px 14px;
+    margin-bottom: 18px;
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.6;
   }
 
-  .ref-history-card {
-    background: #232326;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 18px 16px;
+  .redeem-channel-box a {
+    color: #f6c400;
+    text-decoration: underline;
   }
 
-  .ref-history-title {
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 30px;
+  .redeem-history-title {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 24px;
   }
 
-  .ref-history-empty {
+  .redeem-empty-history {
     color: #7f8494;
     text-align: center;
     font-size: 14px;
     padding: 10px 0 20px;
   }
 
-  .ref-history-item {
-    background: #2a2a2f;
-    border-radius: 14px;
-    padding: 14px;
+  .redeem-status {
+    margin-top: 12px;
+    color: #f6c400;
+    font-size: 13px;
+    text-align: center;
+  }
+
+  .custom-popup-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.62);
+    z-index: 130;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .custom-popup-card {
+    width: 100%;
+    max-width: 320px;
+    background: #232326;
+    border-radius: 22px;
+    padding: 24px 18px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .custom-popup-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
     margin-bottom: 10px;
   }
 
-  .ref-history-item:last-child {
-    margin-bottom: 0;
-  }
-
-  .ref-history-name {
-    color: #fff;
+  .custom-popup-text {
+    color: #a8acba;
     font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
-
-  .ref-history-time {
-    color: #9fa4b5;
-    font-size: 12px;
-  }
-
-  .ref-copy-status {
-    color: #f6c400;
-    font-size: 13px;
-    text-align: center;
-    margin-top: 10px;
-  }
-
-  .ref-extra-card {
-    background: #232326;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.05);
-    padding: 18px 16px;
+    line-height: 1.6;
     margin-bottom: 18px;
   }
 
-  .ref-extra-title {
-    color: #9fa4b5;
-    font-size: 14px;
-    margin-bottom: 12px;
-  }
-
-  .ref-extra-row {
-    display: flex;
-    gap: 10px;
-  }
-
-  .ref-extra-input {
-    flex: 1;
-    background: #2d2d33;
+  .custom-popup-btn {
     border: none;
     border-radius: 14px;
-    padding: 14px 14px;
-    color: #fff;
-    font-size: 14px;
-    outline: none;
-  }
-
-  .ref-extra-btn {
-    min-width: 90px;
-    border: none;
-    border-radius: 14px;
+    padding: 14px 18px;
     background: linear-gradient(90deg, #ffcc00, #f59e0b);
     color: #111;
-    padding: 14px 16px;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: bold;
     cursor: pointer;
+    min-width: 120px;
   }
 
-  .ref-extra-status {
-    color: #f6c400;
-    font-size: 13px;
-    text-align: center;
+  .watchads-card {
     margin-top: 10px;
+    background: #232326;
+    border-radius: 24px;
+    padding: 18px 16px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .watchads-item {
+    width: 100%;
+    border: none;
+    background: #1f1f23;
+    border-radius: 20px;
+    padding: 18px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .watchads-item:hover {
+    background: #26262b;
+  }
+
+  .watchads-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .watchads-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #313137;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .watchads-text strong {
+    display: block;
+    font-size: 16px;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .watchads-text span {
+    display: block;
+    font-size: 13px;
+    color: #a8acba;
+  }
+
+  .watchads-arrow {
+    color: #9ca0af;
+    font-size: 28px;
+    line-height: 1;
+    margin-left: 10px;
   }
 
   @media (max-width: 480px) {
@@ -1375,8 +1472,6 @@
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
-  let totalRefers = parseInt(localStorage.getItem("dogsTotalRefers")) || 0;
-  let referralEarned = parseInt(localStorage.getItem("dogsReferralEarned")) || 0;
 
   let dailyBonusAmount = 50;
   let dailyCooldown = 24 * 60 * 60 * 1000;
@@ -1468,15 +1563,12 @@
 
   window.addEventListener("load", function() {
     initTelegramUser();
-    setTimeout(async function() {
+    setTimeout(function() {
       document.getElementById("loadingScreen").classList.add("hide");
       renderHomeLiveValues();
       applyTelegramUserToHome();
-      if (window.processReferralRegistration) {
-        await window.processReferralRegistration();
-      }
       if (window.saveTelegramUserToFirebase) {
-        await window.saveTelegramUserToFirebase();
+        window.saveTelegramUserToFirebase();
       }
     }, 3000);
   });
@@ -1488,10 +1580,7 @@
       rawUsername: "guest_user",
       first_name: "Guest",
       last_name: "",
-      photo_url: "https://ui-avatars.com/api/?name=G&background=232326&color=fff",
-      referralCode: "guest_user",
-      startParam: "",
-      referralLink: "https://t.me/BearCoinNew_bot?start=guest_user"
+      photo_url: "https://ui-avatars.com/api/?name=G&background=232326&color=fff"
     };
 
     try {
@@ -1501,18 +1590,16 @@
         tg.expand();
 
         const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
-        const startParam = tg.initDataUnsafe && tg.initDataUnsafe.start_param ? tg.initDataUnsafe.start_param : "";
 
         if (user) {
           let usernameText = "@guest_user";
           let rawUsername = "guest_user";
-          let telegramId = String(user.id || "guest_user");
 
           if (user.username && user.username.trim() !== "") {
             rawUsername = user.username;
             usernameText = "@" + user.username;
           } else if (user.first_name) {
-            rawUsername = telegramId;
+            rawUsername = String(user.id || "user");
             usernameText = user.first_name;
           }
 
@@ -1527,15 +1614,12 @@
             avatarUrl = "https://ui-avatars.com/api/?name=U&background=232326&color=fff";
           }
 
-          tgUser.telegramId = telegramId;
+          tgUser.telegramId = String(user.id || rawUsername);
           tgUser.username = usernameText;
           tgUser.rawUsername = rawUsername;
           tgUser.first_name = user.first_name || "User";
           tgUser.last_name = user.last_name || "";
           tgUser.photo_url = avatarUrl;
-          tgUser.referralCode = telegramId;
-          tgUser.startParam = startParam || "";
-          tgUser.referralLink = "https://t.me/BearCoinNew_bot?start=" + telegramId;
         }
       }
     } catch (e) {}
@@ -1666,7 +1750,7 @@
 
             <div class="home-stat-card">
               <div class="home-stat-title">Total Referrals</div>
-              <div class="home-stat-value">${totalRefers}</div>
+              <div class="home-stat-value">0</div>
             </div>
 
             <div class="home-stat-card">
@@ -1737,6 +1821,7 @@
           ${renderTopButton()}
           <h2>Earn Dogs</h2>
           <div class="earn-list">
+
             <button class="earn-item" onclick="openEarnWindow('watchads')">
               <div class="earn-left">
                 <div class="earn-icon">📺</div>
@@ -1878,58 +1963,6 @@
     return `<div class="tasks-grid">${cards}</div>`;
   }
 
-  function renderReferHistory() {
-    const referHistory = JSON.parse(localStorage.getItem("referHistory") || "[]");
-    if (referHistory.length === 0) {
-      return `<div class="ref-history-empty">No referrals yet</div>`;
-    }
-
-    return referHistory.map(function(item) {
-      return `
-        <div class="ref-history-item">
-          <div class="ref-history-name">${item.name}</div>
-          <div class="ref-history-time">${item.time}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  function getReferralLink() {
-    const user = window.currentTelegramUser || { referralLink: "https://t.me/BearCoinNew_bot?start=guest_user" };
-    return user.referralLink || ("https://t.me/BearCoinNew_bot?start=" + encodeURIComponent(user.telegramId || "guest_user"));
-  }
-
-  function copyReferralLink() {
-    const input = document.getElementById("referralLinkInput");
-    const status = document.getElementById("refCopyStatus");
-    if (!input || !status) return;
-
-    input.select();
-    input.setSelectionRange(0, 99999);
-    document.execCommand("copy");
-    status.textContent = "Referral link copied!";
-  }
-
-  function shareReferralLink() {
-    const link = getReferralLink();
-    window.open("https://t.me/share/url?url=" + encodeURIComponent(link) + "&text=" + encodeURIComponent("Join with my referral link and earn DOGS!"), "_blank");
-  }
-
-  function submitReferralExtra() {
-    const input = document.getElementById("refExtraInput");
-    const status = document.getElementById("refExtraStatus");
-    if (!input || !status) return;
-
-    const value = input.value.trim();
-    if (!value) {
-      status.textContent = "Please enter something first.";
-      return;
-    }
-
-    status.textContent = "Submitted: " + value;
-    input.value = "";
-  }
-
   function openEarnWindow(type) {
     clearInterval(dailyTimerInterval);
     clearInterval(spinUnlockTimer);
@@ -1950,9 +1983,26 @@
             <div class="sub-page-title">Watch Ads</div>
           </div>
 
-          <div class="content-card">
-            <p><strong>Watch Ads</strong></p>
-            <p>Earn 10 Dogs per ad. Ad system can be connected here later.</p>
+          <div class="watchads-card">
+            <button class="watchads-item">
+              <div class="watchads-left">
+                <div class="watchads-icon">📺</div>
+                <div class="watchads-text">
+                  <strong>Watch Ads</strong>
+                  <span>Earn 10 Dogs/Ad</span>
+                </div>
+              </div>
+              <div class="watchads-arrow">›</div>
+            </button>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">📺 Watch Ads Guide</div>
+            <ul class="earn-guide-list">
+              <li>Open ad and complete the watch duration.</li>
+              <li>Earn 10 DOGS for each completed ad.</li>
+              <li>More ad rewards can be added later.</li>
+            </ul>
           </div>
         </div>
       `;
@@ -1972,8 +2022,6 @@
     }
 
     if (type === "refer") {
-      const referralLink = getReferralLink();
-      const userIdValue = window.currentTelegramUser ? window.currentTelegramUser.telegramId : "guest_user";
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -1981,53 +2029,10 @@
             <button class="back-btn" onclick="backToEarn()">←</button>
             <div class="sub-page-title">Refer & Earn</div>
           </div>
-
-          <div class="ref-hero-card">
-            <div class="ref-hero-icon">👥</div>
-            <div class="ref-hero-number">100</div>
-            <div class="ref-hero-text">Dogs per Referral</div>
-          </div>
-
-          <div class="ref-stats-grid">
-            <div class="ref-stat-card">
-              <div class="ref-stat-value">${totalRefers}</div>
-              <div class="ref-stat-label">Total Refers</div>
-            </div>
-            <div class="ref-stat-card">
-              <div class="ref-stat-value">${referralEarned}</div>
-              <div class="ref-stat-label">Total Earned</div>
-            </div>
-          </div>
-
-          <div class="ref-link-card">
-            <div class="ref-link-title">Your Telegram ID</div>
-            <div class="ref-link-row">
-              <input class="ref-link-input" type="text" value="${userIdValue}" readonly>
-            </div>
-          </div>
-
-          <div class="ref-link-card">
-            <div class="ref-link-title">Your Referral Link</div>
-            <div class="ref-link-row">
-              <input class="ref-link-input" id="referralLinkInput" type="text" value="${referralLink}" readonly>
-              <button class="ref-copy-btn" onclick="copyReferralLink()">📋</button>
-            </div>
-            <button class="ref-share-btn" onclick="shareReferralLink()">🔗 Share via Telegram</button>
-            <div class="ref-copy-status" id="refCopyStatus"></div>
-          </div>
-
-          <div class="ref-extra-card">
-            <div class="ref-extra-title">Extra Input</div>
-            <div class="ref-extra-row">
-              <input class="ref-extra-input" id="refExtraInput" type="text" placeholder="Enter something...">
-              <button class="ref-extra-btn" onclick="submitReferralExtra()">Submit</button>
-            </div>
-            <div class="ref-extra-status" id="refExtraStatus"></div>
-          </div>
-
-          <div class="ref-history-card">
-            <div class="earn-guide-title" style="margin-bottom:18px;">📜 Refer History</div>
-            ${renderReferHistory()}
+          <p>Invite your friends and earn reward for each referral.</p>
+          <div class="content-card">
+            <p><strong>Reward:</strong> 250 Dogs per referral</p>
+            <p style="margin-top:10px;"><strong>Your Link:</strong><br> https://example.com/ref123</p>
           </div>
         </div>
       `;
@@ -2595,49 +2600,6 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
-  window.processReferralRegistration = async function() {
-    try {
-      const user = window.currentTelegramUser;
-      if (!user || !user.telegramId) return;
-
-      const userRef = doc(db, "users", String(user.telegramId));
-      const userSnap = await getDoc(userRef);
-      const isNewUser = !userSnap.exists();
-
-      if (!isNewUser) return;
-
-      const startParam = user.startParam || "";
-      if (!startParam.startsWith("ref_")) return;
-
-      const referrerId = startParam.replace("ref_", "").trim();
-      if (!referrerId || referrerId === String(user.telegramId)) return;
-
-      const referrerRef = doc(db, "users", referrerId);
-      const referrerSnap = await getDoc(referrerRef);
-
-      if (!referrerSnap.exists()) return;
-
-      const referrerData = referrerSnap.data();
-      const currentRefBalance = Number(referrerData.balance || 0);
-      const currentRefers = Number(referrerData.referrals || 0);
-
-      await updateDoc(referrerRef, {
-        balance: currentRefBalance + 100,
-        referrals: currentRefers + 1
-      });
-
-      const historyRef = doc(db, "referral_history", referrerId + "_" + String(user.telegramId));
-      await setDoc(historyRef, {
-        referrerId: referrerId,
-        newUserId: String(user.telegramId),
-        newUserName: user.username || user.first_name || "New User",
-        createdAt: new Date().toISOString()
-      });
-    } catch (error) {
-      console.log("Referral process error:", error.message);
-    }
-  };
-
   window.saveTelegramUserToFirebase = async function() {
     try {
       const user = window.currentTelegramUser;
@@ -2646,30 +2608,12 @@
       const userRef = doc(db, "users", String(user.telegramId));
       const userSnap = await getDoc(userRef);
 
-      let existingReferrals = 0;
-      let existingReferralLink = "https://t.me/BearCoinNew_bot?start=" + String(user.telegramId);
-
-      if (userSnap.exists()) {
-        existingReferrals = Number(userSnap.data().referrals || 0);
-        existingReferralLink = userSnap.data().referralLink || existingReferralLink;
-      }
-
-      totalRefers = existingReferrals;
-      referralEarned = existingReferrals * 100;
-      localStorage.setItem("dogsTotalRefers", totalRefers.toString());
-      localStorage.setItem("dogsReferralEarned", referralEarned.toString());
-
-      user.referralLink = existingReferralLink;
-      window.currentTelegramUser = user;
-
       const userData = {
         telegramId: String(user.telegramId),
         username: user.rawUsername || "",
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
-        balance: Number(localStorage.getItem("dogsBalance")) || balance || 160,
-        referrals: existingReferrals,
-        referralLink: existingReferralLink,
+        balance: Number(localStorage.getItem("dogsBalance")) || 160,
         lastSeen: new Date().toISOString()
       };
 
@@ -2678,22 +2622,6 @@
       }
 
       await setDoc(userRef, userData, { merge: true });
-
-      const historyQuery = query(collection(db, "referral_history"), orderBy("createdAt", "desc"));
-      const historySnap = await getDocs(historyQuery);
-
-      let myHistory = [];
-      historySnap.forEach((docSnap) => {
-        const item = docSnap.data();
-        if (String(item.referrerId) === String(user.telegramId)) {
-          myHistory.push({
-            name: item.newUserName || "New User",
-            time: formatDate(item.createdAt)
-          });
-        }
-      });
-
-      localStorage.setItem("referHistory", JSON.stringify(myHistory));
     } catch (error) {
       console.log("User save error:", error.message);
     }
@@ -2753,8 +2681,6 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: balance,
-        referrals: totalRefers,
-        referralLink: user.referralLink || ("https://t.me/BearCoinNew_bot?start=" + String(user.telegramId)),
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
