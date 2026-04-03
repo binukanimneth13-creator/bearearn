@@ -1323,6 +1323,136 @@
     min-height: 20px;
   }
 
+  .refer-panel {
+    margin-top: 6px;
+    background: #232326;
+    border-radius: 26px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 26px 16px 18px;
+    text-align: center;
+  }
+
+  .refer-big-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+  }
+
+  .refer-reward-title {
+    color: #ffc61a;
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .refer-reward-sub {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 18px;
+  }
+
+  .refer-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .refer-stat-box {
+    background: #2b2b31;
+    border-radius: 20px;
+    padding: 18px 12px 16px;
+    text-align: center;
+  }
+
+  .refer-stat-value {
+    color: #ffc61a;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .refer-stat-label {
+    color: #9fa4b5;
+    font-size: 13px;
+  }
+
+  .refer-link-card {
+    margin-top: 16px;
+    background: #232326;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 18px 16px;
+  }
+
+  .refer-link-title {
+    color: #b4b4b8;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .refer-link-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .refer-link-input {
+    flex: 1;
+    background: #2d2d33;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .refer-copy-btn {
+    width: 52px;
+    min-width: 52px;
+    border: none;
+    border-radius: 16px;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .refer-share-btn {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    background: #2d2d33;
+    color: #fff;
+    padding: 16px 14px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .refer-history-card {
+    margin-top: 18px;
+    background: #232326;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.05);
+    padding: 18px 16px 24px;
+  }
+
+  .refer-history-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 18px;
+  }
+
+  .refer-empty-history {
+    color: #8e93a6;
+    font-size: 14px;
+    text-align: center;
+    padding: 14px 0 6px;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -1887,6 +2017,35 @@
     updateWatchAdsUI();
   }
 
+  function copyReferralLink() {
+    const input = document.getElementById("referralLinkInput");
+    if (!input) return;
+
+    input.select();
+    input.setSelectionRange(0, 99999);
+
+    try {
+      document.execCommand("copy");
+      showCustomPopup("Copied", "Referral link copied successfully.");
+    } catch (e) {
+      showCustomPopup("Copy Failed", "Could not copy the referral link.");
+    }
+  }
+
+  function shareReferralLink() {
+    const input = document.getElementById("referralLinkInput");
+    if (!input) return;
+
+    const text = input.value;
+
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.openTelegramLink) {
+      const shareUrl = "https://t.me/share/url?url=" + encodeURIComponent(text) + "&text=" + encodeURIComponent("Join now and earn DOGS with my referral link!");
+      window.Telegram.WebApp.openTelegramLink(shareUrl);
+    } else {
+      window.open("https://t.me/share/url?url=" + encodeURIComponent(text) + "&text=" + encodeURIComponent("Join now and earn DOGS with my referral link!"), "_blank");
+    }
+  }
+
   function showTab(tab, element) {
     var content = document.getElementById("content-area");
     var navItems = document.querySelectorAll(".nav-item");
@@ -2209,6 +2368,8 @@
     }
 
     if (type === "refer") {
+      const referralLink = "https://t.me/Freedogspaybot1422Bot?start=" + encodeURIComponent((window.currentTelegramUser && window.currentTelegramUser.telegramId) ? window.currentTelegramUser.telegramId : "guest_user");
+
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -2216,10 +2377,36 @@
             <button class="back-btn" onclick="backToEarn()">←</button>
             <div class="sub-page-title">Refer & Earn</div>
           </div>
-          <p>Invite your friends and earn reward for each referral.</p>
-          <div class="content-card">
-            <p><strong>Reward:</strong> 250 Dogs per referral</p>
-            <p style="margin-top:10px;"><strong>Your Link:</strong><br> https://example.com/ref123</p>
+
+          <div class="refer-panel">
+            <div class="refer-big-icon">👥</div>
+            <div class="refer-reward-title">250</div>
+            <div class="refer-reward-sub">Dogs per Referral</div>
+          </div>
+
+          <div class="refer-stats">
+            <div class="refer-stat-box">
+              <div class="refer-stat-value">0</div>
+              <div class="refer-stat-label">Total Refers</div>
+            </div>
+            <div class="refer-stat-box">
+              <div class="refer-stat-value">0</div>
+              <div class="refer-stat-label">Total Earned</div>
+            </div>
+          </div>
+
+          <div class="refer-link-card">
+            <div class="refer-link-title">Your Referral Link</div>
+            <div class="refer-link-row">
+              <input type="text" class="refer-link-input" id="referralLinkInput" value="${referralLink}" readonly>
+              <button class="refer-copy-btn" onclick="copyReferralLink()">⧉</button>
+            </div>
+            <button class="refer-share-btn" onclick="shareReferralLink()">⤴ Share via Telegram</button>
+          </div>
+
+          <div class="refer-history-card">
+            <div class="refer-history-title">📜 Refer History</div>
+            <div class="refer-empty-history">No referrals yet</div>
           </div>
         </div>
       `;
