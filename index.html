@@ -1453,6 +1453,35 @@
     padding: 14px 0 6px;
   }
 
+  .refer-claim-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+
+  .refer-claim-input {
+    flex: 1;
+    background: #2d2d33;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .refer-claim-btn {
+    border: none;
+    border-radius: 16px;
+    padding: 16px 18px;
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 88px;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -1873,6 +1902,17 @@
   function removeCustomPopup() {
     var popup = document.getElementById("customPopupBox");
     if (popup) popup.remove();
+  }
+
+  function claimReferralCode() {
+    const input = document.getElementById("referClaimInput");
+    if (!input) return;
+    const code = input.value.trim();
+    if (!code) {
+      showCustomPopup("Error", "Please enter a referral code.");
+      return;
+    }
+    showCustomPopup("Claim", "Referral code submitted: " + code);
   }
 
   function backToHomeFromNotification() {
@@ -2426,6 +2466,11 @@
             <div class="refer-link-row">
               <input type="text" class="refer-link-input" id="referralLinkInput2" value="${userReferralCode}" readonly>
               <button class="refer-copy-btn" onclick="copyReferralLink2()">⧉</button>
+            </div>
+
+            <div class="refer-claim-row">
+              <input type="text" class="refer-claim-input" id="referClaimInput" placeholder="Enter referral code">
+              <button class="refer-claim-btn" onclick="claimReferralCode()">Claim</button>
             </div>
 
             <button class="refer-share-btn" onclick="shareReferralLink()">⤴ Share via Telegram</button>
