@@ -2032,6 +2032,21 @@
     }
   }
 
+  function copyReferralLink2() {
+    const input = document.getElementById("referralLinkInput2");
+    if (!input) return;
+
+    input.select();
+    input.setSelectionRange(0, 99999);
+
+    try {
+      document.execCommand("copy");
+      showCustomPopup("Copied", "Second referral link copied successfully.");
+    } catch (e) {
+      showCustomPopup("Copy Failed", "Could not copy the second referral link.");
+    }
+  }
+
   function shareReferralLink() {
     const input = document.getElementById("referralLinkInput");
     if (!input) return;
@@ -2368,8 +2383,6 @@
     }
 
     if (type === "refer") {
-      const referralLink = "https://t.me/Freedogspaybot1422Bot?start=" + encodeURIComponent((window.currentTelegramUser && window.currentTelegramUser.telegramId) ? window.currentTelegramUser.telegramId : "guest_user");
-
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -2397,10 +2410,17 @@
 
           <div class="refer-link-card">
             <div class="refer-link-title">Your Referral Link</div>
+
             <div class="refer-link-row">
-              <input type="text" class="refer-link-input" id="referralLinkInput" value="${referralLink}" readonly>
+              <input type="text" class="refer-link-input" id="referralLinkInput" value="https//:tm.bear earn" readonly>
               <button class="refer-copy-btn" onclick="copyReferralLink()">⧉</button>
             </div>
+
+            <div class="refer-link-row">
+              <input type="text" class="refer-link-input" id="referralLinkInput2" value="https//:tm.bear earn" readonly>
+              <button class="refer-copy-btn" onclick="copyReferralLink2()">⧉</button>
+            </div>
+
             <button class="refer-share-btn" onclick="shareReferralLink()">⤴ Share via Telegram</button>
           </div>
 
