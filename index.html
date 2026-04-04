@@ -1849,6 +1849,11 @@
     return div.innerHTML;
   }
 
+  function getUserReferralCode() {
+    const user = window.currentTelegramUser || {};
+    return String(user.telegramId || "guest_user");
+  }
+
   function showCustomPopup(title, text) {
     removeCustomPopup();
     var appBox = document.getElementById("miniAppBox");
@@ -2041,9 +2046,9 @@
 
     try {
       document.execCommand("copy");
-      showCustomPopup("Copied", "Second referral link copied successfully.");
+      showCustomPopup("Copied", "Second referral code copied successfully.");
     } catch (e) {
-      showCustomPopup("Copy Failed", "Could not copy the second referral link.");
+      showCustomPopup("Copy Failed", "Could not copy the second referral code.");
     }
   }
 
@@ -2383,6 +2388,8 @@
     }
 
     if (type === "refer") {
+      const userReferralCode = getUserReferralCode();
+
       html = `
         <div class="fade-in">
           ${renderTopButton()}
@@ -2417,7 +2424,7 @@
             </div>
 
             <div class="refer-link-row">
-              <input type="text" class="refer-link-input" id="referralLinkInput2" value="https//:tm.bear earn" readonly>
+              <input type="text" class="refer-link-input" id="referralLinkInput2" value="${userReferralCode}" readonly>
               <button class="refer-copy-btn" onclick="copyReferralLink2()">⧉</button>
             </div>
 
