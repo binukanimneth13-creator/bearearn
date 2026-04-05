@@ -3118,18 +3118,12 @@
           throw new Error("Referral code not found.");
         }
 
-        const ownerData = ownerSnap.data() || {};
-
         if (claimSnap.exists()) {
-          const oldClaim = claimSnap.data() || {};
-          if (String(oldClaim.ownerId || "") === enteredCode) {
-            return;
-          } else {
-            throw new Error("This account already claimed a different referral code.");
-          }
+          throw new Error("You have already claimed a referral code.");
         }
 
         const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
+        const ownerData = ownerSnap.data();
 
         const currentUserBalance = Number(currentUserData.balance || 0);
         const ownerBalance = Number(ownerData.balance || 0);
@@ -3145,11 +3139,11 @@
           lastSeen: new Date().toISOString()
         }, { merge: true });
 
-        transaction.set(ownerRef, {
+        transaction.update(ownerRef, {
           balance: ownerBalance + 200,
           referrals: ownerReferrals + 1,
           lastSeen: new Date().toISOString()
-        }, { merge: true });
+        });
 
         transaction.set(claimRef, {
           userId: currentUserId,
