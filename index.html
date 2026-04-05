@@ -1904,15 +1904,22 @@
     if (popup) popup.remove();
   }
 
-  function claimReferralCode() {
+  async function claimReferralCode() {
     const input = document.getElementById("referClaimInput");
     if (!input) return;
+
     const code = input.value.trim();
     if (!code) {
       showCustomPopup("Error", "Please enter a referral code.");
       return;
     }
-    showCustomPopup("Claim", "Referral code submitted: " + code);
+
+    if (!window.handleReferralClaimFromFirebase) {
+      showCustomPopup("Error", "Referral system not ready.");
+      return;
+    }
+
+    await window.handleReferralClaimFromFirebase(code);
   }
 
   function backToHomeFromNotification() {
@@ -3071,6 +3078,96 @@
       await setDoc(userRef, userData, { merge: true });
     } catch (error) {
       console.log("User save error:", error.message);
+    }
+  };
+
+  window.handleReferralClaimFromFirebase = async function(referralCodeValue) {
+    const user = window.currentTelegramUser;
+    const input = document.getElementById("referClaimInput");
+
+    if (!user || !user.telegramId) {
+      showCustomPopup("Error", "User not found.");
+      return false;
+    }
+
+    const enteredCode = String(referralCodeValue || "").trim();
+
+    if (!enteredCode) {
+      showCustomPopup("Error", "Please enter a referral code.");
+      return false;
+    }
+
+    if (enteredCode === String(user.telegramId)) {
+      showCustomPopup("Error", "You cannot use your own referral code.");
+      return false;
+    }
+
+    try {
+      const ownerRef = doc(db, "users", enteredCode);
+      const ownerSnap = await getDoc(ownerRef);
+
+      if (!ownerSnap.exists()) {
+        showCustomPopup("Invalid Code", "Referral code not found.");
+        return false;
+      }
+
+      const claimRef = doc(db, "referral_claims", String(user.telegramId));
+      const claimSnap = await getDoc(claimRef);
+
+      if (claimSnap.exists()) {
+        showCustomPopup("Already Claimed", "You have already claimed a referral code.");
+        return false;
+      }
+
+      const currentUserRef = doc(db, "users", String(user.telegramId));
+      const currentUserSnap = await getDoc(currentUserRef);
+
+      let currentUserBalance = balance;
+      let ownerData = ownerSnap.data();
+      let ownerBalance = Number(ownerData.balance || 0);
+      let ownerReferrals = Number(ownerData.referrals || 0);
+
+      currentUserBalance += 100;
+      ownerBalance += 200;
+      ownerReferrals += 1;
+
+      balance = currentUserBalance;
+      totalEarned += 100;
+
+      localStorage.setItem("dogsBalance", balance.toString());
+      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+
+      await setDoc(currentUserRef, {
+        telegramId: String(user.telegramId),
+        username: user.rawUsername || "",
+        name: user.username || user.first_name || "User",
+        photo_url: user.photo_url || "",
+        balance: currentUserBalance,
+        referredBy: enteredCode,
+        lastSeen: new Date().toISOString()
+      }, { merge: true });
+
+      await updateDoc(ownerRef, {
+        balance: ownerBalance,
+        referrals: ownerReferrals,
+        lastSeen: new Date().toISOString()
+      });
+
+      await setDoc(claimRef, {
+        userId: String(user.telegramId),
+        ownerId: enteredCode,
+        claimedAt: new Date().toISOString()
+      });
+
+      if (input) input.value = "";
+
+      renderHomeLiveValues();
+      openEarnWindow('refer');
+      showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and the owner received 200 DOGS.");
+      return true;
+    } catch (error) {
+      showCustomPopup("Error", error.message);
+      return false;
     }
   };
 
