@@ -3137,7 +3137,10 @@
       const ownerData = ownerSnap.data() || {};
 
       const currentUserBalance = Number(currentUserData.balance || 0) + 100;
+      const currentUserTotalEarned = Number(currentUserData.totalEarned || 0) + 100;
+
       const ownerBalance = Number(ownerData.balance || 0) + 200;
+      const ownerTotalEarned = Number(ownerData.totalEarned || 0) + 200;
       const ownerReferrals = Number(ownerData.referrals || 0) + 1;
 
       await setDoc(currentUserRef, {
@@ -3146,12 +3149,14 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: currentUserBalance,
+        totalEarned: currentUserTotalEarned,
         referredBy: enteredCode,
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
       await setDoc(ownerRef, {
         balance: ownerBalance,
+        totalEarned: ownerTotalEarned,
         referrals: ownerReferrals,
         lastSeen: new Date().toISOString()
       }, { merge: true });
@@ -3164,7 +3169,7 @@
       }, { merge: true });
 
       balance = currentUserBalance;
-      totalEarned += 100;
+      totalEarned = currentUserTotalEarned;
 
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
@@ -3241,6 +3246,7 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: balance,
+        totalEarned: totalEarned,
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
