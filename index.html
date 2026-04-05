@@ -1676,6 +1676,9 @@
   let watchAdsDailyLimit = 1000;
   let watchAdsCountdownTimer = null;
 
+  let referralTestMode = true;
+  let referralTestAllowedUsers = ["5834429474", "guest_user"];
+
   const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
   const spinCooldownDuration = 2 * 60 * 1000;
 
@@ -1881,6 +1884,12 @@
   function getUserReferralCode() {
     const user = window.currentTelegramUser || {};
     return String(user.telegramId || "guest_user");
+  }
+
+  function isReferralTestUser() {
+    const user = window.currentTelegramUser || {};
+    const userId = String(user.telegramId || "");
+    return referralTestMode && referralTestAllowedUsers.includes(userId);
   }
 
   function showCustomPopup(title, text) {
@@ -3092,6 +3101,7 @@
 
     const enteredCode = String(referralCodeValue || "").trim();
     const currentUserId = String(user.telegramId);
+    const testUser = isReferralTestUser();
 
     if (!enteredCode) {
       showCustomPopup("Error", "Please enter a referral code.");
@@ -3115,7 +3125,7 @@
       const claimRef = doc(db, "referral_claims", currentUserId);
       const claimSnap = await getDoc(claimRef);
 
-      if (claimSnap.exists()) {
+      if (claimSnap.exists() && !testUser) {
         showCustomPopup("Already Claimed", "You have already claimed a referral code.");
         return false;
       }
@@ -3149,8 +3159,9 @@
       await setDoc(claimRef, {
         userId: currentUserId,
         ownerId: enteredCode,
-        claimedAt: new Date().toISOString()
-      });
+        claimedAt: new Date().toISOString(),
+        testMode: testUser
+      }, { merge: true });
 
       balance = currentUserBalance;
       totalEarned += 100;
@@ -3162,7 +3173,13 @@
 
       renderHomeLiveValues();
       openEarnWindow('refer');
-      showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and the owner received 200 DOGS.");
+
+      if (testUser) {
+        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS, owner got 200 DOGS, referrals increased by 1.");
+      } else {
+        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and the owner received 200 DOGS.");
+      }
+
       return true;
     } catch (error) {
       showCustomPopup("Error", error.message);
