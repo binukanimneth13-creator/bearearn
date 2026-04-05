@@ -3137,11 +3137,8 @@
       const ownerData = ownerSnap.data() || {};
 
       const currentUserBalance = Number(currentUserData.balance || 0) + 100;
-
-      const currentOwnerRealBalance = Number(ownerData.balance || 0);
-      const currentOwnerReferrals = Number(ownerData.referrals || 0);
-      const newOwnerReferrals = currentOwnerReferrals + 1;
-      const newOwnerBalance = currentOwnerRealBalance + 200;
+      const ownerBalance = Number(ownerData.balance || 0) + 200;
+      const ownerReferrals = Number(ownerData.referrals || 0) + 1;
 
       await setDoc(currentUserRef, {
         telegramId: currentUserId,
@@ -3153,11 +3150,11 @@
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
-      await setDoc(ownerRef, {
-        balance: newOwnerBalance,
-        referrals: newOwnerReferrals,
+      await updateDoc(ownerRef, {
+        balance: ownerBalance,
+        referrals: ownerReferrals,
         lastSeen: new Date().toISOString()
-      }, { merge: true });
+      });
 
       await setDoc(claimRef, {
         userId: currentUserId,
