@@ -3137,11 +3137,11 @@
       const ownerData = ownerSnap.data() || {};
 
       const currentUserBalance = Number(currentUserData.balance || 0) + 100;
-      const currentUserTotalEarned = Number(currentUserData.totalEarned || 0) + 100;
 
-      const ownerBalance = Number(ownerData.balance || 0) + 200;
-      const ownerTotalEarned = Number(ownerData.totalEarned || 0) + 200;
-      const ownerReferrals = Number(ownerData.referrals || 0) + 1;
+      const currentOwnerRealBalance = Number(ownerData.balance || 0);
+      const currentOwnerReferrals = Number(ownerData.referrals || 0);
+      const newOwnerReferrals = currentOwnerReferrals + 1;
+      const newOwnerBalance = currentOwnerRealBalance + 200;
 
       await setDoc(currentUserRef, {
         telegramId: currentUserId,
@@ -3149,15 +3149,13 @@
         name: user.username || user.first_name || "User",
         photo_url: user.photo_url || "",
         balance: currentUserBalance,
-        totalEarned: currentUserTotalEarned,
         referredBy: enteredCode,
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
       await setDoc(ownerRef, {
-        balance: ownerBalance,
-        totalEarned: ownerTotalEarned,
-        referrals: ownerReferrals,
+        balance: newOwnerBalance,
+        referrals: newOwnerReferrals,
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
@@ -3169,7 +3167,7 @@
       }, { merge: true });
 
       balance = currentUserBalance;
-      totalEarned = currentUserTotalEarned;
+      totalEarned += 100;
 
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
@@ -3180,7 +3178,7 @@
       openEarnWindow('refer');
 
       if (testUser) {
-        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS, owner got 200 DOGS, referrals increased by 1.");
+        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS and code owner got 200 DOGS.");
       } else {
         showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and the owner received 200 DOGS.");
       }
