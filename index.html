@@ -3039,8 +3039,7 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc,
-    runTransaction
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -3105,60 +3104,55 @@
     }
 
     try {
-      const currentUserRef = doc(db, "users", currentUserId);
       const ownerRef = doc(db, "users", enteredCode);
+      const ownerSnap = await getDoc(ownerRef);
+
+      if (!ownerSnap.exists()) {
+        showCustomPopup("Invalid Code", "Referral code not found.");
+        return false;
+      }
+
       const claimRef = doc(db, "referral_claims", currentUserId);
+      const claimSnap = await getDoc(claimRef);
 
-      await runTransaction(db, async (transaction) => {
-        const currentUserSnap = await transaction.get(currentUserRef);
-        const ownerSnap = await transaction.get(ownerRef);
-        const claimSnap = await transaction.get(claimRef);
+      if (claimSnap.exists()) {
+        showCustomPopup("Already Claimed", "You have already claimed a referral code.");
+        return false;
+      }
 
-        if (!ownerSnap.exists()) {
-          throw new Error("Referral code not found.");
-        }
+      const currentUserRef = doc(db, "users", currentUserId);
+      const currentUserSnap = await getDoc(currentUserRef);
 
-        const ownerData = ownerSnap.data() || {};
+      const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
+      const ownerData = ownerSnap.data() || {};
 
-        if (claimSnap.exists()) {
-          const oldClaim = claimSnap.data() || {};
-          if (String(oldClaim.ownerId || "") === enteredCode) {
-            return;
-          } else {
-            throw new Error("This account already claimed a different referral code.");
-          }
-        }
+      const currentUserBalance = Number(currentUserData.balance || 0) + 100;
+      const ownerBalance = Number(ownerData.balance || 0) + 200;
+      const ownerReferrals = Number(ownerData.referrals || 0) + 1;
 
-        const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
+      await setDoc(currentUserRef, {
+        telegramId: currentUserId,
+        username: user.rawUsername || "",
+        name: user.username || user.first_name || "User",
+        photo_url: user.photo_url || "",
+        balance: currentUserBalance,
+        referredBy: enteredCode,
+        lastSeen: new Date().toISOString()
+      }, { merge: true });
 
-        const currentUserBalance = Number(currentUserData.balance || 0);
-        const ownerBalance = Number(ownerData.balance || 0);
-        const ownerReferrals = Number(ownerData.referrals || 0);
+      await setDoc(ownerRef, {
+        balance: ownerBalance,
+        referrals: ownerReferrals,
+        lastSeen: new Date().toISOString()
+      }, { merge: true });
 
-        transaction.set(currentUserRef, {
-          telegramId: currentUserId,
-          username: user.rawUsername || "",
-          name: user.username || user.first_name || "User",
-          photo_url: user.photo_url || "",
-          balance: currentUserBalance + 100,
-          referredBy: enteredCode,
-          lastSeen: new Date().toISOString()
-        }, { merge: true });
-
-        transaction.set(ownerRef, {
-          balance: ownerBalance + 200,
-          referrals: ownerReferrals + 1,
-          lastSeen: new Date().toISOString()
-        }, { merge: true });
-
-        transaction.set(claimRef, {
-          userId: currentUserId,
-          ownerId: enteredCode,
-          claimedAt: new Date().toISOString()
-        });
+      await setDoc(claimRef, {
+        userId: currentUserId,
+        ownerId: enteredCode,
+        claimedAt: new Date().toISOString()
       });
 
-      balance += 100;
+      balance = currentUserBalance;
       totalEarned += 100;
 
       localStorage.setItem("dogsBalance", balance.toString());
