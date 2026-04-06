@@ -3048,7 +3048,8 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc
+    updateDoc,
+    increment
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -3132,13 +3133,9 @@
 
       const currentUserRef = doc(db, "users", currentUserId);
       const currentUserSnap = await getDoc(currentUserRef);
-
       const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
-      const ownerData = ownerSnap.data() || {};
 
       const currentUserBalance = Number(currentUserData.balance || 0) + 100;
-      const ownerBalance = Number(ownerData.balance || 0) + 200;
-      const ownerReferrals = Number(ownerData.referrals || 0) + 1;
 
       await setDoc(currentUserRef, {
         telegramId: currentUserId,
@@ -3151,8 +3148,8 @@
       }, { merge: true });
 
       await updateDoc(ownerRef, {
-        balance: ownerBalance,
-        referrals: ownerReferrals,
+        balance: increment(200),
+        referrals: increment(1),
         lastSeen: new Date().toISOString()
       });
 
@@ -3175,9 +3172,9 @@
       openEarnWindow('refer');
 
       if (testUser) {
-        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS and code owner got 200 DOGS.");
+        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS, owner got 200 DOGS, and owner referrals increased by 1.");
       } else {
-        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and the owner received 200 DOGS.");
+        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS, code owner received 200 DOGS, and owner referral count increased.");
       }
 
       return true;
