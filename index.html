@@ -3048,8 +3048,7 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc,
-    increment
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -3133,9 +3132,13 @@
 
       const currentUserRef = doc(db, "users", currentUserId);
       const currentUserSnap = await getDoc(currentUserRef);
+
       const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
+      const ownerDataBefore = ownerSnap.data() || {};
 
       const currentUserBalance = Number(currentUserData.balance || 0) + 100;
+      const ownerBalanceBefore = Number(ownerDataBefore.balance || 0);
+      const ownerReferralsBefore = Number(ownerDataBefore.referrals || 0);
 
       await setDoc(currentUserRef, {
         telegramId: currentUserId,
@@ -3147,17 +3150,24 @@
         lastSeen: new Date().toISOString()
       }, { merge: true });
 
-      await updateDoc(ownerRef, {
-        balance: increment(200),
-        referrals: increment(1),
+      await setDoc(ownerRef, {
+        balance: ownerBalanceBefore + 200,
+        referrals: ownerReferralsBefore + 1,
         lastSeen: new Date().toISOString()
-      });
+      }, { merge: true });
+
+      const ownerSnapAfter = await getDoc(ownerRef);
+      const ownerDataAfter = ownerSnapAfter.exists() ? ownerSnapAfter.data() : {};
+      const ownerBalanceAfter = Number(ownerDataAfter.balance || 0);
+      const ownerReferralsAfter = Number(ownerDataAfter.referrals || 0);
 
       await setDoc(claimRef, {
         userId: currentUserId,
         ownerId: enteredCode,
         claimedAt: new Date().toISOString(),
-        testMode: testUser
+        testMode: testUser,
+        ownerBalanceBefore: ownerBalanceBefore,
+        ownerBalanceAfter: ownerBalanceAfter
       }, { merge: true });
 
       balance = currentUserBalance;
@@ -3172,9 +3182,19 @@
       openEarnWindow('refer');
 
       if (testUser) {
-        showCustomPopup("Test Mode Success", "Referral test claim completed. Claimer got 100 DOGS, owner got 200 DOGS, and owner referrals increased by 1.");
+        showCustomPopup(
+          "Test Mode Success",
+          "Claimer got 100 DOGS | Owner balance before: " +
+          ownerBalanceBefore +
+          " | Owner balance after: " +
+          ownerBalanceAfter +
+          " | Owner referrals before: " +
+          ownerReferralsBefore +
+          " | Owner referrals after: " +
+          ownerReferralsAfter
+        );
       } else {
-        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS, code owner received 200 DOGS, and owner referral count increased.");
+        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS and code owner received 200 DOGS.");
       }
 
       return true;
