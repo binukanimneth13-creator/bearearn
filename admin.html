@@ -139,6 +139,19 @@
     .danger-btn:hover {
       background: #dc2626;
     }
+
+    .task-link {
+      color: #38bdf8;
+      text-decoration: underline;
+      word-break: break-all;
+    }
+
+    .task-image-preview {
+      max-width: 120px;
+      max-height: 120px;
+      border-radius: 8px;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -321,11 +334,10 @@
   </div>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, addDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDbokxd3P2XhR817cfDnho7G4eDgL0KKwM",
@@ -378,6 +390,26 @@
     const sections = document.querySelectorAll(".section");
     sections.forEach(sec => sec.classList.add("hidden"));
     document.getElementById(sectionId).classList.remove("hidden");
+
+    if (sectionId === "tasks") {
+      loadTasks();
+    }
+    if (sectionId === "withdrawals") {
+      loadWithdrawals();
+    }
+    if (sectionId === "referrals") {
+      loadReferrals();
+    }
+    if (sectionId === "users") {
+      loadUsers();
+    }
+    if (sectionId === "dashboard") {
+      loadDashboard();
+    }
+    if (sectionId === "redeemCodes") {
+      loadRedeemCodes();
+      loadRedeemClaims();
+    }
   }
 
   async function loadDashboard() {
@@ -598,11 +630,22 @@
 
     tasksSnapshot.forEach(docSnap => {
       const task = docSnap.data();
+      const screenshot = task.screenshot || "-";
+      let screenshotHtml = "-";
+
+      if (screenshot && screenshot !== "-") {
+        if (String(screenshot).startsWith("data:image") || String(screenshot).startsWith("http")) {
+          screenshotHtml = `<a href="${screenshot}" target="_blank"><img src="${screenshot}" class="task-image-preview" alt="Screenshot"></a>`;
+        } else {
+          screenshotHtml = `<span>${screenshot}</span>`;
+        }
+      }
+
       taskTable.innerHTML += `
         <tr>
           <td>${task.userId || "-"}</td>
           <td>${task.createdAt || "-"}</td>
-          <td>${task.screenshot || "-"}</td>
+          <td>${screenshotHtml}</td>
           <td>${task.type || "-"}</td>
         </tr>
       `;
