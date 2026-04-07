@@ -1732,6 +1732,11 @@
     color: #8f97aa;
   }
 
+  .withdraw-wallet-input.readonly {
+    opacity: 0.95;
+    cursor: default;
+  }
+
   .withdraw-save-btn {
     border: none;
     border-radius: 16px;
@@ -1742,6 +1747,25 @@
     font-weight: bold;
     cursor: pointer;
     min-width: 82px;
+    transition: 0.25s ease;
+  }
+
+  .withdraw-save-btn.active {
+    background: #3b82f6;
+    color: #fff;
+  }
+
+  .withdraw-wallet-edit-btn {
+    width: 100%;
+    margin-top: 12px;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 12px;
+    background: #2d2d33;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
   }
 
   .withdraw-action-box {
@@ -2478,6 +2502,33 @@
     `;
   }
 
+  function getWithdrawWalletHtml() {
+    const savedWallet = (localStorage.getItem("tonWalletAddress") || "").trim();
+    const editMode = localStorage.getItem("tonWalletEditMode") === "1" || savedWallet === "";
+
+    if (editMode) {
+      return `
+        <div class="withdraw-wallet-box">
+          <div class="withdraw-wallet-title">💎 TON Wallet Address</div>
+          <div class="withdraw-wallet-row">
+            <input type="text" class="withdraw-wallet-input" id="withdrawWalletInput" placeholder="Enter TON wallet address..." value="${escapeHtml(savedWallet)}" oninput="toggleWithdrawSaveButton()">
+            <button class="withdraw-save-btn" id="withdrawSaveBtn" onclick="saveWithdrawWallet()">Save</button>
+          </div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="withdraw-wallet-box">
+        <div class="withdraw-wallet-title">💎 TON Wallet Address</div>
+        <div class="withdraw-wallet-row">
+          <input type="text" class="withdraw-wallet-input readonly" id="withdrawWalletReadonly" value="${escapeHtml(savedWallet)}" readonly>
+        </div>
+        <button class="withdraw-wallet-edit-btn" onclick="editWithdrawWallet()">Edit Address</button>
+      </div>
+    `;
+  }
+
   function getWithdrawActionBoxHtml() {
     const requirementsDone = areWithdrawRequirementsCompleted();
     const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
@@ -2728,6 +2779,29 @@
     }
   }
 
+  function toggleWithdrawSaveButton() {
+    const input = document.getElementById("withdrawWalletInput");
+    const btn = document.getElementById("withdrawSaveBtn");
+    if (!input || !btn) return;
+
+    if (input.value.trim() !== "") {
+      btn.classList.add("active");
+    } else {
+      btn.classList.remove("active");
+    }
+  }
+
+  function editWithdrawWallet() {
+    localStorage.setItem("tonWalletEditMode", "1");
+    const withdrawNav = document.querySelectorAll(".nav-item")[2];
+    showTab('withdraw', withdrawNav);
+    setTimeout(function() {
+      const input = document.getElementById("withdrawWalletInput");
+      if (input) input.focus();
+      toggleWithdrawSaveButton();
+    }, 50);
+  }
+
   function saveWithdrawWallet() {
     const input = document.getElementById("withdrawWalletInput");
     if (!input) return;
@@ -2737,6 +2811,9 @@
       return;
     }
     localStorage.setItem("tonWalletAddress", value);
+    localStorage.setItem("tonWalletEditMode", "0");
+    const withdrawNav = document.querySelectorAll(".nav-item")[2];
+    showTab('withdraw', withdrawNav);
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
@@ -2974,7 +3051,6 @@
       `;
     } 
     else if (tab === "withdraw") {
-      const savedWallet = localStorage.getItem("tonWalletAddress") || "";
       html = `
         <div class="fade-in withdraw-screen">
           <div class="withdraw-title-row">
@@ -2998,13 +3074,7 @@
 
           ${getWithdrawRequirementsHtml()}
 
-          <div class="withdraw-wallet-box">
-            <div class="withdraw-wallet-title">💎 TON Wallet Address</div>
-            <div class="withdraw-wallet-row">
-              <input type="text" class="withdraw-wallet-input" id="withdrawWalletInput" placeholder="Enter TON wallet address..." value="${savedWallet}">
-              <button class="withdraw-save-btn" onclick="saveWithdrawWallet()">Save</button>
-            </div>
-          </div>
+          ${getWithdrawWalletHtml()}
 
           ${getWithdrawActionBoxHtml()}
 
@@ -3048,6 +3118,10 @@
     content.innerHTML = html;
     renderHomeLiveValues();
     applyTelegramUserToHome();
+
+    if (tab === "withdraw") {
+      toggleWithdrawSaveButton();
+    }
   }
 
   function renderTasksGrid() {
