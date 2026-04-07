@@ -1482,6 +1482,178 @@
     min-width: 88px;
   }
 
+  .withdraw-screen {
+    position: relative;
+    min-height: 100%;
+    margin: -24px -20px -90px;
+    padding: 24px 20px 110px;
+    background:
+      linear-gradient(rgba(10,12,16,0.60), rgba(10,12,16,0.78)),
+      url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80') center/cover no-repeat;
+  }
+
+  .withdraw-title-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .withdraw-title-icon {
+    font-size: 24px;
+  }
+
+  .withdraw-main-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+  }
+
+  .withdraw-closed-box {
+    background: rgba(50, 34, 37, 0.72);
+    border: 1px solid rgba(255, 59, 48, 0.38);
+    border-radius: 24px;
+    padding: 22px 16px;
+    text-align: center;
+    margin-bottom: 18px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+
+  .withdraw-closed-title {
+    color: #ff3b30;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  .withdraw-closed-text {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .withdraw-balance-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 28px;
+    padding: 26px 16px 18px;
+    text-align: center;
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+  }
+
+  .withdraw-balance-label {
+    color: #9fa4b5;
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .withdraw-balance-value {
+    color: #ffcc00;
+    font-size: 58px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+
+  .withdraw-balance-unit {
+    color: #ffcc00;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 18px;
+  }
+
+  .withdraw-meta-row {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+  }
+
+  .withdraw-meta-pill {
+    flex: 1;
+    background: #2e313a;
+    border-radius: 16px;
+    padding: 12px 10px;
+    color: #aeb4c8;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .withdraw-meta-pill strong {
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .withdraw-req-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 24px;
+    padding: 20px 16px 16px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+  }
+
+  .withdraw-req-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .withdraw-req-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .withdraw-req-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .withdraw-req-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .withdraw-req-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  .withdraw-req-text {
+    color: #ff3b30;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  .withdraw-req-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .withdraw-req-count {
+    color: #ff4d4d;
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .withdraw-req-mark {
+    color: #ff4d4d;
+    font-size: 18px;
+    font-weight: bold;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -2308,13 +2480,66 @@
     } 
     else if (tab === "withdraw") {
       html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <h2>Withdraw</h2>
-          <p>Request payout from your balance.</p>
-          <div class="content-card">
-            <p><strong>Available Balance:</strong> $25.00</p>
-            <p style="margin-top:10px;">Minimum withdrawal: $5.00</p>
+        <div class="fade-in withdraw-screen">
+          <div class="withdraw-title-row">
+            <div class="withdraw-title-icon">📤</div>
+            <div class="withdraw-main-title">Withdraw</div>
+          </div>
+
+          <div class="withdraw-closed-box">
+            <div class="withdraw-closed-title">⏰ Withdraw Closed</div>
+            <div class="withdraw-closed-text">Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).</div>
+          </div>
+
+          <div class="withdraw-balance-box">
+            <div class="withdraw-balance-label">Available Balance</div>
+            <div class="withdraw-balance-value">${balance}</div>
+            <div class="withdraw-balance-unit">🐕 DOGS</div>
+
+            <div class="withdraw-meta-row">
+              <div class="withdraw-meta-pill">Min: <strong>1500</strong></div>
+              <div class="withdraw-meta-pill">Max: <strong>2500</strong></div>
+              <div class="withdraw-meta-pill">Fee: <strong>120 + 5%</strong></div>
+            </div>
+          </div>
+
+          <div class="withdraw-req-box">
+            <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
+
+            <div class="withdraw-req-list">
+              <div class="withdraw-req-item">
+                <div class="withdraw-req-left">
+                  <div class="withdraw-req-icon">📺</div>
+                  <div class="withdraw-req-text">Daily Ads Watched (Watch Tab only)</div>
+                </div>
+                <div class="withdraw-req-right">
+                  <div class="withdraw-req-count">0/10</div>
+                  <div class="withdraw-req-mark">✕</div>
+                </div>
+              </div>
+
+              <div class="withdraw-req-item">
+                <div class="withdraw-req-left">
+                  <div class="withdraw-req-icon">✅</div>
+                  <div class="withdraw-req-text">Total Tasks Completed</div>
+                </div>
+                <div class="withdraw-req-right">
+                  <div class="withdraw-req-count">0/3</div>
+                  <div class="withdraw-req-mark">✕</div>
+                </div>
+              </div>
+
+              <div class="withdraw-req-item">
+                <div class="withdraw-req-left">
+                  <div class="withdraw-req-icon">👥</div>
+                  <div class="withdraw-req-text">Total Referrals</div>
+                </div>
+                <div class="withdraw-req-right">
+                  <div class="withdraw-req-count">0/2</div>
+                  <div class="withdraw-req-mark">✕</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       `;
