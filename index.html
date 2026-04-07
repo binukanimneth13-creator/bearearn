@@ -1482,6 +1482,120 @@
     min-width: 88px;
   }
 
+  .withdraw-alert-card {
+    margin-top: 6px;
+    background: rgba(255, 59, 48, 0.08);
+    border: 1px solid rgba(255, 59, 48, 0.35);
+    border-radius: 24px;
+    padding: 22px 18px;
+    text-align: center;
+  }
+
+  .withdraw-alert-title {
+    color: #ff4d4f;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+
+  .withdraw-alert-text {
+    color: #b4b4b8;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .withdraw-balance-card {
+    margin-top: 18px;
+    background: #232326;
+    border-radius: 24px;
+    padding: 24px 18px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .withdraw-balance-label {
+    color: #9fa4b5;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .withdraw-balance-value {
+    color: #f6c400;
+    font-size: 50px;
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 10px;
+  }
+
+  .withdraw-balance-unit {
+    color: #f6c400;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .withdraw-limit-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .withdraw-limit-pill {
+    background: #2d2d33;
+    color: #b4b4b8;
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 14px;
+    min-width: 110px;
+  }
+
+  .withdraw-limit-pill strong {
+    color: #fff;
+  }
+
+  .withdraw-req-card {
+    margin-top: 18px;
+    background: #232326;
+    border-radius: 24px;
+    padding: 22px 18px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .withdraw-req-title {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 18px;
+  }
+
+  .withdraw-req-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .withdraw-req-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .withdraw-req-left {
+    color: #ff4d4f;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .withdraw-req-right {
+    color: #ff4d79;
+    font-size: 16px;
+    font-weight: bold;
+    white-space: nowrap;
+  }
+
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -2310,11 +2424,44 @@
       html = `
         <div class="fade-in">
           ${renderTopButton()}
-          <h2>Withdraw</h2>
-          <p>Request payout from your balance.</p>
-          <div class="content-card">
-            <p><strong>Available Balance:</strong> $25.00</p>
-            <p style="margin-top:10px;">Minimum withdrawal: $5.00</p>
+          <h2>📥 Withdraw</h2>
+
+          <div class="withdraw-alert-card">
+            <div class="withdraw-alert-title">⏰ Withdraw Closed</div>
+            <div class="withdraw-alert-text">
+              Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).
+            </div>
+          </div>
+
+          <div class="withdraw-balance-card">
+            <div class="withdraw-balance-label">Available Balance</div>
+            <div class="withdraw-balance-value">${balance}</div>
+            <div class="withdraw-balance-unit">🐕 DOGS</div>
+
+            <div class="withdraw-limit-row">
+              <div class="withdraw-limit-pill">Min: <strong>1500</strong></div>
+              <div class="withdraw-limit-pill">Max: <strong>2500</strong></div>
+              <div class="withdraw-limit-pill">Fee: <strong>120 + 5%</strong></div>
+            </div>
+          </div>
+
+          <div class="withdraw-req-card">
+            <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
+
+            <div class="withdraw-req-item">
+              <div class="withdraw-req-left">📺 Daily Ads Watched (Watch Tab only)</div>
+              <div class="withdraw-req-right">0/10 ✖</div>
+            </div>
+
+            <div class="withdraw-req-item">
+              <div class="withdraw-req-left">✅ Total Tasks Completed</div>
+              <div class="withdraw-req-right">0/3 ✖</div>
+            </div>
+
+            <div class="withdraw-req-item">
+              <div class="withdraw-req-left">👥 Total Referrals</div>
+              <div class="withdraw-req-right">0/2 ✖</div>
+            </div>
           </div>
         </div>
       `;
@@ -2366,371 +2513,6 @@
     }).join("");
 
     return `<div class="tasks-grid">${cards}</div>`;
-  }
-
-  function openEarnWindow(type) {
-    clearInterval(dailyTimerInterval);
-    clearInterval(spinUnlockTimer);
-    clearInterval(spinCooldownTimer);
-    clearInterval(redeemCountdownTimer);
-    clearInterval(watchAdsCountdownTimer);
-    removeSpinPopup();
-    removeCustomPopup();
-
-    var content = document.getElementById("content-area");
-    let html = "";
-
-    if (type === "watchads") {
-      const state = getWatchAdsState();
-
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Watch Ads</div>
-          </div>
-
-          <div class="watchads-panel">
-            <div class="watchads-big-icon">📺</div>
-            <div class="watchads-reward-title">5 DOGS</div>
-            <div class="watchads-reward-sub">per ad watched</div>
-
-            <div class="watchads-stats">
-              <div class="watchads-stat-box">
-                <div class="watchads-stat-value" id="watchAdsHourlyLeft">${state.hourlyLeft}</div>
-                <div class="watchads-stat-label">Hourly Left</div>
-              </div>
-              <div class="watchads-stat-box">
-                <div class="watchads-stat-value" id="watchAdsDailyLeft">${state.dailyLeft}</div>
-                <div class="watchads-stat-label">Daily Left</div>
-              </div>
-            </div>
-
-            <button class="watchads-main-btn" id="watchAdsBtn" onclick="startWatchAd()">▷ Watch Ad</button>
-            <div class="watchads-status" id="watchAdsStatusText"></div>
-          </div>
-
-          <div class="earn-guide">
-            <div class="earn-guide-title">📺 Watch Ads Guide</div>
-            <ul class="earn-guide-list">
-              <li>Watch ads to earn DOGS coins instantly.</li>
-              <li>You can watch up to 100 ads per hour and 1000 per day.</li>
-              <li>After watching, reward is added automatically after 10 seconds.</li>
-              <li>Hourly limit resets every 1 hour.</li>
-              <li>Daily limit resets after 24 hours.</li>
-            </ul>
-          </div>
-        </div>
-      `;
-
-      content.innerHTML = html;
-      applyTelegramUserToHome();
-      updateWatchAdsUI();
-      return;
-    }
-
-    if (type === "tasks") {
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Tasks</div>
-          </div>
-          ${renderTasksGrid()}
-        </div>
-      `;
-    }
-
-    if (type === "refer") {
-      const userReferralCode = getUserReferralCode();
-
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Refer & Earn</div>
-          </div>
-
-          <div class="refer-panel">
-            <div class="refer-big-icon">👥</div>
-            <div class="refer-reward-title">250</div>
-            <div class="refer-reward-sub">Dogs per Referral</div>
-          </div>
-
-          <div class="refer-stats">
-            <div class="refer-stat-box">
-              <div class="refer-stat-value">0</div>
-              <div class="refer-stat-label">Total Refers</div>
-            </div>
-            <div class="refer-stat-box">
-              <div class="refer-stat-value">0</div>
-              <div class="refer-stat-label">Total Earned</div>
-            </div>
-          </div>
-
-          <div class="refer-link-card">
-            <div class="refer-link-title">Your Referral Link</div>
-
-            <div class="refer-link-row">
-              <input type="text" class="refer-link-input" id="referralLinkInput" value="https//:tm.bear earn" readonly>
-              <button class="refer-copy-btn" onclick="copyReferralLink()">⧉</button>
-            </div>
-
-            <div class="refer-link-row">
-              <input type="text" class="refer-link-input" id="referralLinkInput2" value="${userReferralCode}" readonly>
-              <button class="refer-copy-btn" onclick="copyReferralLink2()">⧉</button>
-            </div>
-
-            <div class="refer-claim-row">
-              <input type="text" class="refer-claim-input" id="referClaimInput" placeholder="Enter referral code">
-              <button class="refer-claim-btn" onclick="claimReferralCode()">Claim</button>
-            </div>
-
-            <button class="refer-share-btn" onclick="shareReferralLink()">⤴ Share via Telegram</button>
-          </div>
-
-          <div class="refer-history-card">
-            <div class="refer-history-title">📜 Refer History</div>
-            <div class="refer-empty-history">No referrals yet</div>
-          </div>
-        </div>
-      `;
-    }
-
-    if (type === "spin") {
-      spinUnlockReady = false;
-      spinInProgress = false;
-      pendingSpinPrize = 0;
-      pendingSpinClaimed = false;
-
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Spin Wheel</div>
-          </div>
-
-          <div class="spin-wrap">
-            <div class="wheel-area">
-              <div class="wheel-pointer"></div>
-              <div class="spin-wheel" id="spinWheel">
-                <div class="wheel-center"></div>
-
-                <div class="wheel-label" style="transform: rotate(22.5deg) translateY(-126px) rotate(67.5deg);">5</div>
-                <div class="wheel-label" style="transform: rotate(67.5deg) translateY(-126px) rotate(22.5deg);">10</div>
-                <div class="wheel-label" style="transform: rotate(112.5deg) translateY(-126px) rotate(-22.5deg);">5</div>
-                <div class="wheel-label" style="transform: rotate(157.5deg) translateY(-126px) rotate(-67.5deg);">10</div>
-                <div class="wheel-label" style="transform: rotate(202.5deg) translateY(-126px) rotate(-112.5deg);">5</div>
-                <div class="wheel-label" style="transform: rotate(247.5deg) translateY(-126px) rotate(-157.5deg);">10</div>
-                <div class="wheel-label" style="transform: rotate(292.5deg) translateY(-126px) rotate(-202.5deg);">5</div>
-                <div class="wheel-label" style="transform: rotate(337.5deg) translateY(-126px) rotate(-247.5deg);">10</div>
-              </div>
-            </div>
-
-            <button class="spin-dark-btn" id="spinUnlockBtn" onclick="unlockSpinByVisit()">🔒 Watch Ad to Unlock Spin</button>
-            <button class="spin-yellow-btn" id="spinActionBtn" disabled onclick="startSpin()">🔒 Locked</button>
-            <div class="spin-status" id="spinStatusText"></div>
-          </div>
-
-          <div class="earn-guide">
-            <div class="earn-guide-title">🎰 Spin Guide</div>
-            <ul class="earn-guide-list">
-              <li>Watch an ad to unlock each spin.</li>
-              <li>Win 5 or 10 DOGS with every spin.</li>
-              <li>Claim your reward by watching another ad.</li>
-              <li>2 minute cooldown between spins.</li>
-            </ul>
-          </div>
-        </div>
-      `;
-
-      content.innerHTML = html;
-      restoreSpinCooldownUI();
-      applyTelegramUserToHome();
-      return;
-    }
-
-    if (type === "redeem") {
-      const redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
-      let historyHtml = "";
-
-      if (redeemHistory.length === 0) {
-        historyHtml = `<div class="redeem-empty-history">No codes redeemed yet</div>`;
-      } else {
-        historyHtml = redeemHistory.map(function(item) {
-          return `
-            <div class="notify-item" style="margin-bottom:10px;">
-              <div class="notify-item-title">${item.code}</div>
-              <div class="notify-item-text">Reward: ${item.reward}</div>
-              <div class="notify-item-time">${item.time}</div>
-            </div>
-          `;
-        }).join("");
-      }
-
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Redeem Code</div>
-          </div>
-
-          <div class="redeem-card">
-            <div class="redeem-icon">🎁</div>
-            <div class="redeem-title">Redeem Code</div>
-
-            <div class="redeem-row">
-              <input type="text" class="redeem-input" id="redeemCodeInput" placeholder="Enter code..." oninput="toggleRedeemButton()">
-              <button class="redeem-btn" id="redeemClaimBtn" onclick="startRedeemCountdown()" disabled>Claim</button>
-            </div>
-
-            <div class="redeem-channel-box">
-              💡 Get codes from our <a href="https://t.me/yourcommunitychannel" target="_blank">Community Channel</a>
-            </div>
-
-            <div class="redeem-history-title">Redeem History</div>
-            <div id="redeemHistoryBox">${historyHtml}</div>
-            <div class="redeem-status" id="redeemStatusText"></div>
-          </div>
-
-          <div class="earn-guide">
-            <div class="earn-guide-title">🎁 Redeem Guide</div>
-            <ul class="earn-guide-list">
-              <li>Enter a valid promo code to earn free DOGS.</li>
-              <li>Codes are shared in our Community Channel.</li>
-              <li>Each code has a claim limit. Be quick!</li>
-            </ul>
-          </div>
-        </div>
-      `;
-    }
-
-    if (type === "daily") {
-      let now = Date.now();
-      let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
-      let canClaim = (now - lastClaim) >= dailyCooldown;
-      let nextClaim = lastClaim + dailyCooldown;
-      let statusText = canClaim ? "Bonus available now" : "";
-      let buttonText = canClaim ? "🦴 Claim 50 Dogs" : "⏳ Available in...";
-      let disabledAttr = canClaim ? "" : "disabled";
-
-      html = `
-        <div class="fade-in">
-          ${renderTopButton()}
-          <div class="sub-page-header">
-            <button class="back-btn" onclick="backToEarn()">←</button>
-            <div class="sub-page-title">Daily Bonus</div>
-          </div>
-
-          <div class="daily-bonus-card">
-            <div class="daily-bonus-icon">🦴</div>
-            <div class="daily-bonus-title">Daily Bonus</div>
-            <div class="daily-bonus-subtitle">Claim 50 Dogs every day!</div>
-            <div class="daily-bonus-time">Resets after 24 hours</div>
-            <button class="claim-btn" id="dailyClaimBtn" ${disabledAttr} onclick="claimDailyBonus()">${buttonText}</button>
-            <div class="daily-status" id="dailyStatusText">${statusText}</div>
-          </div>
-
-          <div class="earn-guide">
-            <div class="earn-guide-title">🦴 Daily Bonus Guide</div>
-            <ul class="earn-guide-list">
-              <li>Claim your free daily DOGS bonus once per day.</li>
-              <li>Click the claim button and complete the 10 second visit.</li>
-              <li>You will receive 50 DOGS after the countdown ends.</li>
-              <li>Bonus becomes active again after 24 hours.</li>
-            </ul>
-          </div>
-        </div>
-      `;
-    }
-
-    content.innerHTML = html;
-    applyTelegramUserToHome();
-  }
-
-  function toggleRedeemButton() {
-    const input = document.getElementById("redeemCodeInput");
-    const btn = document.getElementById("redeemClaimBtn");
-    if (!input || !btn) return;
-
-    if (input.value.trim() !== "") {
-      btn.disabled = false;
-      btn.classList.add("active");
-    } else {
-      btn.disabled = true;
-      btn.classList.remove("active");
-    }
-  }
-
-  function startRedeemCountdown() {
-    const input = document.getElementById("redeemCodeInput");
-    const btn = document.getElementById("redeemClaimBtn");
-    const status = document.getElementById("redeemStatusText");
-
-    if (!input || !btn || !status) return;
-
-    const codeValue = input.value.trim().toUpperCase();
-    if (!codeValue) {
-      status.textContent = "Please enter a code.";
-      return;
-    }
-
-    redeemPendingCode = codeValue;
-    btn.disabled = true;
-    btn.classList.add("active");
-
-    let seconds = 10;
-    btn.textContent = "Wait " + seconds + "s";
-    status.textContent = "Redirecting... complete the 10 second countdown.";
-
-    window.open(redeemRedirectUrl, "_blank");
-
-    clearInterval(redeemCountdownTimer);
-    redeemCountdownTimer = setInterval(async function() {
-      seconds--;
-      btn.textContent = "Wait " + seconds + "s";
-
-      if (seconds <= 0) {
-        clearInterval(redeemCountdownTimer);
-        btn.textContent = "Claim";
-        status.textContent = "Checking code...";
-        await claimRedeemCode();
-      }
-    }, 1000);
-  }
-
-  async function claimRedeemCode() {
-    const input = document.getElementById("redeemCodeInput");
-    const status = document.getElementById("redeemStatusText");
-    const btn = document.getElementById("redeemClaimBtn");
-
-    if (!input || !status || !btn) return;
-
-    const codeValue = redeemPendingCode || input.value.trim().toUpperCase();
-    if (!codeValue) {
-      status.textContent = "Please enter a code.";
-      toggleRedeemButton();
-      return;
-    }
-
-    status.textContent = "Checking code...";
-
-    if (!window.handleRedeemCodeFromFirebase) {
-      status.textContent = "Redeem system not ready.";
-      toggleRedeemButton();
-      return;
-    }
-
-    const success = await window.handleRedeemCodeFromFirebase(codeValue);
-
-    if (!success) {
-      toggleRedeemButton();
-    }
   }
 
   function toggleTaskCard(taskId) {
