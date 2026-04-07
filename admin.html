@@ -160,6 +160,7 @@
     <button onclick="showSection('announcement')">Announcement</button>
     <button onclick="showSection('redeemCodes')">Redeem Codes</button>
     <button onclick="showSection('referrals')">Referrals</button>
+    <button onclick="showSection('withdrawals')">Withdrawals</button>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -281,6 +282,24 @@
         </table>
       </div>
     </div>
+
+    <div id="withdrawals" class="section hidden">
+      <h1>Withdrawals</h1>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Withdrawn Balance</th>
+              <th>Date and Time</th>
+              <th>Approve</th>
+              <th>Disapprove</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawalTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -329,6 +348,7 @@
       loadRedeemCodes();
       loadRedeemClaims();
       loadReferrals();
+      loadWithdrawals();
     } else {
       document.getElementById("loginBox").classList.remove("hidden");
       document.getElementById("adminPanel").classList.add("hidden");
@@ -529,6 +549,50 @@
         </tr>
       `;
     });
+  }
+
+  async function loadWithdrawals() {
+    const withdrawalTable = document.getElementById("withdrawalTable");
+    withdrawalTable.innerHTML = "";
+
+    const withdrawalsSnapshot = await getDocs(collection(db, "withdrawals"));
+
+    withdrawalsSnapshot.forEach(docSnap => {
+      const withdrawal = docSnap.data();
+      withdrawalTable.innerHTML += `
+        <tr>
+          <td>${withdrawal.userId || "-"}</td>
+          <td>${withdrawal.amount || 0}</td>
+          <td>${withdrawal.createdAt || "-"}</td>
+          <td><button class="small-btn" onclick="approveWithdrawal('${docSnap.id}')">Approve</button></td>
+          <td><button class="danger-btn" onclick="disapproveWithdrawal('${docSnap.id}')">Disapprove</button></td>
+        </tr>
+      `;
+    });
+  }
+
+  window.approveWithdrawal = async function(withdrawalId) {
+    try {
+      const withdrawalRef = doc(db, "withdrawals", withdrawalId);
+      await updateDoc(withdrawalRef, {
+        status: "approved"
+      });
+      loadWithdrawals();
+    } catch (error) {
+      alert(error.message);
+    }
+  }
+
+  window.disapproveWithdrawal = async function(withdrawalId) {
+    try {
+      const withdrawalRef = doc(db, "withdrawals", withdrawalId);
+      await updateDoc(withdrawalRef, {
+        status: "disapproved"
+      });
+      loadWithdrawals();
+    } catch (error) {
+      alert(error.message);
+    }
   }
 </script>
 
