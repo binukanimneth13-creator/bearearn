@@ -1611,6 +1611,14 @@
     white-space: nowrap;
   }
 
+  .withdraw-req-item.completed .withdraw-req-left {
+    color: #22c55e;
+  }
+
+  .withdraw-req-item.completed .withdraw-req-right {
+    color: #22c55e;
+  }
+
   .wallet-save-card {
     margin-top: 18px;
     background: #232326;
@@ -1692,6 +1700,11 @@
     font-weight: bold;
     cursor: pointer;
     margin-bottom: 16px;
+  }
+
+  .withdraw-submit-btn.enabled {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
   }
 
   .withdraw-warning-text {
@@ -1983,6 +1996,9 @@
   let referralTestMode = true;
   let referralTestAllowedUsers = ["5834429474", "guest_user"];
 
+  let totalTasksCompleted = parseInt(localStorage.getItem("dogsTotalTasksCompleted")) || 0;
+  let totalReferralsLocal = parseInt(localStorage.getItem("dogsTotalReferralsLocal")) || 0;
+
   const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
   const spinCooldownDuration = 2 * 60 * 1000;
 
@@ -2224,6 +2240,67 @@
         <div class="withdraw-alert-text">
           Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).
         </div>
+      </div>
+    `;
+  }
+
+  function getWithdrawRequirementState() {
+    return {
+      adsCurrent: totalAdsWatched,
+      adsNeed: 10,
+      adsDone: totalAdsWatched >= 10,
+
+      tasksCurrent: totalTasksCompleted,
+      tasksNeed: 3,
+      tasksDone: totalTasksCompleted >= 3,
+
+      refsCurrent: totalReferralsLocal,
+      refsNeed: 2,
+      refsDone: totalReferralsLocal >= 2
+    };
+  }
+
+  function getWithdrawRequirementsHtml() {
+    const req = getWithdrawRequirementState();
+
+    return `
+      <div class="withdraw-req-card">
+        <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
+
+        <div class="withdraw-req-item ${req.adsDone ? 'completed' : ''}">
+          <div class="withdraw-req-left">📺 Daily Ads Watched (Watch Tab only)</div>
+          <div class="withdraw-req-right">${req.adsCurrent}/${req.adsNeed}${req.adsDone ? '' : ' ✖'}</div>
+        </div>
+
+        <div class="withdraw-req-item ${req.tasksDone ? 'completed' : ''}">
+          <div class="withdraw-req-left">✅ Total Tasks Completed</div>
+          <div class="withdraw-req-right">${req.tasksCurrent}/${req.tasksNeed}${req.tasksDone ? '' : ' ✖'}</div>
+        </div>
+
+        <div class="withdraw-req-item ${req.refsDone ? 'completed' : ''}">
+          <div class="withdraw-req-left">👥 Total Referrals</div>
+          <div class="withdraw-req-right">${req.refsCurrent}/${req.refsNeed}${req.refsDone ? '' : ' ✖'}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  function getWithdrawFormHtml() {
+    const req = getWithdrawRequirementState();
+    const allDone = req.adsDone && req.tasksDone && req.refsDone;
+    const enoughBalance = balance >= 1500;
+    const canWithdraw = allDone && enoughBalance;
+    const isOpen = isWithdrawalOpenSriLankaTime();
+
+    return `
+      <div class="withdraw-form-card">
+        <div class="withdraw-form-title">Withdraw Amount</div>
+        <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
+        <button class="withdraw-submit-btn ${canWithdraw && isOpen ? 'enabled' : ''}">📤 Withdraw</button>
+
+        ${localStorage.getItem("savedTonWalletAddress") ? '' : '<div class="withdraw-warning-text">⚠️ Save wallet address first</div>'}
+        ${allDone ? '' : '<div class="withdraw-warning-text">⚠️ Complete all requirements above to withdraw</div>'}
+        ${enoughBalance ? '' : '<div class="withdraw-warning-text">Insufficient balance for withdrawal</div>'}
       </div>
     `;
   }
@@ -2662,24 +2739,7 @@
             </div>
           </div>
 
-          <div class="withdraw-req-card">
-            <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
-
-            <div class="withdraw-req-item">
-              <div class="withdraw-req-left">📺 Daily Ads Watched (Watch Tab only)</div>
-              <div class="withdraw-req-right">0/10 ✖</div>
-            </div>
-
-            <div class="withdraw-req-item">
-              <div class="withdraw-req-left">✅ Total Tasks Completed</div>
-              <div class="withdraw-req-right">0/3 ✖</div>
-            </div>
-
-            <div class="withdraw-req-item">
-              <div class="withdraw-req-left">👥 Total Referrals</div>
-              <div class="withdraw-req-right">0/2 ✖</div>
-            </div>
-          </div>
+          ${getWithdrawRequirementsHtml()}
 
           <div class="wallet-save-card">
             <div class="wallet-save-title">💎 TON Wallet Address</div>
@@ -2689,15 +2749,7 @@
             </div>
           </div>
 
-          <div class="withdraw-form-card">
-            <div class="withdraw-form-title">Withdraw Amount</div>
-            <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
-            <button class="withdraw-submit-btn">📤 Withdraw</button>
-
-            <div class="withdraw-warning-text">⚠️ Save wallet address first</div>
-            <div class="withdraw-warning-text">⚠️ Complete all requirements above to withdraw</div>
-            <div class="withdraw-warning-text">Insufficient balance for withdrawal</div>
-          </div>
+          ${getWithdrawFormHtml()}
 
           <button class="payment-channel-btn">↗ Check Payment Channel</button>
 
@@ -3209,9 +3261,11 @@
 
       balance = currentUserBalance;
       totalEarned += 100;
+      totalReferralsLocal += 1;
 
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+      localStorage.setItem("dogsTotalReferralsLocal", totalReferralsLocal.toString());
 
       if (input) input.value = "";
 
