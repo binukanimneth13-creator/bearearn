@@ -291,6 +291,7 @@
             <tr>
               <th>User ID</th>
               <th>Withdrawn Balance</th>
+              <th>Address</th>
               <th>Date and Time</th>
               <th>Approve</th>
               <th>Disapprove</th>
@@ -563,6 +564,7 @@
         <tr>
           <td>${withdrawal.userId || "-"}</td>
           <td>${withdrawal.amount || 0}</td>
+          <td>${withdrawal.address || "-"}</td>
           <td>${withdrawal.createdAt || "-"}</td>
           <td><button class="small-btn" onclick="approveWithdrawal('${docSnap.id}')">Approve</button></td>
           <td><button class="danger-btn" onclick="disapproveWithdrawal('${docSnap.id}')">Disapprove</button></td>
