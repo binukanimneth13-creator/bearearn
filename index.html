@@ -998,6 +998,11 @@
     text-align: center;
   }
 
+  .task-complete-btn {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+  }
+
   .top-actions {
     display: flex;
     align-items: center;
@@ -1632,6 +1637,13 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .withdraw-req-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
   }
 
   .withdraw-req-left {
@@ -1653,6 +1665,10 @@
     line-height: 1.4;
   }
 
+  .withdraw-req-text.done {
+    color: #22c55e;
+  }
+
   .withdraw-req-right {
     display: flex;
     align-items: center;
@@ -1666,10 +1682,18 @@
     font-weight: bold;
   }
 
+  .withdraw-req-count.done {
+    color: #22c55e;
+  }
+
   .withdraw-req-mark {
     color: #ff4d4d;
     font-size: 18px;
     font-weight: bold;
+  }
+
+  .withdraw-req-mark.done {
+    color: #22c55e;
   }
 
   .withdraw-wallet-box {
@@ -1765,12 +1789,21 @@
     margin-bottom: 14px;
   }
 
+  .withdraw-main-btn.enabled {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+  }
+
   .withdraw-warning {
     color: #ff3b30;
     font-size: 14px;
     line-height: 1.6;
     text-align: center;
     margin-bottom: 8px;
+  }
+
+  .withdraw-warning.success {
+    color: #22c55e;
   }
 
   .withdraw-warning:last-child {
@@ -1926,7 +1959,7 @@
 
         <div class="home-stat-card">
           <div class="home-stat-title">Total Referrals</div>
-          <div class="home-stat-value">0</div>
+          <div class="home-stat-value" id="homeReferralsValue">0</div>
         </div>
 
         <div class="home-stat-card">
@@ -1936,7 +1969,7 @@
 
         <div class="home-stat-card">
           <div class="home-stat-title">Total Tasks Completed</div>
-          <div class="home-stat-value">0</div>
+          <div class="home-stat-value" id="homeTasksCompletedValue">0</div>
         </div>
 
         <div class="home-stat-card">
@@ -2034,6 +2067,8 @@
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
   let totalAdsWatched = parseInt(localStorage.getItem("dogsTotalAdsWatched")) || 0;
+  let totalTasksCompleted = parseInt(localStorage.getItem("dogsTotalTasksCompleted")) || 0;
+  let totalReferrals = parseInt(localStorage.getItem("dogsTotalReferrals")) || 0;
 
   let dailyBonusAmount = 50;
   let dailyCooldown = 24 * 60 * 60 * 1000;
@@ -2064,6 +2099,9 @@
 
   const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
   const spinCooldownDuration = 2 * 60 * 1000;
+  const withdrawRequiredDailyAds = 10;
+  const withdrawRequiredTasks = 3;
+  const withdrawRequiredReferrals = 2;
 
   const taskData = [
     {
@@ -2245,10 +2283,15 @@
     var earnedEl = document.getElementById("homeEarnedValue");
     var spinnedEl = document.getElementById("homeSpinnedValue");
     var adsEl = document.getElementById("homeAdsWatchedValue");
+    var referralsEl = document.getElementById("homeReferralsValue");
+    var tasksEl = document.getElementById("homeTasksCompletedValue");
+
     if (balanceEl) balanceEl.textContent = balance;
     if (earnedEl) earnedEl.textContent = totalEarned;
     if (spinnedEl) spinnedEl.textContent = totalSpinned;
     if (adsEl) adsEl.textContent = totalAdsWatched;
+    if (referralsEl) referralsEl.textContent = totalReferrals;
+    if (tasksEl) tasksEl.textContent = totalTasksCompleted;
   }
 
   function formatDate(dateString) {
@@ -2293,6 +2336,45 @@
     return hour >= 8 && hour < 22;
   }
 
+  function getTodaySriLankaKey() {
+    return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
+  }
+
+  function getDailyWatchAdsCountForWithdraw() {
+    const savedDate = localStorage.getItem("dogsDailyWatchDate") || "";
+    const todayDate = getTodaySriLankaKey();
+    if (savedDate !== todayDate) {
+      localStorage.setItem("dogsDailyWatchDate", todayDate);
+      localStorage.setItem("dogsDailyWatchCount", "0");
+      return 0;
+    }
+    return parseInt(localStorage.getItem("dogsDailyWatchCount")) || 0;
+  }
+
+  function incrementDailyWatchAdsCountForWithdraw() {
+    const todayDate = getTodaySriLankaKey();
+    const savedDate = localStorage.getItem("dogsDailyWatchDate") || "";
+    let count = 0;
+
+    if (savedDate !== todayDate) {
+      count = 0;
+    } else {
+      count = parseInt(localStorage.getItem("dogsDailyWatchCount")) || 0;
+    }
+
+    count += 1;
+    localStorage.setItem("dogsDailyWatchDate", todayDate);
+    localStorage.setItem("dogsDailyWatchCount", count.toString());
+    return count;
+  }
+
+  function areWithdrawRequirementsCompleted() {
+    const dailyAdsDone = getDailyWatchAdsCountForWithdraw() >= withdrawRequiredDailyAds;
+    const tasksDone = totalTasksCompleted >= withdrawRequiredTasks;
+    const referralsDone = totalReferrals >= withdrawRequiredReferrals;
+    return dailyAdsDone && tasksDone && referralsDone;
+  }
+
   function getWithdrawStatusBoxHtml() {
     if (isWithdrawOpenNow()) {
       return `
@@ -2307,6 +2389,75 @@
       <div class="withdraw-closed-box">
         <div class="withdraw-closed-title">⏰ Withdraw Closed</div>
         <div class="withdraw-closed-text">Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).</div>
+      </div>
+    `;
+  }
+
+  function getWithdrawRequirementsHtml() {
+    const dailyAdsCount = getDailyWatchAdsCountForWithdraw();
+    const tasksCount = totalTasksCompleted;
+    const referralsCount = totalReferrals;
+
+    const dailyDone = dailyAdsCount >= withdrawRequiredDailyAds;
+    const tasksDone = tasksCount >= withdrawRequiredTasks;
+    const referralsDone = referralsCount >= withdrawRequiredReferrals;
+
+    return `
+      <div class="withdraw-req-box">
+        <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
+
+        <div class="withdraw-req-list">
+          <div class="withdraw-req-item">
+            <div class="withdraw-req-left">
+              <div class="withdraw-req-icon">📺</div>
+              <div class="withdraw-req-text ${dailyDone ? 'done' : ''}">Daily Ads Watched (Watch Tab only)</div>
+            </div>
+            <div class="withdraw-req-right">
+              <div class="withdraw-req-count ${dailyDone ? 'done' : ''}">${dailyAdsCount}/${withdrawRequiredDailyAds}</div>
+              <div class="withdraw-req-mark ${dailyDone ? 'done' : ''}">${dailyDone ? '✓' : '✕'}</div>
+            </div>
+          </div>
+
+          <div class="withdraw-req-item">
+            <div class="withdraw-req-left">
+              <div class="withdraw-req-icon">✅</div>
+              <div class="withdraw-req-text ${tasksDone ? 'done' : ''}">Total Tasks Completed</div>
+            </div>
+            <div class="withdraw-req-right">
+              <div class="withdraw-req-count ${tasksDone ? 'done' : ''}">${tasksCount}/${withdrawRequiredTasks}</div>
+              <div class="withdraw-req-mark ${tasksDone ? 'done' : ''}">${tasksDone ? '✓' : '✕'}</div>
+            </div>
+          </div>
+
+          <div class="withdraw-req-item">
+            <div class="withdraw-req-left">
+              <div class="withdraw-req-icon">👥</div>
+              <div class="withdraw-req-text ${referralsDone ? 'done' : ''}">Total Referrals</div>
+            </div>
+            <div class="withdraw-req-right">
+              <div class="withdraw-req-count ${referralsDone ? 'done' : ''}">${referralsCount}/${withdrawRequiredReferrals}</div>
+              <div class="withdraw-req-mark ${referralsDone ? 'done' : ''}">${referralsDone ? '✓' : '✕'}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function getWithdrawActionBoxHtml() {
+    const requirementsDone = areWithdrawRequirementsCompleted();
+    const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
+    const enoughBalance = balance >= 1500;
+    const canWithdraw = requirementsDone && walletSaved && enoughBalance;
+
+    return `
+      <div class="withdraw-action-box">
+        <div class="withdraw-action-title">Withdraw Amount</div>
+        <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
+        <button class="withdraw-main-btn ${canWithdraw ? 'enabled' : ''}" onclick="withdrawDogsNow()">📤 Withdraw</button>
+        <div class="withdraw-warning ${walletSaved ? 'success' : ''}">${walletSaved ? '✓ Wallet address saved' : '⚠️ Save wallet address first'}</div>
+        <div class="withdraw-warning ${requirementsDone ? 'success' : ''}">${requirementsDone ? '✓ All requirements completed' : '⚠️ Complete all requirements above to withdraw'}</div>
+        <div class="withdraw-warning ${enoughBalance ? 'success' : ''}">${enoughBalance ? '✓ Sufficient balance for withdrawal' : 'Insufficient balance for withdrawal'}</div>
       </div>
     `;
   }
@@ -2476,6 +2627,8 @@
     localStorage.setItem("watchAdsDailyCount", state.dailyCount.toString());
     localStorage.setItem("watchAdsHourlyCount", state.hourlyCount.toString());
 
+    incrementDailyWatchAdsCountForWithdraw();
+
     balance += watchAdsReward;
     totalEarned += watchAdsReward;
     totalAdsWatched += 1;
@@ -2554,11 +2707,52 @@
   }
 
   function withdrawDogsNow() {
-    showCustomPopup("Withdraw", "Withdrawal is currently unavailable.");
+    if (!areWithdrawRequirementsCompleted()) {
+      showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
+      return;
+    }
+
+    if (!isWithdrawOpenNow()) {
+      showCustomPopup("Withdraw", "Withdrawal time is currently closed.");
+      return;
+    }
+
+    const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
+    if (!walletSaved) {
+      showCustomPopup("Withdraw", "Please save your TON wallet address first.");
+      return;
+    }
+
+    if (balance < 1500) {
+      showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
+      return;
+    }
+
+    showCustomPopup("Withdraw Request", "You are allowed to request a withdrawal now.");
   }
 
   function openPaymentChannel() {
     window.open("https://t.me/yourcommunitychannel", "_blank");
+  }
+
+  function completeTask(taskId) {
+    const key = "taskCompleted_" + taskId;
+    if (localStorage.getItem(key) === "1") {
+      showCustomPopup("Task", "This task is already completed.");
+      return;
+    }
+
+    localStorage.setItem(key, "1");
+    totalTasksCompleted += 1;
+    localStorage.setItem("dogsTotalTasksCompleted", totalTasksCompleted.toString());
+    renderHomeLiveValues();
+
+    const status = document.getElementById("upload-status-" + taskId);
+    if (status) {
+      status.textContent = "Task marked as completed successfully.";
+    }
+
+    showCustomPopup("Task Completed", "Task completion counted successfully.");
   }
 
   function showTab(tab, element) {
@@ -2594,7 +2788,7 @@
 
             <div class="home-stat-card">
               <div class="home-stat-title">Total Referrals</div>
-              <div class="home-stat-value">0</div>
+              <div class="home-stat-value" id="homeReferralsValue">${totalReferrals}</div>
             </div>
 
             <div class="home-stat-card">
@@ -2604,7 +2798,7 @@
 
             <div class="home-stat-card">
               <div class="home-stat-title">Total Tasks Completed</div>
-              <div class="home-stat-value">0</div>
+              <div class="home-stat-value" id="homeTasksCompletedValue">${totalTasksCompleted}</div>
             </div>
 
             <div class="home-stat-card">
@@ -2768,44 +2962,7 @@
             </div>
           </div>
 
-          <div class="withdraw-req-box">
-            <div class="withdraw-req-title">⚠️ Withdraw Requirements</div>
-
-            <div class="withdraw-req-list">
-              <div class="withdraw-req-item">
-                <div class="withdraw-req-left">
-                  <div class="withdraw-req-icon">📺</div>
-                  <div class="withdraw-req-text">Daily Ads Watched (Watch Tab only)</div>
-                </div>
-                <div class="withdraw-req-right">
-                  <div class="withdraw-req-count">0/10</div>
-                  <div class="withdraw-req-mark">✕</div>
-                </div>
-              </div>
-
-              <div class="withdraw-req-item">
-                <div class="withdraw-req-left">
-                  <div class="withdraw-req-icon">✅</div>
-                  <div class="withdraw-req-text">Total Tasks Completed</div>
-                </div>
-                <div class="withdraw-req-right">
-                  <div class="withdraw-req-count">0/3</div>
-                  <div class="withdraw-req-mark">✕</div>
-                </div>
-              </div>
-
-              <div class="withdraw-req-item">
-                <div class="withdraw-req-left">
-                  <div class="withdraw-req-icon">👥</div>
-                  <div class="withdraw-req-text">Total Referrals</div>
-                </div>
-                <div class="withdraw-req-right">
-                  <div class="withdraw-req-count">0/2</div>
-                  <div class="withdraw-req-mark">✕</div>
-                </div>
-              </div>
-            </div>
-          </div>
+          ${getWithdrawRequirementsHtml()}
 
           <div class="withdraw-wallet-box">
             <div class="withdraw-wallet-title">💎 TON Wallet Address</div>
@@ -2815,14 +2972,7 @@
             </div>
           </div>
 
-          <div class="withdraw-action-box">
-            <div class="withdraw-action-title">Withdraw Amount</div>
-            <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
-            <button class="withdraw-main-btn" onclick="withdrawDogsNow()">📤 Withdraw</button>
-            <div class="withdraw-warning">⚠️ Save wallet address first</div>
-            <div class="withdraw-warning">⚠️ Complete all requirements above to withdraw</div>
-            <div class="withdraw-warning">Insufficient balance for withdrawal</div>
-          </div>
+          ${getWithdrawActionBoxHtml()}
 
           <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
 
@@ -2868,6 +3018,7 @@
 
   function renderTasksGrid() {
     let cards = taskData.map(function(task) {
+      const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
       return `
         <div class="task-card" id="task-card-${task.id}">
           <div class="task-top" onclick="toggleTaskCard('${task.id}')">
@@ -2886,7 +3037,9 @@
 
             <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
 
-            <div class="task-upload-status" id="upload-status-${task.id}"></div>
+            <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
+
+            <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
           </div>
         </div>
       `;
@@ -2989,11 +3142,11 @@
 
           <div class="refer-stats">
             <div class="refer-stat-box">
-              <div class="refer-stat-value">0</div>
+              <div class="refer-stat-value">${totalReferrals}</div>
               <div class="refer-stat-label">Total Refers</div>
             </div>
             <div class="refer-stat-box">
-              <div class="refer-stat-value">0</div>
+              <div class="refer-stat-value">${totalReferrals * 250}</div>
               <div class="refer-stat-label">Total Earned</div>
             </div>
           </div>
@@ -3021,7 +3174,7 @@
 
           <div class="refer-history-card">
             <div class="refer-history-title">📜 Refer History</div>
-            <div class="refer-empty-history">No referrals yet</div>
+            <div class="refer-empty-history">${totalReferrals > 0 ? totalReferrals + ' referrals counted' : 'No referrals yet'}</div>
           </div>
         </div>
       `;
@@ -3141,7 +3294,6 @@
       let now = Date.now();
       let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
       let canClaim = (now - lastClaim) >= dailyCooldown;
-      let nextClaim = lastClaim + dailyCooldown;
       let statusText = canClaim ? "Bonus available now" : "";
       let buttonText = canClaim ? "🦴 Claim 50 Dogs" : "⏳ Available in...";
       let disabledAttr = canClaim ? "" : "disabled";
@@ -3177,7 +3329,6 @@
     }
 
     content.innerHTML = html;
-    renderHomeLiveValues();
     applyTelegramUserToHome();
   }
 
@@ -3700,9 +3851,11 @@
 
       balance = currentUserBalance;
       totalEarned += 100;
+      totalReferrals = totalReferrals + 1;
 
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+      localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
       if (input) input.value = "";
 
