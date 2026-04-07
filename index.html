@@ -3179,6 +3179,13 @@
       if (input) input.value = "";
 
       renderHomeLiveValues();
+
+      if (currentUserId === enteredCode) {
+        balance = ownerBalanceAfter;
+        localStorage.setItem("dogsBalance", balance.toString());
+        renderHomeLiveValues();
+      }
+
       openEarnWindow('refer');
 
       if (testUser) {
