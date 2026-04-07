@@ -1772,6 +1772,80 @@
     cursor: pointer;
     border: 1px solid rgba(255,255,255,0.04);
     box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    margin-bottom: 18px;
+  }
+
+  .withdraw-history-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 24px;
+    padding: 18px 16px 24px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    margin-bottom: 18px;
+  }
+
+  .withdraw-history-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .withdraw-history-empty {
+    color: #8f97aa;
+    font-size: 15px;
+    text-align: center;
+  }
+
+  .withdraw-guide-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 24px;
+    padding: 18px 16px 18px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+  }
+
+  .withdraw-guide-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .withdraw-guide-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .withdraw-guide-list li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 12px;
+    color: #a8acba;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .withdraw-guide-list li:last-child {
+    margin-bottom: 0;
+  }
+
+  .withdraw-guide-list li::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: #ffcc00;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    top: 7px;
   }
 
   @media (max-width: 480px) {
@@ -2701,6 +2775,24 @@
           </div>
 
           <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
+
+          <div class="withdraw-history-box">
+            <div class="withdraw-history-title">📜 Withdraw History</div>
+            <div class="withdraw-history-empty">No withdrawals yet</div>
+          </div>
+
+          <div class="withdraw-guide-box">
+            <div class="withdraw-guide-title">📤 Withdraw Guide</div>
+            <ul class="withdraw-guide-list">
+              <li>Withdraw fee: 120 DOGS + 5% of your withdrawal amount.</li>
+              <li>Min withdraw: 1500 Dogs, Max: 2500 Dogs.</li>
+              <li>Requirements: 10 daily ads (Watch tab), 3 tasks, 2 referrals.</li>
+              <li>Save your TON wallet address before withdrawing.</li>
+              <li>Withdraw hours: 8:00 AM - 22:00 PM Sri Lanka Time.</li>
+              <li>Only one pending withdrawal allowed at a time.</li>
+              <li>Withdrawals are processed within 24 hours.</li>
+            </ul>
+          </div>
         </div>
       `;
     } 
