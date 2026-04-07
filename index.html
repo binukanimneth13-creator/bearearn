@@ -1591,6 +1591,7 @@
     padding: 20px 16px 16px;
     border: 1px solid rgba(255,255,255,0.04);
     box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    margin-bottom: 18px;
   }
 
   .withdraw-req-title {
@@ -1652,6 +1653,125 @@
     color: #ff4d4d;
     font-size: 18px;
     font-weight: bold;
+  }
+
+  .withdraw-wallet-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 24px;
+    padding: 18px 16px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    margin-bottom: 18px;
+  }
+
+  .withdraw-wallet-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 16px;
+  }
+
+  .withdraw-wallet-row {
+    display: flex;
+    gap: 10px;
+  }
+
+  .withdraw-wallet-input {
+    flex: 1;
+    background: #2d2d33;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+  }
+
+  .withdraw-wallet-input::placeholder {
+    color: #8f97aa;
+  }
+
+  .withdraw-save-btn {
+    border: none;
+    border-radius: 16px;
+    padding: 16px 20px;
+    background: #9b7a1f;
+    color: #111;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    min-width: 82px;
+  }
+
+  .withdraw-action-box {
+    background: rgba(30, 30, 33, 0.94);
+    border-radius: 24px;
+    padding: 20px 16px 18px;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    margin-bottom: 18px;
+  }
+
+  .withdraw-action-title {
+    color: #fff;
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 14px;
+  }
+
+  .withdraw-amount-input {
+    width: 100%;
+    background: #2d2d33;
+    border: none;
+    border-radius: 16px;
+    padding: 16px 14px;
+    color: #fff;
+    font-size: 15px;
+    outline: none;
+    margin-bottom: 14px;
+  }
+
+  .withdraw-amount-input::placeholder {
+    color: #8f97aa;
+  }
+
+  .withdraw-main-btn {
+    width: 100%;
+    border: none;
+    border-radius: 18px;
+    background: #8a6a18;
+    color: #1d1d1d;
+    padding: 18px 14px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 14px;
+  }
+
+  .withdraw-warning {
+    color: #ff3b30;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .withdraw-warning:last-child {
+    margin-bottom: 0;
+  }
+
+  .withdraw-channel-btn {
+    width: 100%;
+    border: none;
+    border-radius: 18px;
+    background: rgba(45, 45, 51, 0.96);
+    color: #d6d6d8;
+    padding: 18px 14px;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 24px rgba(0,0,0,0.22);
   }
 
   @media (max-width: 480px) {
@@ -2294,6 +2414,26 @@
     }
   }
 
+  function saveWithdrawWallet() {
+    const input = document.getElementById("withdrawWalletInput");
+    if (!input) return;
+    const value = input.value.trim();
+    if (!value) {
+      showCustomPopup("Error", "Please enter TON wallet address.");
+      return;
+    }
+    localStorage.setItem("tonWalletAddress", value);
+    showCustomPopup("Saved", "TON wallet address saved successfully.");
+  }
+
+  function withdrawDogsNow() {
+    showCustomPopup("Withdraw", "Withdrawal is currently unavailable.");
+  }
+
+  function openPaymentChannel() {
+    window.open("https://t.me/yourcommunitychannel", "_blank");
+  }
+
   function showTab(tab, element) {
     var content = document.getElementById("content-area");
     var navItems = document.querySelectorAll(".nav-item");
@@ -2479,6 +2619,7 @@
       `;
     } 
     else if (tab === "withdraw") {
+      const savedWallet = localStorage.getItem("tonWalletAddress") || "";
       html = `
         <div class="fade-in withdraw-screen">
           <div class="withdraw-title-row">
@@ -2541,6 +2682,25 @@
               </div>
             </div>
           </div>
+
+          <div class="withdraw-wallet-box">
+            <div class="withdraw-wallet-title">💎 TON Wallet Address</div>
+            <div class="withdraw-wallet-row">
+              <input type="text" class="withdraw-wallet-input" id="withdrawWalletInput" placeholder="Enter TON wallet address..." value="${savedWallet}">
+              <button class="withdraw-save-btn" onclick="saveWithdrawWallet()">Save</button>
+            </div>
+          </div>
+
+          <div class="withdraw-action-box">
+            <div class="withdraw-action-title">Withdraw Amount</div>
+            <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
+            <button class="withdraw-main-btn" onclick="withdrawDogsNow()">📤 Withdraw</button>
+            <div class="withdraw-warning">⚠️ Save wallet address first</div>
+            <div class="withdraw-warning">⚠️ Complete all requirements above to withdraw</div>
+            <div class="withdraw-warning">Insufficient balance for withdrawal</div>
+          </div>
+
+          <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
         </div>
       `;
     } 
