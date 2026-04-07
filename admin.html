@@ -161,6 +161,7 @@
     <button onclick="showSection('redeemCodes')">Redeem Codes</button>
     <button onclick="showSection('referrals')">Referrals</button>
     <button onclick="showSection('withdrawals')">Withdrawals</button>
+    <button onclick="showSection('tasks')">Tasks</button>
     <button onclick="logout()">Logout</button>
   </div>
 
@@ -300,6 +301,23 @@
         </table>
       </div>
     </div>
+
+    <div id="tasks" class="section hidden">
+      <h1>Tasks</h1>
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Date and Time</th>
+              <th>Screenshot</th>
+              <th>Type</th>
+            </tr>
+          </thead>
+          <tbody id="taskTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -349,6 +367,7 @@
       loadRedeemClaims();
       loadReferrals();
       loadWithdrawals();
+      loadTasks();
     } else {
       document.getElementById("loginBox").classList.remove("hidden");
       document.getElementById("adminPanel").classList.add("hidden");
@@ -566,6 +585,25 @@
           <td>${withdrawal.address || "-"}</td>
           <td>${withdrawal.type || "-"}</td>
           <td>${withdrawal.createdAt || "-"}</td>
+        </tr>
+      `;
+    });
+  }
+
+  async function loadTasks() {
+    const taskTable = document.getElementById("taskTable");
+    taskTable.innerHTML = "";
+
+    const tasksSnapshot = await getDocs(collection(db, "tasks"));
+
+    tasksSnapshot.forEach(docSnap => {
+      const task = docSnap.data();
+      taskTable.innerHTML += `
+        <tr>
+          <td>${task.userId || "-"}</td>
+          <td>${task.createdAt || "-"}</td>
+          <td>${task.screenshot || "-"}</td>
+          <td>${task.type || "-"}</td>
         </tr>
       `;
     });
