@@ -1526,6 +1526,23 @@
     margin-bottom: 8px;
   }
 
+  .withdraw-open-box {
+    background: rgba(22, 58, 34, 0.78);
+    border: 1px solid rgba(34, 197, 94, 0.42);
+    border-radius: 24px;
+    padding: 22px 16px;
+    text-align: center;
+    margin-bottom: 18px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+  }
+
+  .withdraw-open-title {
+    color: #22c55e;
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
   .withdraw-closed-text {
     color: rgba(255,255,255,0.65);
     font-size: 15px;
@@ -2258,6 +2275,42 @@
     return referralTestMode && referralTestAllowedUsers.includes(userId);
   }
 
+  function getSriLankaHour() {
+    const now = new Date();
+    const sriHour = parseInt(
+      now.toLocaleString("en-US", {
+        timeZone: "Asia/Colombo",
+        hour: "2-digit",
+        hour12: false
+      }),
+      10
+    );
+    return sriHour;
+  }
+
+  function isWithdrawOpenNow() {
+    const hour = getSriLankaHour();
+    return hour >= 8 && hour < 22;
+  }
+
+  function getWithdrawStatusBoxHtml() {
+    if (isWithdrawOpenNow()) {
+      return `
+        <div class="withdraw-open-box">
+          <div class="withdraw-open-title">✅ Withdraw Open</div>
+          <div class="withdraw-closed-text">Withdrawals are currently open until 22:00 PM (Sri Lanka Time).</div>
+        </div>
+      `;
+    }
+
+    return `
+      <div class="withdraw-closed-box">
+        <div class="withdraw-closed-title">⏰ Withdraw Closed</div>
+        <div class="withdraw-closed-text">Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).</div>
+      </div>
+    `;
+  }
+
   function showCustomPopup(title, text) {
     removeCustomPopup();
     var appBox = document.getElementById("miniAppBox");
@@ -2701,10 +2754,7 @@
             <div class="withdraw-main-title">Withdraw</div>
           </div>
 
-          <div class="withdraw-closed-box">
-            <div class="withdraw-closed-title">⏰ Withdraw Closed</div>
-            <div class="withdraw-closed-text">Withdrawals are open from 8:00 AM to 22:00 PM (Sri Lanka Time).</div>
-          </div>
+          ${getWithdrawStatusBoxHtml()}
 
           <div class="withdraw-balance-box">
             <div class="withdraw-balance-label">Available Balance</div>
@@ -3127,6 +3177,7 @@
     }
 
     content.innerHTML = html;
+    renderHomeLiveValues();
     applyTelegramUserToHome();
   }
 
