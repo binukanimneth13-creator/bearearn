@@ -1245,6 +1245,33 @@
     min-width: 120px;
   }
 
+  .confirm-popup-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .confirm-cancel-btn,
+  .confirm-ok-btn {
+    flex: 1;
+    border: none;
+    border-radius: 14px;
+    padding: 14px 12px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .confirm-cancel-btn {
+    background: #2d2d33;
+    color: #fff;
+  }
+
+  .confirm-ok-btn {
+    background: linear-gradient(90deg, #ffcc00, #f59e0b);
+    color: #111;
+  }
+
   .watchads-panel {
     margin-top: 6px;
     background: #232326;
@@ -2538,7 +2565,7 @@
     return `
       <div class="withdraw-action-box">
         <div class="withdraw-action-title">Withdraw Amount</div>
-        <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
+        <input type="text" class="withdraw-amount-input" id="withdrawAmountInput" placeholder="1500 - 2500 Dogs">
         <button class="withdraw-main-btn ${canWithdraw ? 'enabled' : ''}" onclick="withdrawDogsNow()">📤 Withdraw</button>
         <div class="withdraw-warning ${walletSaved ? 'success' : ''}">${walletSaved ? '✓ Wallet address saved' : '⚠️ Save wallet address first'}</div>
         <div class="withdraw-warning ${requirementsDone ? 'success' : ''}">${requirementsDone ? '✓ All requirements completed' : '⚠️ Complete all requirements above to withdraw'}</div>
@@ -2563,9 +2590,40 @@
     appBox.appendChild(popup);
   }
 
+  function showWithdrawConfirmPopup(withdrawValue) {
+    removeCustomPopup();
+    var appBox = document.getElementById("miniAppBox");
+    var popup = document.createElement("div");
+    popup.className = "custom-popup-overlay";
+    popup.id = "customPopupBox";
+    popup.innerHTML = `
+      <div class="custom-popup-card">
+        <div class="custom-popup-title">Confirm Withdrawal</div>
+        <div class="custom-popup-text">${escapeHtml(withdrawValue)} confirm withdrawal</div>
+        <div class="confirm-popup-actions">
+          <button class="confirm-cancel-btn" onclick="cancelWithdrawRequest()">Cancel</button>
+          <button class="confirm-ok-btn" onclick="confirmWithdrawRequest()">Confirm</button>
+        </div>
+      </div>
+    `;
+    appBox.appendChild(popup);
+  }
+
   function removeCustomPopup() {
     var popup = document.getElementById("customPopupBox");
     if (popup) popup.remove();
+  }
+
+  function cancelWithdrawRequest() {
+    localStorage.removeItem("pendingWithdrawValue");
+    removeCustomPopup();
+  }
+
+  function confirmWithdrawRequest() {
+    const pendingValue = localStorage.getItem("pendingWithdrawValue") || "";
+    removeCustomPopup();
+    localStorage.removeItem("pendingWithdrawValue");
+    showCustomPopup("Confirmed", pendingValue ? pendingValue + " withdrawal request confirmed." : "Withdrawal request confirmed.");
   }
 
   async function claimReferralCode() {
@@ -2839,7 +2897,20 @@
       return;
     }
 
-    showCustomPopup("Withdraw Request", "You are allowed to request a withdrawal now.");
+    const amountInput = document.getElementById("withdrawAmountInput");
+    if (!amountInput) {
+      showCustomPopup("Withdraw", "Withdrawal input not found.");
+      return;
+    }
+
+    const withdrawValue = amountInput.value.trim();
+    if (!withdrawValue) {
+      showCustomPopup("Withdraw", "Please enter withdrawal value.");
+      return;
+    }
+
+    localStorage.setItem("pendingWithdrawValue", withdrawValue);
+    showWithdrawConfirmPopup(withdrawValue);
   }
 
   function openPaymentChannel() {
