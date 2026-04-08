@@ -2519,16 +2519,39 @@
     appBox.appendChild(popup);
   }
 
+  // ✅ UPDATED: popup now shows wallet and net receivable
   function showWithdrawConfirmPopup(withdrawValue) {
     removeCustomPopup();
     var appBox = document.getElementById("miniAppBox");
-    var popup = document.createElement("div");
+
+    const rawWallet = (localStorage.getItem("tonWalletAddress") || "").trim();
+    const walletLabel = rawWallet ? rawWallet : "No wallet saved";
+
+    const amountNum = Number(withdrawValue) || 0;
+    const feeFixed = 120;
+    const feePercent = amountNum * 0.05;
+    const totalFee = feeFixed + feePercent;
+    const receivable = Math.max(0, amountNum - totalFee);
+    const receivableText = receivable.toFixed(2);
+
+    popup = document.createElement("div");
     popup.className = "custom-popup-overlay";
     popup.id = "customPopupBox";
     popup.innerHTML = `
       <div class="custom-popup-card">
         <div class="custom-popup-title">Confirm Withdrawal</div>
-        <div class="custom-popup-text">${escapeHtml(withdrawValue)} confirm withdrawal</div>
+        <div class="custom-popup-text">${escapeHtml(String(withdrawValue))} confirm withdrawal</div>
+
+        <div style="margin-bottom:10px; text-align:left; color:#a8acba; font-size:13px;">Withdraw to (saved address)</div>
+        <input type="text" readonly
+               style="width:100%;margin-bottom:12px;padding:10px 12px;border-radius:10px;border:none;background:#2d2d33;color:#fff;font-size:13px;"
+               value="${escapeHtml(walletLabel)}">
+
+        <div style="margin-bottom:4px; text-align:left; color:#a8acba; font-size:13px;">You will receive after 120 + 5% fee:</div>
+        <input type="text" readonly
+               style="width:100%;margin-bottom:16px;padding:10px 12px;border-radius:10px;border:none;background:#2d2d33;color:#f6c400;font-weight:bold;font-size:14px;"
+               value="${receivableText} DOGS">
+
         <div class="confirm-popup-actions">
           <button class="confirm-cancel-btn" onclick="cancelWithdrawRequest()">Cancel</button>
           <button class="confirm-ok-btn" onclick="confirmWithdrawRequest()">Confirm</button>
@@ -2804,7 +2827,7 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
-  // ✅ UPDATED FUNCTION: ONLY CHANGE HERE
+  // ✅ UPDATED: adds multiple-of-10 rule and keeps 1500–2500 range
   function withdrawDogsNow() {
     if (!areWithdrawRequirementsCompleted()) {
       showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
@@ -2846,11 +2869,26 @@
       return;
     }
 
-    // ✅ Only allow values between 1500 and 2500 (inclusive)
+    // must be integer
+    if (!Number.isInteger(withdrawValue)) {
+      showCustomPopup("Invalid Amount", "Withdrawal amount must be a whole number.");
+      return;
+    }
+
+    // range check
     if (withdrawValue < 1500 || withdrawValue > 2500) {
       showCustomPopup(
         "Invalid Amount",
         "Withdrawal amount must be equal to 1500, 2500, or any value in between 1500 and 2500 DOGS."
+      );
+      return;
+    }
+
+    // multiple of 10 check
+    if (withdrawValue % 10 !== 0) {
+      showCustomPopup(
+        "Invalid Amount",
+        "Withdrawal amount must be a multiple of 10 DOGS."
       );
       return;
     }
