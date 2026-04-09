@@ -1,4 +1,5 @@
 <style>
+  /* === ALL ORIGINAL STYLES (UNCHANGED) === */
   * {
     margin: 0;
     padding: 0;
@@ -1893,6 +1894,7 @@
 
 <div class="miniapp-box" id="miniAppBox">
 
+  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loader-ring">
       <div class="inner-ring">
@@ -1909,6 +1911,7 @@
     <div class="loading-text">Loading your DOGS rewards...</div>
   </div>
 
+  <!-- App Screen -->
   <div class="app-screen">
     <div class="miniapp-content fade-in" id="content-area">
       <div class="top-actions">
@@ -2043,6 +2046,8 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
+  /* === ALL YOUR ORIGINAL JS STATE AND UTILITY CODE (UNCHANGED) === */
+
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
@@ -2519,7 +2524,7 @@
     appBox.appendChild(popup);
   }
 
-  // ✅ UPDATED: popup now shows wallet and net receivable
+  // UPDATED CONFIRM POPUP: shows address & receivable
   function showWithdrawConfirmPopup(withdrawValue) {
     removeCustomPopup();
     var appBox = document.getElementById("miniAppBox");
@@ -2534,7 +2539,7 @@
     const receivable = Math.max(0, amountNum - totalFee);
     const receivableText = receivable.toFixed(2);
 
-    popup = document.createElement("div");
+    const popup = document.createElement("div");
     popup.className = "custom-popup-overlay";
     popup.id = "customPopupBox";
     popup.innerHTML = `
@@ -2571,11 +2576,50 @@
     removeCustomPopup();
   }
 
-  function confirmWithdrawRequest() {
-    const pendingValue = localStorage.getItem("pendingWithdrawValue") || "";
+  // UPDATED CONFIRM: create withdrawal doc + reduce balance
+  async function confirmWithdrawRequest() {
+    const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
+    const amount = Number(pendingValueStr);
+
     removeCustomPopup();
     localStorage.removeItem("pendingWithdrawValue");
-    showCustomPopup("Confirmed", pendingValue ? pendingValue + " withdrawal request confirmed." : "Withdrawal request confirmed.");
+
+    if (!amount || isNaN(amount)) {
+      showCustomPopup("Error", "Invalid withdrawal amount.");
+      return;
+    }
+
+    if (amount > balance) {
+      showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
+      return;
+    }
+
+    // Reduce balance locally
+    balance -= amount;
+    localStorage.setItem("dogsBalance", balance.toString());
+    renderHomeLiveValues();
+
+    const user = window.currentTelegramUser || {};
+    const userId = String(user.telegramId || "guest_user");
+    const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
+    const createdAt = new Date().toISOString();
+
+    if (window.createWithdrawalRequestToFirebase) {
+      try {
+        await window.createWithdrawalRequestToFirebase({
+          userId: userId,
+          amount: amount,
+          address: walletAddress,
+          type: "",
+          createdAt: createdAt
+        });
+        showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
+      } catch (e) {
+        showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
+      }
+    } else {
+      showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
+    }
   }
 
   async function claimReferralCode() {
@@ -2827,7 +2871,7 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
-  // ✅ UPDATED: adds multiple-of-10 rule and keeps 1500–2500 range
+  // UPDATED: withdraw rules 1500-2500 + multiple of 10
   function withdrawDogsNow() {
     if (!areWithdrawRequirementsCompleted()) {
       showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
@@ -2869,13 +2913,11 @@
       return;
     }
 
-    // must be integer
     if (!Number.isInteger(withdrawValue)) {
       showCustomPopup("Invalid Amount", "Withdrawal amount must be a whole number.");
       return;
     }
 
-    // range check
     if (withdrawValue < 1500 || withdrawValue > 2500) {
       showCustomPopup(
         "Invalid Amount",
@@ -2884,7 +2926,6 @@
       return;
     }
 
-    // multiple of 10 check
     if (withdrawValue % 10 !== 0) {
       showCustomPopup(
         "Invalid Amount",
@@ -3901,7 +3942,8 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc
+    updateDoc,
+    addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -4254,5 +4296,16 @@
         </div>
       `;
     }
+  };
+
+  // NEW helper for withdrawal creation, used in confirmWithdrawRequest
+  window.createWithdrawalRequestToFirebase = async function (payload) {
+    await addDoc(collection(db, "withdrawals"), {
+      userId: payload.userId,
+      amount: payload.amount,
+      address: payload.address || "",
+      type: "", // keep type empty as requested
+      createdAt: payload.createdAt || new Date().toISOString()
+    });
   };
 </script>
