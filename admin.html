@@ -602,6 +602,17 @@
     });
   }
 
+  // NEW: update withdrawal type (approve / reject)
+  window.updateWithdrawalType = async function(id, newType) {
+    try {
+      const wRef = doc(db, "withdrawals", id);
+      await updateDoc(wRef, { type: newType });
+      await loadWithdrawals();
+    } catch (e) {
+      alert("Failed to update withdrawal: " + (e.message || e));
+    }
+  }
+
   async function loadWithdrawals() {
     const withdrawalTable = document.getElementById("withdrawalTable");
     withdrawalTable.innerHTML = "";
@@ -610,12 +621,25 @@
 
     withdrawalsSnapshot.forEach(docSnap => {
       const withdrawal = docSnap.data();
+      const wType = withdrawal.type || "";
+
+      let typeCellHtml = "-";
+      if (!wType) {
+        // show approve/reject buttons when no type yet
+        typeCellHtml = `
+          <button class="small-btn" onclick="updateWithdrawalType('${docSnap.id}','approved')">Approve</button>
+          <button class="danger-btn" onclick="updateWithdrawalType('${docSnap.id}','rejected')">Reject</button>
+        `;
+      } else {
+        typeCellHtml = wType;
+      }
+
       withdrawalTable.innerHTML += `
         <tr>
           <td>${withdrawal.userId || "-"}</td>
           <td>${withdrawal.amount || 0}</td>
           <td>${withdrawal.address || "-"}</td>
-          <td>${withdrawal.type || "-"}</td>
+          <td>${typeCellHtml}</td>
           <td>${withdrawal.createdAt || "-"}</td>
         </tr>
       `;
