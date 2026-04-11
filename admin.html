@@ -4,29 +4,23 @@
   <meta charset="UTF-8">
   <title>Crypto Bot Admin Panel</title>
   <style>
+    /* same CSS as your admin panel */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
       background: #0f172a;
       color: #fff;
     }
-
-    .container {
-      display: flex;
-      min-height: 100vh;
-    }
-
+    .container { display: flex; min-height: 100vh; }
     .sidebar {
       width: 250px;
       background: #1e293b;
       padding: 20px;
     }
-
     .sidebar h2 {
       color: #38bdf8;
       margin-bottom: 30px;
     }
-
     .sidebar button {
       width: 100%;
       background: #334155;
@@ -38,16 +32,8 @@
       border-radius: 8px;
       text-align: left;
     }
-
-    .sidebar button:hover {
-      background: #475569;
-    }
-
-    .main {
-      flex: 1;
-      padding: 20px;
-    }
-
+    .sidebar button:hover { background: #475569; }
+    .main { flex: 1; padding: 20px; }
     .card {
       background: #1e293b;
       padding: 20px;
@@ -55,13 +41,11 @@
       margin-bottom: 20px;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
     }
-
     .cards {
       display: grid;
       grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
       gap: 20px;
     }
-
     input, textarea, select {
       width: 100%;
       padding: 12px;
@@ -72,7 +56,6 @@
       background: #334155;
       color: #fff;
     }
-
     .btn {
       background: #38bdf8;
       color: #000;
@@ -82,11 +65,7 @@
       cursor: pointer;
       font-weight: bold;
     }
-
-    .btn:hover {
-      background: #0ea5e9;
-    }
-
+    .btn:hover { background: #0ea5e9; }
     #loginBox {
       max-width: 400px;
       margin: 100px auto;
@@ -94,23 +73,17 @@
       padding: 30px;
       border-radius: 15px;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
     }
-
     table th, table td {
       border-bottom: 1px solid #334155;
       padding: 10px;
       text-align: left;
     }
-
-    .hidden {
-      display: none;
-    }
-
+    .hidden { display: none; }
     .small-btn {
       background: #22c55e;
       color: #000;
@@ -121,11 +94,7 @@
       font-weight: bold;
       margin-right: 5px;
     }
-
-    .small-btn:hover {
-      background: #16a34a;
-    }
-
+    .small-btn:hover { background: #16a34a; }
     .danger-btn {
       background: #ef4444;
       color: #fff;
@@ -135,17 +104,12 @@
       cursor: pointer;
       font-weight: bold;
     }
-
-    .danger-btn:hover {
-      background: #dc2626;
-    }
-
+    .danger-btn:hover { background: #dc2626; }
     .task-link {
       color: #38bdf8;
       text-decoration: underline;
       word-break: break-all;
     }
-
     .task-image-preview {
       max-width: 120px;
       max-height: 120px;
@@ -356,7 +320,6 @@
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const status = document.getElementById("loginStatus");
-
     try {
       await signInWithEmailAndPassword(auth, email, password);
       status.innerText = "Login successful";
@@ -391,21 +354,11 @@
     sections.forEach(sec => sec.classList.add("hidden"));
     document.getElementById(sectionId).classList.remove("hidden");
 
-    if (sectionId === "tasks") {
-      loadTasks();
-    }
-    if (sectionId === "withdrawals") {
-      loadWithdrawals();
-    }
-    if (sectionId === "referrals") {
-      loadReferrals();
-    }
-    if (sectionId === "users") {
-      loadUsers();
-    }
-    if (sectionId === "dashboard") {
-      loadDashboard();
-    }
+    if (sectionId === "tasks") loadTasks();
+    if (sectionId === "withdrawals") loadWithdrawals();
+    if (sectionId === "referrals") loadReferrals();
+    if (sectionId === "users") loadUsers();
+    if (sectionId === "dashboard") loadDashboard();
     if (sectionId === "redeemCodes") {
       loadRedeemCodes();
       loadRedeemClaims();
@@ -419,7 +372,6 @@
 
     let totalUsers = usersSnapshot.size;
     let totalEarnings = 0;
-
     usersSnapshot.forEach(docSnap => {
       const data = docSnap.data();
       totalEarnings += Number(data.balance || 0);
@@ -435,7 +387,6 @@
     const userTable = document.getElementById("userTable");
     userTable.innerHTML = "";
     const usersSnapshot = await getDocs(collection(db, "users"));
-
     usersSnapshot.forEach(docSnap => {
       const user = docSnap.data();
       userTable.innerHTML += `
@@ -461,12 +412,9 @@
     try {
       const userRef = doc(db, "users", userId);
       const userSnap = await getDoc(userRef);
-
       if (userSnap.exists()) {
         const currentBalance = Number(userSnap.data().balance || 0);
-        await updateDoc(userRef, {
-          balance: currentBalance + amount
-        });
+        await updateDoc(userRef, { balance: currentBalance + amount });
         status.innerText = "Earning added successfully";
         loadDashboard();
         loadUsers();
@@ -481,12 +429,10 @@
   window.sendAnnouncement = async function() {
     const text = document.getElementById("announcementText").value.trim();
     const status = document.getElementById("announceStatus");
-
     if (!text) {
       status.innerText = "Announcement cannot be empty";
       return;
     }
-
     try {
       await addDoc(collection(db, "announcements"), {
         message: text,
@@ -505,29 +451,24 @@
     const amount = Number(document.getElementById("redeemCodeAmount").value);
     const userLimit = Number(document.getElementById("redeemCodeUserLimit").value);
     const status = document.getElementById("redeemCreateStatus");
-
     if (!code || !amount || !userLimit) {
       status.innerText = "Please enter redeem code, reward amount and no of users";
       return;
     }
-
     try {
       const codeRef = doc(db, "redeem_codes", code);
       const codeSnap = await getDoc(codeRef);
-
       if (codeSnap.exists()) {
         status.innerText = "This redeem code already exists";
         return;
       }
-
       await setDoc(codeRef, {
-        code: code,
-        amount: amount,
-        userLimit: userLimit,
+        code,
+        amount,
+        userLimit,
         createdAt: new Date().toISOString(),
         totalClaims: 0
       });
-
       status.innerText = "Redeem code created successfully";
       document.getElementById("redeemCodeText").value = "";
       document.getElementById("redeemCodeAmount").value = "";
@@ -542,9 +483,7 @@
   async function loadRedeemCodes() {
     const redeemCodeTable = document.getElementById("redeemCodeTable");
     redeemCodeTable.innerHTML = "";
-
     const redeemCodesSnapshot = await getDocs(collection(db, "redeem_codes"));
-
     redeemCodesSnapshot.forEach(docSnap => {
       const codeData = docSnap.data();
       redeemCodeTable.innerHTML += `
@@ -562,9 +501,7 @@
   async function loadRedeemClaims() {
     const redeemClaimsTable = document.getElementById("redeemClaimsTable");
     redeemClaimsTable.innerHTML = "";
-
     const claimsSnapshot = await getDocs(collection(db, "redeem_claims"));
-
     claimsSnapshot.forEach(docSnap => {
       const claim = docSnap.data();
       redeemClaimsTable.innerHTML += `
@@ -581,16 +518,13 @@
   async function loadReferrals() {
     const referralTable = document.getElementById("referralTable");
     referralTable.innerHTML = "";
-
     const usersSnapshot = await getDocs(collection(db, "users"));
-
     usersSnapshot.forEach(docSnap => {
       const user = docSnap.data();
       const userId = docSnap.id;
       const name = user.name || "No Name";
       const code = userId;
       const referrals = user.referrals || 0;
-
       referralTable.innerHTML += `
         <tr>
           <td>${userId}</td>
@@ -602,36 +536,43 @@
     });
   }
 
-  // NEW: update withdrawal type (approve / reject)
-  window.updateWithdrawalType = async function(id, newType) {
+  // Approve / Reject withdrawal; refund full amount on reject
+  window.updateWithdrawalType = async function (id, newType, amount, userId) {
     try {
       const wRef = doc(db, "withdrawals", id);
+
+      if (newType === "rejected") {
+        const userRef = doc(db, "users", String(userId));
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          const currentBalance = Number(data.balance || 0);
+          await updateDoc(userRef, { balance: currentBalance + Number(amount || 0) });
+        }
+      }
+
       await updateDoc(wRef, { type: newType });
       await loadWithdrawals();
     } catch (e) {
       alert("Failed to update withdrawal: " + (e.message || e));
     }
-  }
+  };
 
   async function loadWithdrawals() {
     const withdrawalTable = document.getElementById("withdrawalTable");
     withdrawalTable.innerHTML = "";
-
     const withdrawalsSnapshot = await getDocs(collection(db, "withdrawals"));
 
     withdrawalsSnapshot.forEach(docSnap => {
       const withdrawal = docSnap.data();
-      const wType = withdrawal.type || "";
+      const status = String(withdrawal.type || "pending").toLowerCase();
 
-      let typeCellHtml = "-";
-      if (!wType) {
-        // show approve/reject buttons when no type yet
+      let typeCellHtml = status;
+      if (status === "pending" || status === "") {
         typeCellHtml = `
-          <button class="small-btn" onclick="updateWithdrawalType('${docSnap.id}','approved')">Approve</button>
-          <button class="danger-btn" onclick="updateWithdrawalType('${docSnap.id}','rejected')">Reject</button>
+          <button class="small-btn" onclick="updateWithdrawalType('${docSnap.id}','approved',${withdrawal.amount || 0},'${withdrawal.userId || ""}')">Approve</button>
+          <button class="danger-btn" onclick="updateWithdrawalType('${docSnap.id}','rejected',${withdrawal.amount || 0},'${withdrawal.userId || ""}')">Reject</button>
         `;
-      } else {
-        typeCellHtml = wType;
       }
 
       withdrawalTable.innerHTML += `
@@ -649,14 +590,11 @@
   async function loadTasks() {
     const taskTable = document.getElementById("taskTable");
     taskTable.innerHTML = "";
-
     const tasksSnapshot = await getDocs(collection(db, "tasks"));
-
     tasksSnapshot.forEach(docSnap => {
       const task = docSnap.data();
       const screenshot = task.screenshot || "-";
       let screenshotHtml = "-";
-
       if (screenshot && screenshot !== "-") {
         if (String(screenshot).startsWith("data:image") || String(screenshot).startsWith("http")) {
           screenshotHtml = `<a href="${screenshot}" target="_blank"><img src="${screenshot}" class="task-image-preview" alt="Screenshot"></a>`;
@@ -664,7 +602,6 @@
           screenshotHtml = `<span>${screenshot}</span>`;
         }
       }
-
       taskTable.innerHTML += `
         <tr>
           <td>${task.userId || "-"}</td>
@@ -676,6 +613,5 @@
     });
   }
 </script>
-
 </body>
 </html>
