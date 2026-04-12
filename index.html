@@ -1890,6 +1890,92 @@
       border-radius: 0;
     }
   }
+
+  /* === NEW WITHDRAW HISTORY ROW UI (ADDED) === */
+  .withdraw-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .withdraw-history-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(15, 15, 18, 0.9);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .withdraw-history-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .withdraw-history-amount {
+    color: #f6c400;
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .withdraw-history-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    font-size: 12px;
+    color: #a8acba;
+  }
+
+  .withdraw-history-address {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .withdraw-history-dot {
+    opacity: 0.7;
+  }
+
+  .withdraw-history-time {
+    opacity: 0.9;
+  }
+
+  .withdraw-history-status-pill {
+    min-width: 70px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap;
+    align-self: center;
+  }
+
+  .withdraw-history-status-pending {
+    border-color: #facc15;
+    color: #facc15;
+    background: rgba(23, 23, 16, 0.95);
+    box-shadow: 0 0 10px rgba(250, 204, 21, 0.4);
+  }
+
+  .withdraw-history-status-paid {
+    border-color: #22c55e;
+    color: #22c55e;
+    background: rgba(10, 28, 18, 0.95);
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+  }
+
+  .withdraw-history-status-rejected {
+    border-color: #ef4444;
+    color: #ef4444;
+    background: rgba(39, 12, 12, 0.95);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
+  }
 </style>
 
 <div class="miniapp-box" id="miniAppBox">
@@ -4307,7 +4393,7 @@
     }
   };
 
-  // NEW: user withdraw history loader
+  // NEW: user withdraw history loader with compact UI and status pill
   window.loadUserWithdrawHistoryFromFirebase = async function () {
     const box = document.getElementById("withdrawHistoryContent");
     if (!box) return;
@@ -4341,45 +4427,58 @@
         return tB - tA;
       });
 
+      const shortAddress = (addr) => {
+        if (!addr) return "-";
+        const s = String(addr);
+        if (s.length <= 10) return s;
+        return s.slice(0, 4) + "..." + s.slice(-4);
+      };
+
+      const shortTime = (ts) => {
+        if (!ts) return "";
+        const d = new Date(ts);
+        if (isNaN(d.getTime())) return "";
+        return d.toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      };
+
       let rowsHtml = "";
       items.forEach((w) => {
         const amount = Number(w.amount || 0);
-        const address = w.address || "-";
-        const createdAt = w.createdAt || "";
+        const address = shortAddress(w.address || "-");
+        const createdAt = shortTime(w.createdAt || "");
         const t = (w.type || "").toString();
 
         let statusText = "Pending";
+        let statusClass = "withdraw-history-status-pending";
         if (t === "approved") {
           statusText = "Paid";
+          statusClass = "withdraw-history-status-paid";
         } else if (t === "rejected") {
           statusText = "Rejected";
+          statusClass = "withdraw-history-status-rejected";
         }
 
         rowsHtml += `
-          <tr>
-            <td>${amount}</td>
-            <td>${address}</td>
-            <td>${statusText}</td>
-            <td>${window.formatDate(createdAt)}</td>
-          </tr>
+          <div class="withdraw-history-item">
+            <div class="withdraw-history-left">
+              <div class="withdraw-history-amount">${amount} DOGS</div>
+              <div class="withdraw-history-meta">
+                <span class="withdraw-history-address">${address}</span>
+                <span class="withdraw-history-dot">•</span>
+                <span class="withdraw-history-time">${createdAt}</span>
+              </div>
+            </div>
+            <div class="withdraw-history-status-pill ${statusClass}">${statusText}</div>
+          </div>
         `;
       });
 
-      box.innerHTML = `
-        <table>
-          <thead>
-            <tr>
-              <th>Amount</th>
-              <th>Address</th>
-              <th>Status</th>
-              <th>Date & Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      `;
+      box.innerHTML = `<div class="withdraw-history-list">${rowsHtml}</div>`;
     } catch (error) {
       box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
     }
