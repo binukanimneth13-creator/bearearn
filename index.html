@@ -2046,7 +2046,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-  /* === ALL YOUR ORIGINAL JS STATE AND UTILITY CODE (UNCHANGED) === */
+  /* === ALL YOUR ORIGINAL JS STATE AND UTILITY CODE (UNCHANGED, EXCEPT WHERE NOTED) === */
 
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
@@ -2620,6 +2620,10 @@
     } else {
       showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
     }
+
+    if (window.loadUserWithdrawHistoryFromFirebase) {
+      window.loadUserWithdrawHistoryFromFirebase();
+    }
   }
 
   async function claimReferralCode() {
@@ -3186,7 +3190,9 @@
 
           <div class="withdraw-history-box">
             <div class="withdraw-history-title">📜 Withdraw History</div>
-            <div class="withdraw-history-empty">No withdrawals yet</div>
+            <div id="withdrawHistoryContent">
+              <div class="withdraw-history-empty">No withdrawals yet</div>
+            </div>
           </div>
 
           <div class="withdraw-guide-box">
@@ -3225,6 +3231,9 @@
 
     if (tab === "withdraw") {
       toggleWithdrawSaveButton();
+      if (window.loadUserWithdrawHistoryFromFirebase) {
+        window.loadUserWithdrawHistoryFromFirebase();
+      }
     }
   }
 
@@ -4295,6 +4304,84 @@
           <div class="notify-item-time">${window.escapeHtml(error.message)}</div>
         </div>
       `;
+    }
+  };
+
+  // NEW: user withdraw history loader
+  window.loadUserWithdrawHistoryFromFirebase = async function () {
+    const box = document.getElementById("withdrawHistoryContent");
+    if (!box) return;
+
+    const user = window.currentTelegramUser;
+    if (!user || !user.telegramId) {
+      box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
+      return;
+    }
+
+    try {
+      const userId = String(user.telegramId);
+      const snapshot = await getDocs(collection(db, "withdrawals"));
+
+      const items = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() || {};
+        if (String(data.userId || "") === userId) {
+          items.push(data);
+        }
+      });
+
+      if (items.length === 0) {
+        box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
+        return;
+      }
+
+      items.sort((a, b) => {
+        const tA = new Date(a.createdAt || 0).getTime();
+        const tB = new Date(b.createdAt || 0).getTime();
+        return tB - tA;
+      });
+
+      let rowsHtml = "";
+      items.forEach((w) => {
+        const amount = Number(w.amount || 0);
+        const address = w.address || "-";
+        const createdAt = w.createdAt || "";
+        const t = (w.type || "").toString();
+
+        let statusText = "Pending";
+        if (t === "approved") {
+          statusText = "Paid";
+        } else if (t === "rejected") {
+          statusText = "Rejected";
+        }
+
+        rowsHtml += `
+          <tr>
+            <td>${amount}</td>
+            <td>${address}</td>
+            <td>${statusText}</td>
+            <td>${window.formatDate(createdAt)}</td>
+          </tr>
+        `;
+      });
+
+      box.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Amount</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Date & Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rowsHtml}
+          </tbody>
+        </table>
+      `;
+    } catch (error) {
+      box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
     }
   };
 
