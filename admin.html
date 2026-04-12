@@ -602,10 +602,34 @@
     });
   }
 
-  // NEW: update withdrawal type (approve / reject)
+  // NEW: update withdrawal type (approve / reject) + refund on rejected
   window.updateWithdrawalType = async function(id, newType) {
     try {
       const wRef = doc(db, "withdrawals", id);
+      const wSnap = await getDoc(wRef);
+
+      if (!wSnap.exists()) {
+        alert("Withdrawal request not found");
+        return;
+      }
+
+      const wData = wSnap.data() || {};
+      const userId = wData.userId;
+      const amount = Number(wData.amount || 0);
+
+      // If rejected, refund the full withdrawal amount back to the user's balance
+      if (newType === "rejected" && userId && amount > 0) {
+        const userRef = doc(db, "users", String(userId));
+        const userSnap = await getDoc(userRef);
+        let currentBalance = 0;
+        if (userSnap.exists()) {
+          currentBalance = Number(userSnap.data().balance || 0);
+        }
+        await updateDoc(userRef, {
+          balance: currentBalance + amount
+        });
+      }
+
       await updateDoc(wRef, { type: newType });
       await loadWithdrawals();
     } catch (e) {
