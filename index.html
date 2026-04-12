@@ -1,9 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FREE DOGS PAY</title>
 <style>
   /* === ALL ORIGINAL STYLES (UNCHANGED) === */
   * {
@@ -1884,65 +1878,6 @@
     left: 0;
     top: 7px;
   }
-  
-  /* === NEW CSS FOR WITHDRAWAL HISTORY === */
-  .history-item-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .history-item {
-    background-color: rgba(45,45,51,0.96);
-    border-radius: 16px;
-    padding: 16px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border: 1px solid rgba(255,255,255,0.04);
-  }
-  
-  .history-item-left {
-    min-width: 0;
-  }
-  
-  .history-item-amount {
-    color: #fff;
-    font-size: 17px;
-    font-weight: bold;
-    margin-bottom: 6px;
-  }
-  
-  .history-item-date {
-    color: #8f97aa;
-    font-size: 12px;
-  }
-  
-  .history-item-status {
-    padding: 6px 12px;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: bold;
-    text-align: center;
-    min-width: 80px;
-  }
-  
-  .history-item-status.pending {
-    background-color: #f59e0b; /* Amber */
-    color: #111;
-  }
-  
-  .history-item-status.paid {
-    background-color: #22c55e; /* Green */
-    color: #fff;
-  }
-  
-  .history-item-status.rejected {
-    background-color: #ef4444; /* Red */
-    color: #fff;
-  }
-  /* === END OF NEW CSS === */
-
 
   @media (max-width: 480px) {
     body {
@@ -1956,8 +1891,6 @@
     }
   }
 </style>
-</head>
-<body>
 
 <div class="miniapp-box" id="miniAppBox">
 
@@ -1981,7 +1914,96 @@
   <!-- App Screen -->
   <div class="app-screen">
     <div class="miniapp-content fade-in" id="content-area">
-      <!-- Content is rendered dynamically by JS -->
+      <div class="top-actions">
+        <div class="top-user-mini">
+          <img class="top-user-mini-avatar" id="topTgUserPhoto" src="https://ui-avatars.com/api/?name=U&background=232326&color=fff" alt="User" onerror="this.src='https://ui-avatars.com/api/?name=U&background=232326&color=fff'">
+          <div class="top-user-mini-info">
+            <div class="top-user-mini-name" id="topTgUserName">@guest_user</div>
+            <div class="top-user-mini-welcome">Welcome back! 🪶</div>
+          </div>
+        </div>
+        <button class="notify-btn" onclick="openNotificationWindow()">🔔<span class="notify-badge"></span></button>
+      </div>
+
+      <h2>Home</h2>
+
+      <div class="home-balance-card">
+        <img class="home-balance-logo" src="YOUR_IMAGE_URL_HERE" alt="Logo">
+        <div class="home-balance-label">Your Balance</div>
+        <div class="home-balance-value" id="homeBalanceValue">160</div>
+        <div class="home-balance-unit">🐕 DOGS</div>
+      </div>
+
+      <div class="home-stats-grid">
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Ads Watched</div>
+          <div class="home-stat-value" id="homeAdsWatchedValue">0</div>
+        </div>
+
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Referrals</div>
+          <div class="home-stat-value" id="homeReferralsValue">0</div>
+        </div>
+
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Withdrawn Balance</div>
+          <div class="home-stat-value">0</div>
+        </div>
+
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Tasks Completed</div>
+          <div class="home-stat-value" id="homeTasksCompletedValue">0</div>
+        </div>
+
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Spinned</div>
+          <div class="home-stat-value" id="homeSpinnedValue">0</div>
+        </div>
+
+        <div class="home-stat-card">
+          <div class="home-stat-title">Total Earned</div>
+          <div class="home-stat-value" id="homeEarnedValue">160</div>
+        </div>
+      </div>
+
+      <div class="app-stats-card">
+        <div class="app-stats-title">📊 App Statistics</div>
+
+        <div class="app-stats-row">
+          <div class="app-stat-left">👤 Total Users</div>
+          <div class="app-stat-right">532</div>
+        </div>
+
+        <div class="app-stats-row">
+          <div class="app-stat-left">💎 Total Payment</div>
+          <div class="app-stat-right">126,550</div>
+        </div>
+
+        <div class="app-stats-row">
+          <div class="app-stat-left">🐕 Total Paid Dogs</div>
+          <div class="app-stat-right">126,550</div>
+        </div>
+
+        <div class="app-stats-row">
+          <div class="app-stat-left">📤 Total Withdraw Dogs</div>
+          <div class="app-stat-right">126,550</div>
+        </div>
+
+        <div class="app-stats-row">
+          <div class="app-stat-left">🏦 All User Balance</div>
+          <div class="app-stat-right">174,220</div>
+        </div>
+      </div>
+
+      <div class="home-guide-card">
+        <div class="home-guide-title">🏠 Home Guide</div>
+        <ul class="home-guide-list">
+          <li>View your current DOGS balance and earning stats.</li>
+          <li>Track your total earned, withdrawn, ads watched, tasks and spins.</li>
+          <li>App statistics show overall platform performance.</li>
+          <li>Go to Earn tab to start earning more DOGS.</li>
+        </ul>
+      </div>
     </div>
 
     <div class="bottom-nav">
@@ -2137,12 +2159,10 @@
   window.addEventListener("load", function() {
     initTelegramUser();
     setTimeout(async function() {
-      showTab('home', document.querySelector('.nav-item')); // Show home tab initially
       document.getElementById("loadingScreen").classList.add("hide");
       await syncReferralDataFromFirebase();
-      if (window.listenForWithdrawalUpdates) {
-        window.listenForWithdrawalUpdates(); // Start the real-time listener
-      }
+      renderHomeLiveValues();
+      applyTelegramUserToHome();
       if (window.saveTelegramUserToFirebase) {
         window.saveTelegramUserToFirebase();
       }
@@ -2259,12 +2279,6 @@
     if (adsEl) adsEl.textContent = totalAdsWatched;
     if (referralsEl) referralsEl.textContent = totalReferrals;
     if (tasksEl) tasksEl.textContent = totalTasksCompleted;
-
-    // Also update the live balance on the withdraw screen if it's visible
-    var withdrawBalanceEl = document.getElementById("withdrawBalanceValueLive");
-    if(withdrawBalanceEl) {
-        withdrawBalanceEl.textContent = balance;
-    }
   }
 
   function formatDate(dateString) {
@@ -2510,6 +2524,7 @@
     appBox.appendChild(popup);
   }
 
+  // UPDATED CONFIRM POPUP: shows address & receivable
   function showWithdrawConfirmPopup(withdrawValue) {
     removeCustomPopup();
     var appBox = document.getElementById("miniAppBox");
@@ -2561,6 +2576,7 @@
     removeCustomPopup();
   }
 
+  // UPDATED CONFIRM: create withdrawal doc + reduce balance
   async function confirmWithdrawRequest() {
     const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
     const amount = Number(pendingValueStr);
@@ -2599,11 +2615,7 @@
         });
         showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
       } catch (e) {
-        // If Firebase fails, refund the balance
-        balance += amount;
-        localStorage.setItem("dogsBalance", balance.toString());
-        renderHomeLiveValues();
-        showCustomPopup("Error", "Withdrawal request could not be saved. Your balance has been restored. " + (e.message || e));
+        showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
       }
     } else {
       showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
@@ -2859,6 +2871,7 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
+  // UPDATED: withdraw rules 1500-2500 + multiple of 10
   function withdrawDogsNow() {
     if (!areWithdrawRequirementsCompleted()) {
       showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
@@ -3153,7 +3166,7 @@
 
           <div class="withdraw-balance-box">
             <div class="withdraw-balance-label">Available Balance</div>
-            <div class="withdraw-balance-value" id="withdrawBalanceValueLive">${balance}</div>
+            <div class="withdraw-balance-value">${balance}</div>
             <div class="withdraw-balance-unit">🐕 DOGS</div>
 
             <div class="withdraw-meta-row">
@@ -3170,13 +3183,10 @@
           ${getWithdrawActionBoxHtml()}
 
           <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
-        
-          <!-- MODIFIED: DYNAMIC WITHDRAWAL HISTORY SECTION -->
+
           <div class="withdraw-history-box">
             <div class="withdraw-history-title">📜 Withdraw History</div>
-            <div id="userWithdrawalHistoryContainer">
-                <div class="withdraw-history-empty">Loading history...</div>
-            </div>
+            <div class="withdraw-history-empty">No withdrawals yet</div>
           </div>
 
           <div class="withdraw-guide-box">
@@ -3926,16 +3936,14 @@
   import {
     getFirestore,
     collection,
+    getDocs,
     query,
-    where,
     orderBy,
     doc,
     getDoc,
     setDoc,
     updateDoc,
-    addDoc,
-    onSnapshot,
-    getDocs
+    addDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -4290,113 +4298,14 @@
     }
   };
 
+  // NEW helper for withdrawal creation, used in confirmWithdrawRequest
   window.createWithdrawalRequestToFirebase = async function (payload) {
-    const docRef = await addDoc(collection(db, "withdrawals"), {
+    await addDoc(collection(db, "withdrawals"), {
       userId: payload.userId,
       amount: payload.amount,
       address: payload.address || "",
-      type: "", 
-      createdAt: payload.createdAt || new Date().toISOString(),
-      refunded: false // Add a refunded flag
+      type: "", // keep type empty as requested
+      createdAt: payload.createdAt || new Date().toISOString()
     });
-    return docRef.id;
   };
-  
-  // === NEW REAL-TIME LISTENER FOR WITHDRAWALS ===
-  let unsubscribeWithdrawals = null; // To hold the listener cleanup function
-  
-  window.listenForWithdrawalUpdates = function() {
-      // If a listener already exists, stop it before creating a new one
-      if (unsubscribeWithdrawals) {
-          unsubscribeWithdrawals();
-      }
-
-      const user = window.currentTelegramUser;
-      if (!user || !user.telegramId || user.telegramId === 'guest_user') return;
-
-      const q = query(
-          collection(db, "withdrawals"), 
-          where("userId", "==", user.telegramId), 
-          orderBy("createdAt", "desc")
-      );
-
-      unsubscribeWithdrawals = onSnapshot(q, (snapshot) => {
-          const historyContainer = document.getElementById('userWithdrawalHistoryContainer');
-          let historyHtml = "";
-          
-          if (snapshot.empty) {
-              if(historyContainer) {
-                  historyContainer.innerHTML = `<div class="withdraw-history-empty">No withdrawals yet</div>`;
-              }
-              return;
-          }
-
-          // Process document changes for refunds
-          snapshot.docChanges().forEach((change) => {
-              if (change.type === "modified") {
-                  const data = change.doc.data();
-                  const docId = change.doc.id;
-                  
-                  // Check if the request was just rejected and not already refunded
-                  if (data.type === 'rejected' && !data.refunded) {
-                      const refundAmount = data.amount;
-                      
-                      // Update balance
-                      balance += refundAmount;
-                      localStorage.setItem("dogsBalance", balance.toString());
-                      
-                      // Update UI
-                      renderHomeLiveValues();
-                      
-                      // Show popup
-                      showCustomPopup("Refund Processed", `Your withdrawal request of ${refundAmount} DOGS was rejected and the amount has been returned to your balance.`);
-                      
-                      // Mark as refunded in Firestore to prevent double refund
-                      const docRef = doc(db, "withdrawals", docId);
-                      updateDoc(docRef, { refunded: true });
-                  }
-              }
-          });
-
-          // Build the full history list for display
-          snapshot.forEach((docSnap) => {
-              const withdrawal = docSnap.data();
-              const status = withdrawal.type || 'pending'; // 'pending', 'approved', 'rejected'
-              
-              let statusText = "Pending";
-              let statusClass = "pending";
-              
-              if (status === 'approved') {
-                  statusText = "Paid";
-                  statusClass = "paid";
-              } else if (status === 'rejected') {
-                  statusText = "Rejected";
-                  statusClass = "rejected";
-              }
-
-              historyHtml += `
-                  <div class="history-item">
-                      <div class="history-item-left">
-                          <div class="history-item-amount">${withdrawal.amount} 🐕 DOGS</div>
-                          <div class="history-item-date">${formatDate(withdrawal.createdAt)}</div>
-                      </div>
-                      <div class="history-item-status ${statusClass}">${statusText}</div>
-                  </div>
-              `;
-          });
-          
-          if(historyContainer) {
-              historyContainer.innerHTML = `<div class="history-item-list">${historyHtml}</div>`;
-          }
-      }, (error) => {
-          console.error("Error listening to withdrawal updates: ", error);
-          if(historyContainer) {
-              historyContainer.innerHTML = `<div class="withdraw-history-empty">Error loading history.</div>`;
-          }
-      });
-  }
-  // === END OF NEW FUNCTION ===
 </script>
-
-</body>
-</html>
