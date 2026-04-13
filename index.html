@@ -1879,7 +1879,7 @@
     top: 7px;
   }
 
-  /* === NEW WITHDRAW HISTORY ROW UI === */
+  /* === WITHDRAW HISTORY ROW UI === */
   .withdraw-history-list {
     display: flex;
     flex-direction: column;
@@ -1973,6 +1973,38 @@
     gap: 14px;
   }
 
+  .crash-history-strip {
+    margin-top: 0;
+    padding: 12px 12px 10px;
+  }
+
+  .crash-history-bars {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    min-height: 28px;
+  }
+
+  .crash-history-item {
+    flex: 0 0 auto;
+  }
+
+  .crash-history-bar {
+    display: none;
+  }
+
+  .crash-history-label {
+    padding: 3px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    color: #e5e7eb;
+    background: rgba(15,23,42,0.9);
+    border: 1px solid rgba(148,163,184,0.7);
+    white-space: nowrap;
+  }
+
   .crash-graph-box {
     position: relative;
     height: 190px;
@@ -2010,6 +2042,51 @@
     background: radial-gradient(circle, #fbbf24, #f97316);
     box-shadow: 0 0 14px rgba(248,250,252,0.9);
     transform: translate(0,0);
+    z-index: 2;
+  }
+
+  .crash-countdown-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(rgba(15,23,42,0.80), rgba(15,23,42,0.85));
+    z-index: 3;
+  }
+
+  .crash-countdown-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    border: 2px solid rgba(148,163,184,0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #020617;
+    box-shadow: 0 0 10px rgba(15,23,42,0.9) inset;
+  }
+
+  .crash-propeller {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    border-top-color: #e5e7eb;
+    border-right-color: #e5e7eb;
+    animation: crashPropellerSpin 0.6s linear infinite;
+  }
+
+  .crash-countdown-text {
+    font-size: 14px;
+    color: #e5e7eb;
+    font-weight: bold;
+  }
+
+  @keyframes crashPropellerSpin {
+    to { transform: rotate(360deg); }
   }
 
   .crash-multiplier-box {
@@ -2054,72 +2131,6 @@
     0%   { transform: translate(0,0) scale(1); opacity: 1; }
     40%  { transform: translate(8px,-8px) scale(1.08); opacity: 1; }
     100% { transform: translate(0,24px) scale(0.65); opacity: 0.2; }
-  }
-
-  .crash-countdown-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-  }
-
-  .crash-countdown-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 999px;
-    border: 2px solid rgba(148,163,184,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #0b1120;
-    box-shadow: 0 0 8px rgba(15,23,42,0.9) inset;
-  }
-
-  .crash-propeller {
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: #e5e7eb;
-    border-right-color: #e5e7eb;
-    animation: crashPropellerSpin 0.6s linear infinite;
-  }
-
-  .crash-countdown-text {
-    font-size: 13px;
-    color: #e5e7eb;
-    font-weight: bold;
-  }
-
-  @keyframes crashPropellerSpin {
-    to { transform: rotate(360deg); }
-  }
-
-  .crash-history-bars {
-    display: flex;
-    gap: 6px;
-    align-items: flex-end;
-    min-height: 60px;
-  }
-
-  .crash-history-item {
-    flex: 1;
-    min-width: 0;
-    position: relative;
-  }
-
-  .crash-history-bar {
-    width: 100%;
-    border-radius: 999px 999px 4px 4px;
-    background: linear-gradient(180deg,#22c55e,#15803d);
-  }
-
-  .crash-history-label {
-    font-size: 10px;
-    margin-top: 2px;
-    color: #e5e7eb;
-    text-align: center;
-    opacity: 0.9;
   }
 
   @media (max-width: 480px) {
@@ -3538,16 +3549,9 @@
       return;
     }
 
-    const maxMult = Math.max(2, ...crashHistory);
     const itemsHtml = crashHistory.map(function(m) {
-      const height = 22 + (Math.min(m, maxMult) / maxMult) * 46; // 22 - 68px
-      let color = "linear-gradient(180deg,#ef4444,#b91c1c)";
-      if (m >= 3) color = "linear-gradient(180deg,#22c55e,#15803d)";
-      else if (m >= 1.7) color = "linear-gradient(180deg,#f97316,#ea580c)";
-
       return `
         <div class="crash-history-item">
-          <div class="crash-history-bar" style="height:${height}px;background:${color};"></div>
           <div class="crash-history-label">${m.toFixed(2)}x</div>
         </div>
       `;
@@ -3557,12 +3561,24 @@
   }
 
   function startCrashCountdown(seconds) {
+    const overlay = document.getElementById("crashCountdownOverlay");
     const countdownEl = document.getElementById("crashCountdownText");
     const status = document.getElementById("crashStatus");
+    const plane = document.getElementById("crashPlane");
+
+    cancelAnimationFrame(crashAnimationId);
     clearInterval(crashCountdownTimer);
     crashGameActive = false;
+
+    if (plane) {
+      plane.classList.remove("crash-plane-flying");
+      plane.classList.remove("crash-plane-crashed");
+      plane.style.transform = "translate(0px,0px)";
+    }
+
     let remaining = seconds;
 
+    if (overlay) overlay.style.display = "flex";
     if (countdownEl) countdownEl.textContent = "Next flight in " + remaining + "s";
     if (status) status.textContent = "Next flight starting soon...";
 
@@ -3573,6 +3589,7 @@
       }
       if (remaining <= 0) {
         clearInterval(crashCountdownTimer);
+        if (overlay) overlay.style.display = "none";
         if (countdownEl) countdownEl.textContent = "Flight in progress...";
         startCrashRound();
       }
@@ -3589,7 +3606,8 @@
     const plane = document.getElementById("crashPlane");
     const mult = document.getElementById("crashMultiplier");
     const status = document.getElementById("crashStatus");
-    const countdown = document.getElementById("crashCountdownText");
+    const countdownEl = document.getElementById("crashCountdownText");
+    const overlay = document.getElementById("crashCountdownOverlay");
 
     if (plane) {
       plane.style.transform = "translate(0px,0px)";
@@ -3598,7 +3616,8 @@
     }
     if (mult) mult.textContent = "1.00x";
     if (status) status.textContent = "Preparing next flight...";
-    if (countdown) countdown.textContent = "Next flight in 10s";
+    if (overlay) overlay.style.display = "flex";
+    if (countdownEl) countdownEl.textContent = "Next flight in 10s";
 
     renderCrashHistory();
     startCrashCountdown(10);
@@ -3610,6 +3629,8 @@
     const mult = document.getElementById("crashMultiplier");
     const status = document.getElementById("crashStatus");
     const plane = document.getElementById("crashPlane");
+    const overlay = document.getElementById("crashCountdownOverlay");
+    if (overlay) overlay.style.display = "none";
 
     cancelAnimationFrame(crashAnimationId);
 
@@ -4027,25 +4048,27 @@
           </div>
 
           <div class="crash-wrap">
+            <div class="content-card crash-history-strip">
+              <div style="font-size:14px;font-weight:bold;margin-bottom:6px;">Last 10 Crashes</div>
+              <div class="crash-history-bars" id="crashHistoryBars"></div>
+            </div>
+
             <div class="crash-graph-box">
               <div class="crash-plane" id="crashPlane">✈️</div>
+
+              <div class="crash-countdown-overlay" id="crashCountdownOverlay">
+                <div class="crash-countdown-icon">
+                  <div class="crash-propeller"></div>
+                </div>
+                <div class="crash-countdown-text" id="crashCountdownText">Next flight in 10s</div>
+              </div>
             </div>
+
             <div class="crash-multiplier-box">
               <div class="crash-multiplier-label">Multiplier</div>
               <div class="crash-multiplier-value" id="crashMultiplier">1.00x</div>
               <div class="crash-status-text" id="crashStatus">Preparing next flight...</div>
             </div>
-            <div class="crash-countdown-box">
-              <div class="crash-countdown-icon">
-                <div class="crash-propeller"></div>
-              </div>
-              <div class="crash-countdown-text" id="crashCountdownText">Next flight in 10s</div>
-            </div>
-          </div>
-
-          <div class="content-card" style="margin-top:16px;">
-            <div style="font-size:14px;font-weight:bold;margin-bottom:8px;">Last 10 Crashes</div>
-            <div class="crash-history-bars" id="crashHistoryBars"></div>
           </div>
 
           <div class="earn-guide">
@@ -4053,7 +4076,7 @@
             <ul class="earn-guide-list">
               <li>The plane takes off automatically after every 10 second countdown.</li>
               <li>The multiplier increases over time until the plane crashes at a random value.</li>
-              <li>The last 10 crash multipliers are shown above as history bars.</li>
+              <li>The last 10 crash multipliers are shown at the top as a history strip.</li>
             </ul>
           </div>
         </div>
