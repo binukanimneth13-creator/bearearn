@@ -1891,7 +1891,7 @@
     }
   }
 
-  /* === NEW WITHDRAW HISTORY ROW UI (ADDED) === */
+  /* === NEW WITHDRAW HISTORY ROW UI (ADDED PREVIOUSLY) === */
   .withdraw-history-list {
     display: flex;
     flex-direction: column;
@@ -2132,8 +2132,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-  /* === ALL YOUR ORIGINAL JS STATE AND UTILITY CODE (UNCHANGED, EXCEPT WHERE NOTED) === */
-
+  /* === ALL ORIGINAL JS STATE & LOGIC (MOSTLY UNCHANGED) === */
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
@@ -3187,6 +3186,18 @@
               <div class="earn-arrow">›</div>
             </button>
 
+            <!-- NEW: Play Games & Earn button -->
+            <button class="earn-item" onclick="openEarnWindow('games')">
+              <div class="earn-left">
+                <div class="earn-icon">🎮</div>
+                <div class="earn-text">
+                  <strong>Play Games & Earn</strong>
+                  <span>Crash • Tic Tac Toe • Mine</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
             <button class="earn-item" onclick="openEarnWindow('refer')">
               <div class="earn-left">
                 <div class="earn-icon">👥</div>
@@ -3419,6 +3430,67 @@
       return;
     }
 
+    /* NEW: Play Games & Earn window */
+    if (type === "games") {
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Play Games & Earn</div>
+          </div>
+
+          <div class="earn-list">
+            <button class="earn-item" onclick="openEarnWindow('crash')">
+              <div class="earn-left">
+                <div class="earn-icon">💥</div>
+                <div class="earn-text">
+                  <strong>Crash</strong>
+                  <span>High risk, high reward</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('tictac')">
+              <div class="earn-left">
+                <div class="earn-icon">❌</div>
+                <div class="earn-text">
+                  <strong>Tic Tac Toe</strong>
+                  <span>Win rounds & earn</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('mine')">
+              <div class="earn-left">
+                <div class="earn-icon">💣</div>
+                <div class="earn-text">
+                  <strong>Mine</strong>
+                  <span>Find rewards safely</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">🎮 Games Guide</div>
+            <ul class="earn-guide-list">
+              <li>Select any game to open its game window.</li>
+              <li>Each game will have its own earning rules.</li>
+              <li>Future updates will let you play and earn DOGS directly from these games.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+      applyTelegramUserToHome();
+      return;
+    }
+
     if (type === "tasks") {
       html = `
         <div class="fade-in">
@@ -3632,6 +3704,53 @@
               <li>You will receive 50 DOGS after the countdown ends.</li>
               <li>Bonus becomes active again after 24 hours.</li>
             </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    /* NEW: Individual game windows */
+
+    if (type === "crash") {
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToGames()">←</button>
+            <div class="sub-page-title">Crash</div>
+          </div>
+          <div class="content-card">
+            <p>Crash game will be available soon. You will be able to place bets, watch the multiplier grow, and cash out before it crashes to earn DOGS.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (type === "tictac") {
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToGames()">←</button>
+            <div class="sub-page-title">Tic Tac Toe</div>
+          </div>
+          <div class="content-card">
+            <p>Tic Tac Toe game will be available soon. Win matches against other players or the bot and earn DOGS for each victory.</p>
+          </div>
+        </div>
+      `;
+    }
+
+    if (type === "mine") {
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToGames()">←</button>
+            <div class="sub-page-title">Mine</div>
+          </div>
+          <div class="content-card">
+            <p>Mine game will be available soon. Open safe tiles, avoid bombs and collect DOGS based on how many safe spots you uncover.</p>
           </div>
         </div>
       `;
@@ -4023,6 +4142,11 @@
     await syncReferralDataFromFirebase();
     var earnNav = document.querySelectorAll(".nav-item")[1];
     showTab('earn', earnNav);
+  }
+
+  /* NEW: backToGames helper for game windows */
+  function backToGames() {
+    openEarnWindow('games');
   }
 </script>
 
