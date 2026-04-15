@@ -1,9 +1,9 @@
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>FREE DOGS PAY</title>
 
   <style>
@@ -137,9 +137,7 @@
     }
 
     @keyframes spin {
-      100% {
-        transform: rotate(360deg);
-      }
+      100% { transform: rotate(360deg); }
     }
 
     @keyframes loadBar {
@@ -246,9 +244,7 @@
       filter: drop-shadow(0 0 6px rgba(246, 196, 0, 0.5));
     }
 
-    .nav-item.active span {
-      font-weight: bold;
-    }
+    .nav-item.active span { font-weight: bold; }
 
     .nav-item.active::before {
       content: "";
@@ -262,19 +258,11 @@
       box-shadow: 0 0 12px rgba(246, 196, 0, 0.8);
     }
 
-    .fade-in {
-      animation: fadeIn 0.4s ease;
-    }
+    .fade-in { animation: fadeIn 0.4s ease; }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .earn-list {
@@ -300,15 +288,9 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .earn-item:hover {
-      background: #29292d;
-    }
+    .earn-item:hover { background: #29292d; }
 
-    .earn-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+    .earn-left { display: flex; align-items: center; gap: 14px; }
 
     .earn-icon {
       width: 48px;
@@ -360,11 +342,7 @@
       margin-bottom: 14px;
     }
 
-    .earn-guide-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    .earn-guide-list { list-style: none; padding: 0; margin: 0; }
 
     .earn-guide-list li {
       position: relative;
@@ -375,9 +353,7 @@
       line-height: 1.6;
     }
 
-    .earn-guide-list li:last-child {
-      margin-bottom: 0;
-    }
+    .earn-guide-list li:last-child { margin-bottom: 0; }
 
     .earn-guide-list li::before {
       content: "";
@@ -440,9 +416,7 @@
       flex-shrink: 0;
     }
 
-    .top-user-mini-info {
-      min-width: 0;
-    }
+    .top-user-mini-info { min-width: 0; }
 
     .top-user-mini-name {
       color: #ffffff;
@@ -583,9 +557,7 @@
       padding-bottom: 0;
     }
 
-    .app-stats-row:first-of-type {
-      padding-top: 0;
-    }
+    .app-stats-row:first-of-type { padding-top: 0; }
 
     .app-stat-left {
       color: #a8acba;
@@ -615,11 +587,7 @@
       margin-bottom: 14px;
     }
 
-    .home-guide-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    .home-guide-list { list-style: none; padding: 0; margin: 0; }
 
     .home-guide-list li {
       position: relative;
@@ -630,9 +598,7 @@
       line-height: 1.6;
     }
 
-    .home-guide-list li:last-child {
-      margin-bottom: 0;
-    }
+    .home-guide-list li:last-child { margin-bottom: 0; }
 
     .home-guide-list li::before {
       content: "";
@@ -654,10 +620,7 @@
       border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .daily-bonus-icon {
-      font-size: 42px;
-      margin-bottom: 10px;
-    }
+    .daily-bonus-icon { font-size: 42px; margin-bottom: 10px; }
 
     .daily-bonus-title {
       font-size: 18px;
@@ -692,15 +655,8 @@
       transition: all 0.25s ease;
     }
 
-    .claim-btn:hover {
-      transform: scale(1.01);
-    }
-
-    .claim-btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.7;
-      transform: none;
-    }
+    .claim-btn:hover { transform: scale(1.01); }
+    .claim-btn:disabled { cursor: not-allowed; opacity: 0.7; transform: none; }
 
     .daily-status {
       margin-top: 14px;
@@ -717,12 +673,7 @@
       margin-top: 8px;
     }
 
-    .wheel-area {
-      position: relative;
-      width: 320px;
-      height: 320px;
-      max-width: 100%;
-    }
+    .wheel-area { position: relative; width: 320px; height: 320px; max-width: 100%; }
 
     .wheel-pointer {
       position: absolute;
@@ -748,17 +699,16 @@
       position: relative;
       overflow: hidden;
       transition: transform 5s cubic-bezier(0.17, 0.67, 0.14, 1);
-      background:
-        conic-gradient(
-          #47c98a 0deg 45deg,
-          #ffd321 45deg 90deg,
-          #ffae00 90deg 135deg,
-          #47c98a 135deg 180deg,
-          #ffd321 180deg 225deg,
-          #ffae00 225deg 270deg,
-          #ffd321 270deg 315deg,
-          #ffae00 315deg 360deg
-        );
+      background: conic-gradient(
+        #47c98a 0deg 45deg,
+        #ffd321 45deg 90deg,
+        #ffae00 90deg 135deg,
+        #47c98a 135deg 180deg,
+        #ffd321 180deg 225deg,
+        #ffae00 225deg 270deg,
+        #ffd321 270deg 315deg,
+        #ffae00 315deg 360deg
+      );
     }
 
     .wheel-center {
@@ -847,10 +797,7 @@
       border: 1px solid rgba(255,204,0,0.12);
     }
 
-    .spin-popup-icon {
-      font-size: 48px;
-      margin-bottom: 10px;
-    }
+    .spin-popup-icon { font-size: 48px; margin-bottom: 10px; }
 
     .spin-popup-title {
       font-size: 18px;
@@ -894,9 +841,7 @@
       cursor: pointer;
     }
 
-    .hidden-spin-btn {
-      display: none !important;
-    }
+    .hidden-spin-btn { display: none !important; }
 
     .tasks-grid {
       display: flex;
@@ -915,9 +860,7 @@
       transition: all 0.3s ease;
     }
 
-    .task-card.expanded {
-      width: calc(50% - 7px);
-    }
+    .task-card.expanded { width: calc(50% - 7px); }
 
     .task-top {
       padding: 16px 14px;
@@ -953,10 +896,7 @@
       margin-bottom: 6px;
     }
 
-    .task-progress {
-      color: #9fa4b5;
-      font-size: 12px;
-    }
+    .task-progress { color: #9fa4b5; font-size: 12px; }
 
     .task-expand-content {
       display: none;
@@ -964,9 +904,7 @@
       border-top: 1px solid rgba(255,255,255,0.06);
     }
 
-    .task-card.expanded .task-expand-content {
-      display: block;
-    }
+    .task-card.expanded .task-expand-content { display: block; }
 
     .task-desc {
       color: #a8acba;
@@ -986,19 +924,13 @@
       margin-top: 10px;
     }
 
-    .task-start-btn {
-      background: #2e2e34;
-      color: #fff;
-    }
-
+    .task-start-btn,
     .task-upload-btn {
       background: #2e2e34;
       color: #fff;
     }
 
-    .task-file-input {
-      display: none;
-    }
+    .task-file-input { display: none; }
 
     .task-upload-status {
       margin-top: 10px;
@@ -1012,11 +944,7 @@
       color: #111;
     }
 
-    .notify-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    .notify-list { display: flex; flex-direction: column; gap: 12px; }
 
     .notify-item {
       background: #232326;
@@ -1052,11 +980,7 @@
       margin-top: 6px;
     }
 
-    .redeem-icon {
-      font-size: 38px;
-      text-align: center;
-      margin-bottom: 10px;
-    }
+    .redeem-icon { font-size: 38px; text-align: center; margin-bottom: 10px; }
 
     .redeem-title {
       text-align: center;
@@ -1066,11 +990,7 @@
       margin-bottom: 18px;
     }
 
-    .redeem-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
+    .redeem-row { display: flex; gap: 10px; margin-bottom: 16px; }
 
     .redeem-input {
       flex: 1;
@@ -1219,10 +1139,7 @@
       text-align: center;
     }
 
-    .watchads-big-icon {
-      font-size: 42px;
-      margin-bottom: 14px;
-    }
+    .watchads-big-icon { font-size: 42px; margin-bottom: 14px; }
 
     .watchads-reward-title {
       color: #ffc61a;
@@ -1257,10 +1174,7 @@
       margin-bottom: 6px;
     }
 
-    .watchads-stat-label {
-      color: #9fa4b5;
-      font-size: 13px;
-    }
+    .watchads-stat-label { color: #9fa4b5; font-size: 13px; }
 
     .watchads-main-btn {
       width: 100%;
@@ -1275,15 +1189,8 @@
       transition: all 0.25s ease;
     }
 
-    .watchads-main-btn:hover {
-      transform: scale(1.01);
-    }
-
-    .watchads-main-btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.75;
-      transform: none;
-    }
+    .watchads-main-btn:hover { transform: scale(1.01); }
+    .watchads-main-btn:disabled { cursor: not-allowed; opacity: 0.75; transform: none; }
 
     .watchads-status {
       margin-top: 14px;
@@ -1302,10 +1209,7 @@
       text-align: center;
     }
 
-    .refer-big-icon {
-      font-size: 36px;
-      margin-bottom: 12px;
-    }
+    .refer-big-icon { font-size: 36px; margin-bottom: 12px; }
 
     .refer-reward-title {
       color: #ffc61a;
@@ -1314,11 +1218,7 @@
       margin-bottom: 6px;
     }
 
-    .refer-reward-sub {
-      color: #9fa4b5;
-      font-size: 14px;
-      margin-bottom: 18px;
-    }
+    .refer-reward-sub { color: #9fa4b5; font-size: 14px; margin-bottom: 18px; }
 
     .refer-stats {
       display: grid;
@@ -1341,10 +1241,7 @@
       margin-bottom: 6px;
     }
 
-    .refer-stat-label {
-      color: #9fa4b5;
-      font-size: 13px;
-    }
+    .refer-stat-label { color: #9fa4b5; font-size: 13px; }
 
     .refer-link-card {
       margin-top: 16px;
@@ -1354,17 +1251,9 @@
       padding: 18px 16px;
     }
 
-    .refer-link-title {
-      color: #b4b4b8;
-      font-size: 14px;
-      margin-bottom: 12px;
-    }
+    .refer-link-title { color: #b4b4b8; font-size: 14px; margin-bottom: 12px; }
 
-    .refer-link-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
+    .refer-link-row { display: flex; gap: 10px; margin-bottom: 14px; }
 
     .refer-link-input {
       flex: 1;
@@ -1423,11 +1312,7 @@
       padding: 14px 0 6px;
     }
 
-    .refer-claim-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
+    .refer-claim-row { display: flex; gap: 10px; margin-bottom: 14px; }
 
     .refer-claim-input {
       flex: 1;
@@ -1469,15 +1354,8 @@
       margin-bottom: 18px;
     }
 
-    .withdraw-title-icon {
-      font-size: 24px;
-    }
-
-    .withdraw-main-title {
-      font-size: 28px;
-      font-weight: bold;
-      color: #fff;
-    }
+    .withdraw-title-icon { font-size: 24px; }
+    .withdraw-main-title { font-size: 28px; font-weight: bold; color: #fff; }
 
     .withdraw-closed-box {
       background: rgba(50, 34, 37, 0.72);
@@ -1529,11 +1407,7 @@
       box-shadow: 0 10px 24px rgba(0,0,0,0.22);
     }
 
-    .withdraw-balance-label {
-      color: #9fa4b5;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
+    .withdraw-balance-label { color: #9fa4b5; font-size: 16px; margin-bottom: 10px; }
 
     .withdraw-balance-value {
       color: #ffcc00;
@@ -1550,11 +1424,7 @@
       margin-bottom: 18px;
     }
 
-    .withdraw-meta-row {
-      display: flex;
-      gap: 10px;
-      justify-content: space-between;
-    }
+    .withdraw-meta-row { display: flex; gap: 10px; justify-content: space-between; }
 
     .withdraw-meta-pill {
       flex: 1;
@@ -1567,10 +1437,7 @@
       text-align: center;
     }
 
-    .withdraw-meta-pill strong {
-      color: #fff;
-      font-size: 14px;
-    }
+    .withdraw-meta-pill strong { color: #fff; font-size: 14px; }
 
     .withdraw-req-box {
       background: rgba(30, 30, 33, 0.94);
@@ -1591,11 +1458,7 @@
       gap: 10px;
     }
 
-    .withdraw-req-list {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }
+    .withdraw-req-list { display: flex; flex-direction: column; gap: 18px; }
 
     .withdraw-req-item {
       display: flex;
@@ -1606,10 +1469,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
 
-    .withdraw-req-item:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
+    .withdraw-req-item:last-child { border-bottom: none; padding-bottom: 0; }
 
     .withdraw-req-left {
       display: flex;
@@ -1619,47 +1479,18 @@
       flex: 1;
     }
 
-    .withdraw-req-icon {
-      font-size: 16px;
-      flex-shrink: 0;
-    }
+    .withdraw-req-icon { font-size: 16px; flex-shrink: 0; }
 
-    .withdraw-req-text {
-      color: #ff3b30;
-      font-size: 15px;
-      line-height: 1.4;
-    }
+    .withdraw-req-text { color: #ff3b30; font-size: 15px; line-height: 1.4; }
+    .withdraw-req-text.done { color: #22c55e; }
 
-    .withdraw-req-text.done {
-      color: #22c55e;
-    }
+    .withdraw-req-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-    .withdraw-req-right {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-shrink: 0;
-    }
+    .withdraw-req-count { color: #ff4d4d; font-size: 16px; font-weight: bold; }
+    .withdraw-req-count.done { color: #22c55e; }
 
-    .withdraw-req-count {
-      color: #ff4d4d;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .withdraw-req-count.done {
-      color: #22c55e;
-    }
-
-    .withdraw-req-mark {
-      color: #ff4d4d;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .withdraw-req-mark.done {
-      color: #22c55e;
-    }
+    .withdraw-req-mark { color: #ff4d4d; font-size: 18px; font-weight: bold; }
+    .withdraw-req-mark.done { color: #22c55e; }
 
     .withdraw-wallet-box {
       background: rgba(30, 30, 33, 0.94);
@@ -1677,10 +1508,7 @@
       margin-bottom: 16px;
     }
 
-    .withdraw-wallet-row {
-      display: flex;
-      gap: 10px;
-    }
+    .withdraw-wallet-row { display: flex; gap: 10px; }
 
     .withdraw-wallet-input {
       flex: 1;
@@ -1693,14 +1521,9 @@
       outline: none;
     }
 
-    .withdraw-wallet-input::placeholder {
-      color: #8f97aa;
-    }
+    .withdraw-wallet-input::placeholder { color: #8f97aa; }
 
-    .withdraw-wallet-input.readonly {
-      opacity: 0.95;
-      cursor: default;
-    }
+    .withdraw-wallet-input.readonly { opacity: 0.95; cursor: default; }
 
     .withdraw-save-btn {
       border: none;
@@ -1715,10 +1538,7 @@
       transition: 0.25s ease;
     }
 
-    .withdraw-save-btn.active {
-      background: #3b82f6;
-      color: #fff;
-    }
+    .withdraw-save-btn.active { background: #3b82f6; color: #fff; }
 
     .withdraw-wallet-edit-btn {
       width: 100%;
@@ -1761,9 +1581,7 @@
       margin-bottom: 14px;
     }
 
-    .withdraw-amount-input::placeholder {
-      color: #8f97aa;
-    }
+    .withdraw-amount-input::placeholder { color: #8f97aa; }
 
     .withdraw-main-btn {
       width: 100%;
@@ -1791,13 +1609,8 @@
       margin-bottom: 8px;
     }
 
-    .withdraw-warning.success {
-      color: #22c55e;
-    }
-
-    .withdraw-warning:last-child {
-      margin-bottom: 0;
-    }
+    .withdraw-warning.success { color: #22c55e; }
+    .withdraw-warning:last-child { margin-bottom: 0; }
 
     .withdraw-channel-btn {
       width: 100%;
@@ -1833,11 +1646,7 @@
       gap: 10px;
     }
 
-    .withdraw-history-empty {
-      color: #8f97aa;
-      font-size: 15px;
-      text-align: center;
-    }
+    .withdraw-history-empty { color: #8f97aa; font-size: 15px; text-align: center; }
 
     .withdraw-guide-box {
       background: rgba(30, 30, 33, 0.94);
@@ -1857,11 +1666,7 @@
       gap: 10px;
     }
 
-    .withdraw-guide-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
+    .withdraw-guide-list { list-style: none; padding: 0; margin: 0; }
 
     .withdraw-guide-list li {
       position: relative;
@@ -1872,9 +1677,7 @@
       line-height: 1.45;
     }
 
-    .withdraw-guide-list li:last-child {
-      margin-bottom: 0;
-    }
+    .withdraw-guide-list li:last-child { margin-bottom: 0; }
 
     .withdraw-guide-list li::before {
       content: "";
@@ -1888,11 +1691,7 @@
     }
 
     /* === WITHDRAW HISTORY ROW UI === */
-    .withdraw-history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .withdraw-history-list { display: flex; flex-direction: column; gap: 10px; }
 
     .withdraw-history-item {
       display: flex;
@@ -1905,10 +1704,7 @@
       border: 1px solid rgba(255,255,255,0.06);
     }
 
-    .withdraw-history-left {
-      flex: 1;
-      min-width: 0;
-    }
+    .withdraw-history-left { flex: 1; min-width: 0; }
 
     .withdraw-history-amount {
       color: #f6c400;
@@ -1932,13 +1728,8 @@
       white-space: nowrap;
     }
 
-    .withdraw-history-dot {
-      opacity: 0.7;
-    }
-
-    .withdraw-history-time {
-      opacity: 0.9;
-    }
+    .withdraw-history-dot { opacity: 0.7; }
+    .withdraw-history-time { opacity: 0.9; }
 
     .withdraw-history-status-pill {
       min-width: 70px;
@@ -1974,17 +1765,9 @@
     }
 
     /* === NEW CRASH GAME STYLES === */
-    .crash-wrap {
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+    .crash-wrap { margin-top: 6px; display: flex; flex-direction: column; gap: 14px; }
 
-    .crash-history-strip {
-      margin-top: 0;
-      padding: 12px 12px 10px;
-    }
+    .crash-history-strip { margin-top: 0; padding: 12px 12px 10px; }
 
     .crash-history-bars {
       display: flex;
@@ -1995,13 +1778,8 @@
       min-height: 24px;
     }
 
-    .crash-history-item {
-      flex: 0 0 auto;
-    }
-
-    .crash-history-bar {
-      display: none;
-    }
+    .crash-history-item { flex: 0 0 auto; }
+    .crash-history-bar { display: none; }
 
     .crash-history-label {
       padding: 3px 7px;
@@ -2084,21 +1862,11 @@
       transform-origin: 50% 50%;
     }
 
-    .crash-countdown-text {
-      font-size: 14px;
-      color: #e5e7eb;
-      font-weight: bold;
-    }
+    .crash-countdown-text { font-size: 14px; color: #e5e7eb; font-weight: bold; }
 
-    .crash-multiplier-box {
-      text-align: center;
-    }
+    .crash-multiplier-box { text-align: center; }
 
-    .crash-multiplier-label {
-      font-size: 13px;
-      color: #9fa4b5;
-      margin-bottom: 4px;
-    }
+    .crash-multiplier-label { font-size: 13px; color: #9fa4b5; margin-bottom: 4px; }
 
     .crash-multiplier-value {
       font-size: 34px;
@@ -2107,15 +1875,9 @@
       margin-bottom: 4px;
     }
 
-    .crash-status-text {
-      font-size: 13px;
-      color: #a8acba;
-      min-height: 18px;
-    }
+    .crash-status-text { font-size: 13px; color: #a8acba; min-height: 18px; }
 
-    .crash-plane-flying {
-      animation: crashPlaneGlow 1.2s ease-in-out infinite alternate;
-    }
+    .crash-plane-flying { animation: crashPlaneGlow 1.2s ease-in-out infinite alternate; }
 
     .crash-plane-crashed {
       animation: crashPlaneCrash 0.7s ease-out forwards;
@@ -2135,15 +1897,8 @@
     }
 
     @media (max-width: 480px) {
-      body {
-        padding: 0;
-      }
-
-      .miniapp-box {
-        max-width: 100%;
-        height: 100vh;
-        border-radius: 0;
-      }
+      body { padding: 0; }
+      .miniapp-box { max-width: 100%; height: 100vh; border-radius: 0; }
     }
   </style>
 </head>
@@ -2421,15 +2176,6 @@
     let crashCountdownTimer = null;
     let crashHistory = [];
 
-    /* === CRASH BET STATE (NEW) === */
-    let crashCountdownRemaining = 10;
-    let crashRoundId = 0;
-
-    let crashBetAmount = 0;
-    let crashBetActive = false;
-    let crashBetRoundId = 0;
-    let crashBetCashedOut = false;
-
     /* Propeller animation state */
     let crashPropellerAnimId = null;
     let crashPropellerAngle = 0;
@@ -2537,13 +2283,8 @@
       var nameEl = document.getElementById("topTgUserName");
       var photoEl = document.getElementById("topTgUserPhoto");
 
-      if (nameEl) {
-        nameEl.textContent = user.username;
-      }
-
-      if (photoEl) {
-        photoEl.src = user.photo_url;
-      }
+      if (nameEl) nameEl.textContent = user.username;
+      if (photoEl) photoEl.src = user.photo_url;
     }
 
     function renderHomeLiveValues() {
@@ -3060,13 +2801,8 @@
 
       renderHomeLiveValues();
 
-      if (btn) {
-        btn.removeAttribute("data-counting");
-      }
-
-      if (status) {
-        status.textContent = "+" + watchAdsReward + " DOGS added successfully.";
-      }
+      if (btn) btn.removeAttribute("data-counting");
+      if (status) status.textContent = "+" + watchAdsReward + " DOGS added successfully.";
 
       updateWatchAdsUI();
     }
@@ -3120,11 +2856,8 @@
       const btn = document.getElementById("withdrawSaveBtn");
       if (!input || !btn) return;
 
-      if (input.value.trim() !== "") {
-        btn.classList.add("active");
-      } else {
-        btn.classList.remove("active");
-      }
+      if (input.value.trim() !== "") btn.classList.add("active");
+      else btn.classList.remove("active");
     }
 
     function editWithdrawWallet() {
@@ -3208,18 +2941,12 @@
       }
 
       if (withdrawValue % 10 !== 0) {
-        showCustomPopup(
-          "Invalid Amount",
-          "Withdrawal amount must be a multiple of 10 DOGS."
-        );
+        showCustomPopup("Invalid Amount", "Withdrawal amount must be a multiple of 10 DOGS.");
         return;
       }
 
       if (withdrawValue > balance) {
-        showCustomPopup(
-          "Insufficient Balance",
-          "You do not have enough balance for this withdrawal."
-        );
+        showCustomPopup("Insufficient Balance", "You do not have enough balance for this withdrawal.");
         return;
       }
 
@@ -3244,9 +2971,7 @@
       renderHomeLiveValues();
 
       const status = document.getElementById("upload-status-" + taskId);
-      if (status) {
-        status.textContent = "Task marked as completed successfully.";
-      }
+      if (status) status.textContent = "Task marked as completed successfully.";
 
       showCustomPopup("Task Completed", "Task completion counted successfully.");
     }
@@ -3255,10 +2980,7 @@
       var content = document.getElementById("content-area");
       var navItems = document.querySelectorAll(".nav-item");
 
-      navItems.forEach(function(item) {
-        item.classList.remove("active");
-      });
-
+      navItems.forEach(function(item) { item.classList.remove("active"); });
       element.classList.add("active");
 
       let html = "";
@@ -3469,9 +3191,7 @@
             </div>
 
             ${getWithdrawRequirementsHtml()}
-
             ${getWithdrawWalletHtml()}
-
             ${getWithdrawActionBoxHtml()}
 
             <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
@@ -3558,7 +3278,6 @@
     }
 
     /* Crash game helpers */
-
     function renderCrashHistory() {
       const box = document.getElementById("crashHistoryBars");
       if (!box) return;
@@ -3605,8 +3324,8 @@
       const elapsed = ts - crashPropellerStartTs;
       const t = Math.max(0, Math.min(elapsed / crashPropellerDuration, 1));
 
-      const minSpeed = 90;
-      const maxSpeed = 720;
+      const minSpeed = 90;   // degrees per second
+      const maxSpeed = 720;  // degrees per second
       const speed = minSpeed + (maxSpeed - minSpeed) * t;
 
       crashPropellerAngle = (crashPropellerAngle + speed * (dt / 1000)) % 360;
@@ -3619,204 +3338,6 @@
       cancelAnimationFrame(crashPropellerAnimId);
       crashPropellerAnimId = null;
     }
-
-    /* === CRASH BET FUNCTIONS (NEW) === */
-
-    function isCrashBetWindowOpen() {
-      const overlay = document.getElementById("crashCountdownOverlay");
-      const inCountdown = overlay && overlay.style.display !== "none";
-      return inCountdown && crashCountdownRemaining > 2;
-    }
-
-    function getCrashPayoutNow() {
-      if (!crashBetActive || crashBetAmount <= 0) return 0;
-      return crashBetAmount * crashCurrentMultiplier;
-    }
-
-    function setCrashBetStatus(msg) {
-      const el = document.getElementById("crashBetStatus");
-      if (el) el.textContent = msg || "";
-    }
-
-    function updateCrashBetUI() {
-      const betInput = document.getElementById("crashBetInput");
-      const betBtn = document.getElementById("crashBetBtn");
-      const payoutBox = document.getElementById("crashPayoutBox");
-      const cashoutBtn = document.getElementById("crashCashoutBtn");
-      const overlay = document.getElementById("crashCountdownOverlay");
-
-      if (!betBtn || !payoutBox || !cashoutBtn) return;
-
-      const inCountdown = overlay && overlay.style.display !== "none";
-      const betWindowOpen = isCrashBetWindowOpen();
-      const inFlight = crashGameActive === true;
-
-      if (betInput) {
-        betInput.disabled = crashBetActive || inFlight || !betWindowOpen;
-        betInput.style.opacity = betInput.disabled ? "0.75" : "1";
-      }
-
-      if (!crashBetActive) {
-        betBtn.textContent = "Bet";
-        betBtn.disabled = !betWindowOpen || inFlight;
-        betBtn.style.background = "linear-gradient(90deg,#ffcc00,#f59e0b)";
-        betBtn.style.color = "#111";
-        betBtn.style.cursor = betBtn.disabled ? "not-allowed" : "pointer";
-        betBtn.style.opacity = betBtn.disabled ? "0.75" : "1";
-      } else {
-        betBtn.textContent = "Cancel";
-        betBtn.disabled = !betWindowOpen || inFlight;
-        betBtn.style.background = "#ef4444";
-        betBtn.style.color = "#fff";
-        betBtn.style.cursor = betBtn.disabled ? "not-allowed" : "pointer";
-        betBtn.style.opacity = betBtn.disabled ? "0.75" : "1";
-      }
-
-      if (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut) {
-        const payout = getCrashPayoutNow();
-        payoutBox.value = payout.toFixed(2) + " DOGS";
-      } else {
-        payoutBox.value = "0.00 DOGS";
-      }
-
-      const canCashout = (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut);
-      cashoutBtn.disabled = !canCashout;
-      if (canCashout) {
-        cashoutBtn.style.background = "linear-gradient(90deg,#ffcc00,#f59e0b)";
-        cashoutBtn.style.color = "#111";
-        cashoutBtn.style.cursor = "pointer";
-        cashoutBtn.style.opacity = "1";
-      } else {
-        cashoutBtn.style.background = "#555";
-        cashoutBtn.style.color = "#111";
-        cashoutBtn.style.cursor = "not-allowed";
-        cashoutBtn.style.opacity = "0.85";
-      }
-    }
-
-    function toggleCrashBet() {
-      if (!crashBetActive) {
-        placeCrashBet();
-      } else {
-        cancelCrashBet();
-      }
-    }
-
-    function placeCrashBet() {
-      if (!isCrashBetWindowOpen()) {
-        setCrashBetStatus("Timeout: betting is closed for this round.");
-        showCustomPopup("Timeout", "You can only bet during the countdown (not in the last 2 seconds).");
-        updateCrashBetUI();
-        return;
-      }
-
-      if (crashBetActive) return;
-
-      const input = document.getElementById("crashBetInput");
-      if (!input) return;
-
-      const amt = Number(String(input.value || "").trim());
-
-      if (!amt || isNaN(amt)) {
-        setCrashBetStatus("Enter a valid bet amount.");
-        showCustomPopup("Error", "Please enter a valid numeric bet amount.");
-        return;
-      }
-
-      if (!Number.isInteger(amt)) {
-        setCrashBetStatus("Bet must be a whole number.");
-        showCustomPopup("Invalid", "Bet amount must be a whole number.");
-        return;
-      }
-
-      if (amt < 1000 || amt > 10000) {
-        setCrashBetStatus("Bet must be 1000 - 10000.");
-        showCustomPopup("Invalid Bet", "Minimum bet is 1000 and maximum bet is 10000.");
-        return;
-      }
-
-      if (amt > balance) {
-        setCrashBetStatus("Insufficient balance.");
-        showCustomPopup("Error", "Insufficient balance to place this bet.");
-        return;
-      }
-
-      balance -= amt;
-      localStorage.setItem("dogsBalance", balance.toString());
-      renderHomeLiveValues();
-
-      crashBetAmount = amt;
-      crashBetActive = true;
-      crashBetCashedOut = false;
-
-      crashBetRoundId = crashRoundId + 1;
-
-      setCrashBetStatus("Bet successful: " + amt + " DOGS");
-      showCustomPopup("Bet Successful", amt + " DOGS bet placed successfully.");
-
-      updateCrashBetUI();
-    }
-
-    function cancelCrashBet() {
-      if (!crashBetActive) return;
-
-      if (!isCrashBetWindowOpen()) {
-        setCrashBetStatus("Timeout: cannot cancel now.");
-        showCustomPopup("Timeout", "You can only cancel before the last 2 seconds of the countdown.");
-        updateCrashBetUI();
-        return;
-      }
-
-      balance += crashBetAmount;
-      localStorage.setItem("dogsBalance", balance.toString());
-      renderHomeLiveValues();
-
-      const refunded = crashBetAmount;
-
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-      crashBetCashedOut = false;
-
-      setCrashBetStatus("Bet cancelled. Refunded " + refunded + " DOGS");
-      showCustomPopup("Cancelled", "Bet cancelled and refunded.");
-
-      updateCrashBetUI();
-    }
-
-    function cashoutCrashBet() {
-      if (!crashGameActive) return;
-      if (!crashBetActive) return;
-      if (crashBetRoundId !== crashRoundId) return;
-      if (crashBetCashedOut) return;
-
-      const payout = getCrashPayoutNow();
-      const payoutFixed = Number(payout.toFixed(2));
-
-      balance += payoutFixed;
-
-      const profit = Math.max(0, payoutFixed - crashBetAmount);
-      totalEarned += profit;
-
-      localStorage.setItem("dogsBalance", balance.toString());
-      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-
-      renderHomeLiveValues();
-
-      crashBetCashedOut = true;
-
-      const msg = "Congratulations! You cashed out " + payoutFixed.toFixed(2) + " DOGS.";
-      setCrashBetStatus(msg);
-      showCustomPopup("Congratulations", msg);
-
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-
-      updateCrashBetUI();
-    }
-
-    /* === UPDATED CRASH FUNCTIONS (REPLACED) === */
 
     function startCrashCountdown(seconds) {
       const overlay = document.getElementById("crashCountdownOverlay");
@@ -3835,31 +3356,22 @@
       }
 
       let remaining = seconds;
-      crashCountdownRemaining = remaining;
 
       if (overlay) overlay.style.display = "flex";
       if (countdownEl) countdownEl.textContent = "Next flight in " + remaining + "s";
       if (status) status.textContent = "Next flight starting soon...";
 
       startPropellerSpin(seconds * 1000);
-      updateCrashBetUI();
 
       crashCountdownTimer = setInterval(function() {
         remaining--;
-        crashCountdownRemaining = remaining;
-
         if (remaining >= 0 && countdownEl) {
           countdownEl.textContent = "Next flight in " + remaining + "s";
         }
-
-        updateCrashBetUI();
-
         if (remaining <= 0) {
           clearInterval(crashCountdownTimer);
-          crashCountdownRemaining = 0;
           if (overlay) overlay.style.display = "none";
           if (countdownEl) countdownEl.textContent = "Flight in progress...";
-          updateCrashBetUI();
           startCrashRound();
         }
       }, 1000);
@@ -3872,12 +3384,6 @@
       crashGameActive = false;
       crashStartTime = 0;
       crashCurrentMultiplier = 1;
-
-      crashCountdownRemaining = 10;
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-      crashBetCashedOut = false;
 
       const plane = document.getElementById("crashPlane");
       const mult = document.getElementById("crashMultiplier");
@@ -3895,9 +3401,7 @@
       if (overlay) overlay.style.display = "flex";
       if (countdownEl) countdownEl.textContent = "Next flight in 10s";
 
-      setCrashBetStatus("");
       renderCrashHistory();
-      updateCrashBetUI();
       startCrashCountdown(10);
     }
 
@@ -3909,27 +3413,13 @@
       const plane = document.getElementById("crashPlane");
 
       stopPropellerSpin();
+
       cancelAnimationFrame(crashAnimationId);
 
       crashGameActive = true;
       crashStartTime = 0;
       crashCurrentMultiplier = 1.0;
-      crashTargetMultiplier = 1.2 + Math.random() * 6.8;
-
-      crashRoundId += 1;
-
-      if (crashBetActive && crashBetRoundId !== crashRoundId) {
-        balance += crashBetAmount;
-        localStorage.setItem("dogsBalance", balance.toString());
-        renderHomeLiveValues();
-
-        crashBetAmount = 0;
-        crashBetActive = false;
-        crashBetRoundId = 0;
-        crashBetCashedOut = false;
-
-        setCrashBetStatus("Bet refunded (round changed). Please bet again.");
-      }
+      crashTargetMultiplier = 1.2 + Math.random() * 6.8; // 1.2x - 8.0x
 
       if (mult) mult.textContent = "1.00x";
       if (status) status.textContent = "Flying...";
@@ -3939,7 +3429,6 @@
         plane.style.transform = "translate(0px,0px)";
       }
 
-      updateCrashBetUI();
       crashAnimationId = requestAnimationFrame(stepCrashAnimation);
     }
 
@@ -3959,34 +3448,18 @@
       const baseGrowth = 1 + elapsed * 0.7 + elapsed * elapsed * 0.15;
       crashCurrentMultiplier = baseGrowth;
 
-      updateCrashBetUI();
-
       if (crashCurrentMultiplier >= crashTargetMultiplier) {
         crashCurrentMultiplier = crashTargetMultiplier;
-
         mult.textContent = crashCurrentMultiplier.toFixed(2) + "x";
         status.textContent = "CRASHED at " + crashCurrentMultiplier.toFixed(2) + "x";
         plane.classList.remove("crash-plane-flying");
         plane.classList.add("crash-plane-crashed");
         crashGameActive = false;
 
-        if (crashBetActive && crashBetRoundId === crashRoundId && !crashBetCashedOut) {
-          const lost = crashBetAmount;
-
-          crashBetAmount = 0;
-          crashBetActive = false;
-          crashBetRoundId = 0;
-          crashBetCashedOut = false;
-
-          setCrashBetStatus("Plane crashed! Lost " + lost + " DOGS. Try again.");
-          showCustomPopup("Try Again", "Plane crashed! You lost " + lost + " DOGS.");
-        }
-
         crashHistory.unshift(crashCurrentMultiplier);
         if (crashHistory.length > 10) crashHistory.pop();
         renderCrashHistory();
 
-        updateCrashBetUI();
         startCrashCountdown(10);
         return;
       }
@@ -4368,6 +3841,7 @@
 
                 <div class="crash-countdown-overlay" id="crashCountdownOverlay">
                   <div class="crash-countdown-icon">
+                    <!-- FIXED: use your provided propeller image file here (place it as propeller.png in the same folder) -->
                     <img src="propeller1.png" alt="Propeller" class="crash-propeller" id="crashPropellerImg">
                   </div>
                   <div class="crash-countdown-text" id="crashCountdownText">Next flight in 10s</div>
@@ -4379,47 +3853,6 @@
                 <div class="crash-multiplier-value" id="crashMultiplier">1.00x</div>
                 <div class="crash-status-text" id="crashStatus">Preparing next flight...</div>
               </div>
-
-              <!-- === BET UI (NEW) === -->
-              <div class="content-card" style="margin-top:0;">
-                <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">Bet</div>
-
-                <div style="display:flex;gap:10px;align-items:center;">
-                  <input
-                    type="number"
-                    id="crashBetInput"
-                    placeholder="1000 - 10000"
-                    style="flex:1;background:#2d2d33;border:none;border-radius:16px;padding:14px 14px;color:#fff;font-size:15px;outline:none;"
-                  >
-                  <button
-                    id="crashBetBtn"
-                    onclick="toggleCrashBet()"
-                    style="min-width:92px;border:none;border-radius:16px;padding:14px 16px;font-weight:bold;background:linear-gradient(90deg,#ffcc00,#f59e0b);color:#111;cursor:pointer;"
-                  >Bet</button>
-                </div>
-
-                <div style="display:flex;gap:10px;margin-top:12px;align-items:center;">
-                  <input
-                    type="text"
-                    readonly
-                    id="crashPayoutBox"
-                    value="0.00 DOGS"
-                    style="flex:1;border:none;border-radius:999px;padding:14px 16px;background:#2d2d33;color:#f6c400;font-weight:bold;text-align:center;outline:none;"
-                  >
-                  <button
-                    id="crashCashoutBtn"
-                    onclick="cashoutCrashBet()"
-                    disabled
-                    style="min-width:120px;border:none;border-radius:999px;padding:14px 16px;font-weight:bold;background:#555;color:#111;cursor:not-allowed;opacity:0.85;"
-                  >Cashout</button>
-                </div>
-
-                <div id="crashBetStatus" style="margin-top:10px;color:#f6c400;font-weight:bold;font-size:13px;min-height:18px;text-align:center;"></div>
-
-                <div style="margin-top:6px;color:#9fa4b5;font-size:12px;line-height:1.45;text-align:center;">
-                  Bet only during the 10s countdown. Betting closes in the last 2 seconds.
-                </div>
-              </div>
             </div>
 
             <div class="earn-guide">
@@ -4428,7 +3861,6 @@
                 <li>The plane takes off automatically after every 10 second countdown.</li>
                 <li>The multiplier increases over time until the plane crashes at a random value.</li>
                 <li>The last 10 crash multipliers are shown at the top as a history strip.</li>
-                <li>Place bet during countdown (not allowed in last 2 seconds). Cashout before crash to win.</li>
               </ul>
             </div>
           </div>
@@ -4473,9 +3905,7 @@
       content.innerHTML = html;
       applyTelegramUserToHome();
 
-      if (type === "crash") {
-        initCrashGameUI();
-      }
+      if (type === "crash") initCrashGameUI();
     }
 
     function toggleRedeemButton() {
@@ -4552,26 +3982,18 @@
       }
 
       const success = await window.handleRedeemCodeFromFirebase(codeValue);
-
-      if (!success) {
-        toggleRedeemButton();
-      }
+      if (!success) toggleRedeemButton();
     }
 
     function toggleTaskCard(taskId) {
       var cards = document.querySelectorAll(".task-card");
       cards.forEach(function(card) {
-        if (card.id === "task-card-" + taskId) {
-          card.classList.toggle("expanded");
-        } else {
-          card.classList.remove("expanded");
-        }
+        if (card.id === "task-card-" + taskId) card.classList.toggle("expanded");
+        else card.classList.remove("expanded");
       });
     }
 
-    function startTaskLink(url) {
-      window.open(url, "_blank");
-    }
+    function startTaskLink(url) { window.open(url, "_blank"); }
 
     function handleTaskScreenshotUpload(event, taskId) {
       var file = event.target.files[0];
@@ -4805,9 +4227,7 @@
           spinBtn.disabled = true;
           spinBtn.textContent = "🔒 Locked";
         }
-        if (status) {
-          status.textContent = "";
-        }
+        if (status) status.textContent = "";
       }
     }
 
