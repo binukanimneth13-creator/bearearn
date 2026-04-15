@@ -1,5 +1,4 @@
 <style>
-  /* === ALL ORIGINAL STYLES (UNCHANGED) === */
   * {
     margin: 0;
     padding: 0;
@@ -1004,6 +1003,77 @@
     color: #111;
   }
 
+  .top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+
+  .notify-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #232326;
+    color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .notify-badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(246,196,0,0.7);
+  }
+
+  .top-user-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .top-user-mini-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f6c400;
+    background: #232326;
+    flex-shrink: 0;
+  }
+
+  .top-user-mini-info {
+    min-width: 0;
+  }
+
+  .top-user-mini-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-user-mini-welcome {
+    color: #b4b4b8;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
   .notify-list {
     display: flex;
     flex-direction: column;
@@ -1173,33 +1243,6 @@
     font-weight: bold;
     cursor: pointer;
     min-width: 120px;
-  }
-
-  .confirm-popup-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-  }
-
-  .confirm-cancel-btn,
-  .confirm-ok-btn {
-    flex: 1;
-    border: none;
-    border-radius: 14px;
-    padding: 14px 12px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-
-  .confirm-cancel-btn {
-    background: #2d2d33;
-    color: #fff;
-  }
-
-  .confirm-ok-btn {
-    background: linear-gradient(90deg, #ffcc00, #f59e0b);
-    color: #111;
   }
 
   .watchads-panel {
@@ -1894,7 +1937,6 @@
 
 <div class="miniapp-box" id="miniAppBox">
 
-  <!-- Loading Screen -->
   <div class="loading-screen" id="loadingScreen">
     <div class="loader-ring">
       <div class="inner-ring">
@@ -1911,7 +1953,6 @@
     <div class="loading-text">Loading your DOGS rewards...</div>
   </div>
 
-  <!-- App Screen -->
   <div class="app-screen">
     <div class="miniapp-content fade-in" id="content-area">
       <div class="top-actions">
@@ -2046,8 +2087,6 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-  /* === ALL YOUR ORIGINAL JS STATE AND UTILITY CODE (UNCHANGED) === */
-
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
@@ -2499,7 +2538,7 @@
     return `
       <div class="withdraw-action-box">
         <div class="withdraw-action-title">Withdraw Amount</div>
-        <input type="text" class="withdraw-amount-input" id="withdrawAmountInput" placeholder="1500 - 2500 Dogs">
+        <input type="text" class="withdraw-amount-input" placeholder="1500 - 2500 Dogs">
         <button class="withdraw-main-btn ${canWithdraw ? 'enabled' : ''}" onclick="withdrawDogsNow()">📤 Withdraw</button>
         <div class="withdraw-warning ${walletSaved ? 'success' : ''}">${walletSaved ? '✓ Wallet address saved' : '⚠️ Save wallet address first'}</div>
         <div class="withdraw-warning ${requirementsDone ? 'success' : ''}">${requirementsDone ? '✓ All requirements completed' : '⚠️ Complete all requirements above to withdraw'}</div>
@@ -2524,102 +2563,9 @@
     appBox.appendChild(popup);
   }
 
-  // UPDATED CONFIRM POPUP: shows address & receivable
-  function showWithdrawConfirmPopup(withdrawValue) {
-    removeCustomPopup();
-    var appBox = document.getElementById("miniAppBox");
-
-    const rawWallet = (localStorage.getItem("tonWalletAddress") || "").trim();
-    const walletLabel = rawWallet ? rawWallet : "No wallet saved";
-
-    const amountNum = Number(withdrawValue) || 0;
-    const feeFixed = 120;
-    const feePercent = amountNum * 0.05;
-    const totalFee = feeFixed + feePercent;
-    const receivable = Math.max(0, amountNum - totalFee);
-    const receivableText = receivable.toFixed(2);
-
-    const popup = document.createElement("div");
-    popup.className = "custom-popup-overlay";
-    popup.id = "customPopupBox";
-    popup.innerHTML = `
-      <div class="custom-popup-card">
-        <div class="custom-popup-title">Confirm Withdrawal</div>
-        <div class="custom-popup-text">${escapeHtml(String(withdrawValue))} confirm withdrawal</div>
-
-        <div style="margin-bottom:10px; text-align:left; color:#a8acba; font-size:13px;">Withdraw to (saved address)</div>
-        <input type="text" readonly
-               style="width:100%;margin-bottom:12px;padding:10px 12px;border-radius:10px;border:none;background:#2d2d33;color:#fff;font-size:13px;"
-               value="${escapeHtml(walletLabel)}">
-
-        <div style="margin-bottom:4px; text-align:left; color:#a8acba; font-size:13px;">You will receive after 120 + 5% fee:</div>
-        <input type="text" readonly
-               style="width:100%;margin-bottom:16px;padding:10px 12px;border-radius:10px;border:none;background:#2d2d33;color:#f6c400;font-weight:bold;font-size:14px;"
-               value="${receivableText} DOGS">
-
-        <div class="confirm-popup-actions">
-          <button class="confirm-cancel-btn" onclick="cancelWithdrawRequest()">Cancel</button>
-          <button class="confirm-ok-btn" onclick="confirmWithdrawRequest()">Confirm</button>
-        </div>
-      </div>
-    `;
-    appBox.appendChild(popup);
-  }
-
   function removeCustomPopup() {
     var popup = document.getElementById("customPopupBox");
     if (popup) popup.remove();
-  }
-
-  function cancelWithdrawRequest() {
-    localStorage.removeItem("pendingWithdrawValue");
-    removeCustomPopup();
-  }
-
-  // UPDATED CONFIRM: create withdrawal doc + reduce balance
-  async function confirmWithdrawRequest() {
-    const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
-    const amount = Number(pendingValueStr);
-
-    removeCustomPopup();
-    localStorage.removeItem("pendingWithdrawValue");
-
-    if (!amount || isNaN(amount)) {
-      showCustomPopup("Error", "Invalid withdrawal amount.");
-      return;
-    }
-
-    if (amount > balance) {
-      showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
-      return;
-    }
-
-    // Reduce balance locally
-    balance -= amount;
-    localStorage.setItem("dogsBalance", balance.toString());
-    renderHomeLiveValues();
-
-    const user = window.currentTelegramUser || {};
-    const userId = String(user.telegramId || "guest_user");
-    const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
-    const createdAt = new Date().toISOString();
-
-    if (window.createWithdrawalRequestToFirebase) {
-      try {
-        await window.createWithdrawalRequestToFirebase({
-          userId: userId,
-          amount: amount,
-          address: walletAddress,
-          type: "",
-          createdAt: createdAt
-        });
-        showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
-      } catch (e) {
-        showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
-      }
-    } else {
-      showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
-    }
   }
 
   async function claimReferralCode() {
@@ -2871,7 +2817,6 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
-  // UPDATED: withdraw rules 1500-2500 + multiple of 10
   function withdrawDogsNow() {
     if (!areWithdrawRequirementsCompleted()) {
       showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
@@ -2890,60 +2835,11 @@
     }
 
     if (balance < 1500) {
-      showCustomPopup("Withdraw", "Insufficient balance for withdrawal. Minimum is 1500 DOGS.");
+      showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
       return;
     }
 
-    const amountInput = document.getElementById("withdrawAmountInput");
-    if (!amountInput) {
-      showCustomPopup("Withdraw", "Withdrawal input not found.");
-      return;
-    }
-
-    const withdrawValueRaw = amountInput.value.trim();
-    if (!withdrawValueRaw) {
-      showCustomPopup("Withdraw", "Please enter withdrawal amount.");
-      return;
-    }
-
-    const withdrawValue = Number(withdrawValueRaw);
-
-    if (isNaN(withdrawValue)) {
-      showCustomPopup("Invalid Amount", "Please enter a valid numeric amount.");
-      return;
-    }
-
-    if (!Number.isInteger(withdrawValue)) {
-      showCustomPopup("Invalid Amount", "Withdrawal amount must be a whole number.");
-      return;
-    }
-
-    if (withdrawValue < 1500 || withdrawValue > 2500) {
-      showCustomPopup(
-        "Invalid Amount",
-        "Withdrawal amount must be equal to 1500, 2500, or any value in between 1500 and 2500 DOGS."
-      );
-      return;
-    }
-
-    if (withdrawValue % 10 !== 0) {
-      showCustomPopup(
-        "Invalid Amount",
-        "Withdrawal amount must be a multiple of 10 DOGS."
-      );
-      return;
-    }
-
-    if (withdrawValue > balance) {
-      showCustomPopup(
-        "Insufficient Balance",
-        "You do not have enough balance for this withdrawal."
-      );
-      return;
-    }
-
-    localStorage.setItem("pendingWithdrawValue", withdrawValue.toString());
-    showWithdrawConfirmPopup(withdrawValue);
+    showCustomPopup("Withdraw Request", "You are allowed to request a withdrawal now.");
   }
 
   function openPaymentChannel() {
@@ -3942,8 +3838,7 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc,
-    addDoc
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -4296,16 +4191,5 @@
         </div>
       `;
     }
-  };
-
-  // NEW helper for withdrawal creation, used in confirmWithdrawRequest
-  window.createWithdrawalRequestToFirebase = async function (payload) {
-    await addDoc(collection(db, "withdrawals"), {
-      userId: payload.userId,
-      amount: payload.amount,
-      address: payload.address || "",
-      type: "", // keep type empty as requested
-      createdAt: payload.createdAt || new Date().toISOString()
-    });
   };
 </script>
