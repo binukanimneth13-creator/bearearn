@@ -2553,12 +2553,12 @@
       var referralsEl = document.getElementById("homeReferralsValue");
       var tasksEl = document.getElementById("homeTasksCompletedValue");
 
-      if (balanceEl) balanceEl.textContent = Math.round(balance);
-      if (earnedEl) earnedEl.textContent = Math.round(totalEarned);
-      if (spinnedEl) spinnedEl.textContent = Math.round(totalSpinned);
-      if (adsEl) adsEl.textContent = Math.round(totalAdsWatched);
-      if (referralsEl) referralsEl.textContent = Math.round(totalReferrals);
-      if (tasksEl) tasksEl.textContent = Math.round(totalTasksCompleted);
+      if (balanceEl) balanceEl.textContent = balance;
+      if (earnedEl) earnedEl.textContent = totalEarned;
+      if (spinnedEl) spinnedEl.textContent = totalSpinned;
+      if (adsEl) adsEl.textContent = totalAdsWatched;
+      if (referralsEl) referralsEl.textContent = totalReferrals;
+      if (tasksEl) tasksEl.textContent = totalTasksCompleted;
     }
 
     function formatDate(dateString) {
@@ -2601,16 +2601,16 @@
           balance += reward;
           totalEarned += reward;
 
-          localStorage.setItem("dogsBalance", Math.round(balance).toString());
-          localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+          localStorage.setItem("dogsBalance", balance.toString());
+          localStorage.setItem("dogsTotalEarned", totalEarned.toString());
         }
 
         totalReferrals = newReferralCount;
         localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
         if (typeof result.balance === "number" && result.balance >= balance) {
-          balance = Math.round(result.balance);
-          localStorage.setItem("dogsBalance", Math.round(balance).toString());
+          balance = result.balance;
+          localStorage.setItem("dogsBalance", balance.toString());
         }
 
         renderHomeLiveValues();
@@ -2816,7 +2816,7 @@
       const feePercent = amountNum * 0.05;
       const totalFee = feeFixed + feePercent;
       const receivable = Math.max(0, amountNum - totalFee);
-      const receivableText = Math.round(receivable);
+      const receivableText = receivable.toFixed(2);
 
       const popup = document.createElement("div");
       popup.className = "custom-popup-overlay";
@@ -2873,7 +2873,7 @@
       }
 
       balance -= amount;
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
 
       const user = window.currentTelegramUser || {};
@@ -3053,9 +3053,9 @@
       totalEarned += watchAdsReward;
       totalAdsWatched += 1;
 
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
-      localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
-      localStorage.setItem("dogsTotalAdsWatched", Math.round(totalAdsWatched).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
+      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+      localStorage.setItem("dogsTotalAdsWatched", totalAdsWatched.toString());
 
       renderHomeLiveValues();
 
@@ -3271,19 +3271,19 @@
             <div class="home-balance-card">
               <img class="home-balance-logo" src="YOUR_IMAGE_URL_HERE" alt="Logo">
               <div class="home-balance-label">Your Balance</div>
-              <div class="home-balance-value" id="homeBalanceValue">${Math.round(balance)}</div>
+              <div class="home-balance-value" id="homeBalanceValue">${balance}</div>
               <div class="home-balance-unit">🐕 DOGS</div>
             </div>
 
             <div class="home-stats-grid">
               <div class="home-stat-card">
                 <div class="home-stat-title">Total Ads Watched</div>
-                <div class="home-stat-value" id="homeAdsWatchedValue">${Math.round(totalAdsWatched)}</div>
+                <div class="home-stat-value" id="homeAdsWatchedValue">${totalAdsWatched}</div>
               </div>
 
               <div class="home-stat-card">
                 <div class="home-stat-title">Total Referrals</div>
-                <div class="home-stat-value" id="homeReferralsValue">${Math.round(totalReferrals)}</div>
+                <div class="home-stat-value" id="homeReferralsValue">${totalReferrals}</div>
               </div>
 
               <div class="home-stat-card">
@@ -3293,17 +3293,17 @@
 
               <div class="home-stat-card">
                 <div class="home-stat-title">Total Tasks Completed</div>
-                <div class="home-stat-value" id="homeTasksCompletedValue">${Math.round(totalTasksCompleted)}</div>
+                <div class="home-stat-value" id="homeTasksCompletedValue">${totalTasksCompleted}</div>
               </div>
 
               <div class="home-stat-card">
                 <div class="home-stat-title">Total Spinned</div>
-                <div class="home-stat-value" id="homeSpinnedValue">${Math.round(totalSpinned)}</div>
+                <div class="home-stat-value" id="homeSpinnedValue">${totalSpinned}</div>
               </div>
 
               <div class="home-stat-card">
                 <div class="home-stat-title">Total Earned</div>
-                <div class="home-stat-value" id="homeEarnedValue">${Math.round(totalEarned)}</div>
+                <div class="home-stat-value" id="homeEarnedValue">${totalEarned}</div>
               </div>
             </div>
 
@@ -3457,7 +3457,7 @@
 
             <div class="withdraw-balance-box">
               <div class="withdraw-balance-label">Available Balance</div>
-              <div class="withdraw-balance-value">${Math.round(balance)}</div>
+              <div class="withdraw-balance-value">${balance}</div>
               <div class="withdraw-balance-unit">🐕 DOGS</div>
 
               <div class="withdraw-meta-row">
@@ -3673,9 +3673,9 @@
 
       if (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut) {
         const payout = getCrashPayoutNow();
-        payoutBox.value = Math.round(payout) + " DOGS";
+        payoutBox.value = payout.toFixed(2) + " DOGS";
       } else {
-        payoutBox.value = "0 DOGS";
+        payoutBox.value = "0.00 DOGS";
       }
 
       const canCashout = (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut);
@@ -3741,7 +3741,7 @@
       }
 
       balance -= amt;
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
 
       crashBetAmount = amt;
@@ -3767,7 +3767,7 @@
       }
 
       balance += crashBetAmount;
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
 
       const refunded = crashBetAmount;
@@ -3790,21 +3790,21 @@
       if (crashBetCashedOut) return;
 
       const payout = getCrashPayoutNow();
-      const payoutFixed = Math.round(payout);
+      const payoutFixed = Number(payout.toFixed(2));
 
       balance += payoutFixed;
 
       const profit = Math.max(0, payoutFixed - crashBetAmount);
       totalEarned += profit;
 
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
-      localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
+      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
 
       renderHomeLiveValues();
 
       crashBetCashedOut = true;
 
-      const msg = "Congratulations! You cashed out " + payoutFixed + " DOGS.";
+      const msg = "Congratulations! You cashed out " + payoutFixed.toFixed(2) + " DOGS.";
       setCrashBetStatus(msg);
       showCustomPopup("Congratulations", msg);
 
@@ -3919,7 +3919,7 @@
 
       if (crashBetActive && crashBetRoundId !== crashRoundId) {
         balance += crashBetAmount;
-        localStorage.setItem("dogsBalance", Math.round(balance).toString());
+        localStorage.setItem("dogsBalance", balance.toString());
         renderHomeLiveValues();
 
         crashBetAmount = 0;
@@ -4402,7 +4402,7 @@
                     type="text"
                     readonly
                     id="crashPayoutBox"
-                    value="0 DOGS"
+                    value="0.00 DOGS"
                     style="flex:1;border:none;border-radius:999px;padding:14px 16px;background:#2d2d33;color:#f6c400;font-weight:bold;text-align:center;outline:none;"
                   >
                   <button
@@ -4610,8 +4610,8 @@
           localStorage.setItem("dailyBonusLastClaim", Date.now().toString());
           balance += dailyBonusAmount;
           totalEarned += dailyBonusAmount;
-          localStorage.setItem("dogsBalance", Math.round(balance).toString());
-          localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+          localStorage.setItem("dogsBalance", balance.toString());
+          localStorage.setItem("dogsTotalEarned", totalEarned.toString());
           btn.textContent = "✅ Claimed";
           status.textContent = "50 DOGS added successfully. Come back after 24 hours.";
           startDailyCooldown(Date.now() + dailyCooldown);
@@ -4760,8 +4760,8 @@
       balance += pendingSpinPrize;
       totalEarned += pendingSpinPrize;
 
-      localStorage.setItem("dogsBalance", Math.round(balance).toString());
-      localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+      localStorage.setItem("dogsBalance", balance.toString());
+      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
 
       removeSpinPopup();
       startSpinCooldown();
@@ -4910,7 +4910,7 @@
           username: user.rawUsername || "",
           name: user.username || user.first_name || "User",
           photo_url: user.photo_url || "",
-          balance: Math.round(Number(localStorage.getItem("dogsBalance")) || 160),
+          balance: Number(localStorage.getItem("dogsBalance")) || 160,
           referrals: Number(localStorage.getItem("dogsTotalReferrals")) || 0,
           lastSeen: new Date().toISOString()
         };
@@ -4937,7 +4937,7 @@
 
         const userData = userSnap.data() || {};
         const referralCount = Number(userData.referrals || 0);
-        const firebaseBalance = Math.round(Number(userData.balance || 0));
+        const firebaseBalance = Number(userData.balance || 0);
 
         const storedReferralCount = Number(localStorage.getItem("dogsTotalReferrals") || 0);
 
@@ -4949,13 +4949,13 @@
           totalEarned += reward;
           totalReferrals = referralCount;
 
-          localStorage.setItem("dogsBalance", Math.round(balance).toString());
-          localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+          localStorage.setItem("dogsBalance", balance.toString());
+          localStorage.setItem("dogsTotalEarned", totalEarned.toString());
           localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
           await setDoc(userRef, {
-            balance: Math.round(balance),
-            totalEarned: Math.round(totalEarned),
+            balance: balance,
+            totalEarned: totalEarned,
             lastSeen: new Date().toISOString()
           }, { merge: true });
         } else {
@@ -5019,8 +5019,8 @@
         const currentUserData = currentUserSnap.exists() ? currentUserSnap.data() : {};
         const ownerDataBefore = ownerSnap.data() || {};
 
-        const currentUserBalance = Math.round(Number(currentUserData.balance || 0)) + 100;
-        const ownerBalanceBefore = Math.round(Number(ownerDataBefore.balance || 0));
+        const currentUserBalance = Number(currentUserData.balance || 0) + 100;
+        const ownerBalanceBefore = Number(ownerDataBefore.balance || 0);
         const ownerReferralsBefore = Number(ownerDataBefore.referrals || 0);
 
         await setDoc(currentUserRef, {
@@ -5040,7 +5040,7 @@
 
         const ownerSnapAfter = await getDoc(ownerRef);
         const ownerDataAfter = ownerSnapAfter.exists() ? ownerSnapAfter.data() : {};
-        const ownerBalanceAfter = Math.round(Number(ownerDataAfter.balance || 0));
+        const ownerBalanceAfter = Number(ownerDataAfter.balance || 0);
         const ownerReferralsAfter = Number(ownerDataAfter.referrals || 0);
 
         await setDoc(claimRef, {
@@ -5055,8 +5055,8 @@
         balance = currentUserBalance;
         totalEarned += 100;
 
-        localStorage.setItem("dogsBalance", Math.round(balance).toString());
-        localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+        localStorage.setItem("dogsBalance", balance.toString());
+        localStorage.setItem("dogsTotalEarned", totalEarned.toString());
 
         if (input) input.value = "";
 
@@ -5117,7 +5117,7 @@
 
         const userLimit = Number(codeData.userLimit || 0);
         const totalClaims = Number(codeData.totalClaims || 0);
-        const rewardCoins = Math.round(Number(codeData.amount || 0));
+        const rewardCoins = Number(codeData.amount || 0);
 
         if (userLimit > 0 && totalClaims >= userLimit) {
           if (status) status.textContent = "";
@@ -5128,8 +5128,8 @@
         balance += rewardCoins;
         totalEarned += rewardCoins;
 
-        localStorage.setItem("dogsBalance", Math.round(balance).toString());
-        localStorage.setItem("dogsTotalEarned", Math.round(totalEarned).toString());
+        localStorage.setItem("dogsBalance", balance.toString());
+        localStorage.setItem("dogsTotalEarned", totalEarned.toString());
 
         const userRef = doc(db, "users", String(user.telegramId));
         await setDoc(userRef, {
@@ -5137,8 +5137,8 @@
           username: user.rawUsername || "",
           name: user.username || user.first_name || "User",
           photo_url: user.photo_url || "",
-          balance: Math.round(balance),
-          totalEarned: Math.round(totalEarned),
+          balance: balance,
+          totalEarned: totalEarned,
           referrals: Number(localStorage.getItem("dogsTotalReferrals")) || 0,
           lastSeen: new Date().toISOString()
         }, { merge: true });
@@ -5291,7 +5291,7 @@
 
         let rowsHtml = "";
         items.forEach((w) => {
-          const amount = Math.round(Number(w.amount || 0));
+          const amount = Number(w.amount || 0);
           const address = shortAddress(w.address || "-");
           const createdAt = shortTime(w.createdAt || "");
           const t = (w.type || "").toString();
@@ -5330,7 +5330,7 @@
     window.createWithdrawalRequestToFirebase = async function (payload) {
       await addDoc(collection(db, "withdrawals"), {
         userId: payload.userId,
-        amount: Math.round(payload.amount),
+        amount: payload.amount,
         address: payload.address || "",
         type: "",
         createdAt: payload.createdAt || new Date().toISOString()
