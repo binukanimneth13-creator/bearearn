@@ -1,3 +1,5 @@
+
+
 <style>
   /* === ALL ORIGINAL STYLES (UNCHANGED) === */
   * {
@@ -1879,7 +1881,7 @@
     top: 7px;
   }
 
-  /* === WITHDRAW HISTORY ROW UI === */
+  /* === NEW WITHDRAW HISTORY ROW UI === */
   .withdraw-history-list {
     display: flex;
     flex-direction: column;
@@ -1973,38 +1975,6 @@
     gap: 14px;
   }
 
-  .crash-history-strip {
-    margin-top: 0;
-    padding: 12px 12px 10px;
-  }
-
-  .crash-history-bars {
-    display: flex;
-    gap: 6px;
-    align-items: center;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    min-height: 28px;
-  }
-
-  .crash-history-item {
-    flex: 0 0 auto;
-  }
-
-  .crash-history-bar {
-    display: none;
-  }
-
-  .crash-history-label {
-    padding: 3px 7px;
-    border-radius: 999px;
-    font-size: 11px;
-    color: #e5e7eb;
-    background: rgba(15,23,42,0.9);
-    border: 1px solid rgba(148,163,184,0.7);
-    white-space: nowrap;
-  }
-
   .crash-graph-box {
     position: relative;
     height: 190px;
@@ -2042,51 +2012,6 @@
     background: radial-gradient(circle, #fbbf24, #f97316);
     box-shadow: 0 0 14px rgba(248,250,252,0.9);
     transform: translate(0,0);
-    z-index: 2;
-  }
-
-  .crash-countdown-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: linear-gradient(rgba(15,23,42,0.80), rgba(15,23,42,0.85));
-    z-index: 3;
-  }
-
-  .crash-countdown-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 999px;
-    border: 2px solid rgba(148,163,184,0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #020617;
-    box-shadow: 0 0 10px rgba(15,23,42,0.9) inset;
-  }
-
-  .crash-propeller {
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    border-top-color: #e5e7eb;
-    border-right-color: #e5e7eb;
-    animation: crashPropellerSpin 0.6s linear infinite;
-  }
-
-  .crash-countdown-text {
-    font-size: 14px;
-    color: #e5e7eb;
-    font-weight: bold;
-  }
-
-  @keyframes crashPropellerSpin {
-    to { transform: rotate(360deg); }
   }
 
   .crash-multiplier-box {
@@ -2300,7 +2225,7 @@
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
 <script>
-  /* === STATE & CONSTANTS === */
+  /* === STATE & CONSTANTS (UNCHANGED PARTS) === */
   let balance = parseInt(localStorage.getItem("dogsBalance")) || 160;
   let totalEarned = parseInt(localStorage.getItem("dogsTotalEarned")) || 160;
   let totalSpinned = parseInt(localStorage.getItem("dogsTotalSpinned")) || 0;
@@ -2409,14 +2334,12 @@
     }
   ];
 
-  /* Crash game state */
+  /* NEW: Crash game state */
   let crashAnimationId = null;
   let crashGameActive = false;
   let crashStartTime = 0;
   let crashTargetMultiplier = 0;
   let crashCurrentMultiplier = 1;
-  let crashCountdownTimer = null;
-  let crashHistory = [];
 
   window.addEventListener("load", function() {
     initTelegramUser();
@@ -3359,6 +3282,7 @@
               <div class="earn-arrow">›</div>
             </button>
 
+            <!-- NEW: Play Games & Earn button -->
             <button class="earn-item" onclick="openEarnWindow('games')">
               <div class="earn-left">
                 <div class="earn-icon">🎮</div>
@@ -3494,6 +3418,7 @@
       `;
     }
 
+    var content = document.getElementById("content-area");
     content.innerHTML = html;
     renderHomeLiveValues();
     applyTelegramUserToHome();
@@ -3538,89 +3463,25 @@
     return `<div class="tasks-grid">${cards}</div>`;
   }
 
-  /* Crash game helpers */
-
-  function renderCrashHistory() {
-    const box = document.getElementById("crashHistoryBars");
-    if (!box) return;
-
-    if (!crashHistory.length) {
-      box.innerHTML = `<span style="font-size:12px;color:#9fa4b5;">No history yet</span>`;
-      return;
-    }
-
-    const itemsHtml = crashHistory.map(function(m) {
-      return `
-        <div class="crash-history-item">
-          <div class="crash-history-label">${m.toFixed(2)}x</div>
-        </div>
-      `;
-    }).join("");
-
-    box.innerHTML = itemsHtml;
-  }
-
-  function startCrashCountdown(seconds) {
-    const overlay = document.getElementById("crashCountdownOverlay");
-    const countdownEl = document.getElementById("crashCountdownText");
-    const status = document.getElementById("crashStatus");
-    const plane = document.getElementById("crashPlane");
-
-    cancelAnimationFrame(crashAnimationId);
-    clearInterval(crashCountdownTimer);
-    crashGameActive = false;
-
-    if (plane) {
-      plane.classList.remove("crash-plane-flying");
-      plane.classList.remove("crash-plane-crashed");
-      plane.style.transform = "translate(0px,0px)";
-    }
-
-    let remaining = seconds;
-
-    if (overlay) overlay.style.display = "flex";
-    if (countdownEl) countdownEl.textContent = "Next flight in " + remaining + "s";
-    if (status) status.textContent = "Next flight starting soon...";
-
-    crashCountdownTimer = setInterval(function() {
-      remaining--;
-      if (remaining >= 0 && countdownEl) {
-        countdownEl.textContent = "Next flight in " + remaining + "s";
-      }
-      if (remaining <= 0) {
-        clearInterval(crashCountdownTimer);
-        if (overlay) overlay.style.display = "none";
-        if (countdownEl) countdownEl.textContent = "Flight in progress...";
-        startCrashRound();
-      }
-    }, 1000);
-  }
+  /* NEW: Crash game helpers */
 
   function initCrashGameUI() {
-    clearInterval(crashCountdownTimer);
-    cancelAnimationFrame(crashAnimationId);
-    crashGameActive = false;
-    crashStartTime = 0;
-    crashCurrentMultiplier = 1;
-
+    const btn = document.getElementById("crashStartBtn");
+    if (btn) {
+      btn.onclick = startCrashRound;
+    }
     const plane = document.getElementById("crashPlane");
-    const mult = document.getElementById("crashMultiplier");
-    const status = document.getElementById("crashStatus");
-    const countdownEl = document.getElementById("crashCountdownText");
-    const overlay = document.getElementById("crashCountdownOverlay");
-
     if (plane) {
       plane.style.transform = "translate(0px,0px)";
       plane.classList.remove("crash-plane-crashed");
       plane.classList.remove("crash-plane-flying");
     }
+    const mult = document.getElementById("crashMultiplier");
+    const status = document.getElementById("crashStatus");
     if (mult) mult.textContent = "1.00x";
-    if (status) status.textContent = "Preparing next flight...";
-    if (overlay) overlay.style.display = "flex";
-    if (countdownEl) countdownEl.textContent = "Next flight in 10s";
-
-    renderCrashHistory();
-    startCrashCountdown(10);
+    if (status) status.textContent = 'Tap "Start Flight" to begin';
+    crashGameActive = false;
+    cancelAnimationFrame(crashAnimationId);
   }
 
   function startCrashRound() {
@@ -3629,23 +3490,19 @@
     const mult = document.getElementById("crashMultiplier");
     const status = document.getElementById("crashStatus");
     const plane = document.getElementById("crashPlane");
-    const overlay = document.getElementById("crashCountdownOverlay");
-    if (overlay) overlay.style.display = "none";
+    if (!mult || !status || !plane) return;
 
     cancelAnimationFrame(crashAnimationId);
-
     crashGameActive = true;
     crashStartTime = 0;
     crashCurrentMultiplier = 1.0;
     crashTargetMultiplier = 1.2 + Math.random() * 6.8; // 1.2x - 8.0x
 
-    if (mult) mult.textContent = "1.00x";
-    if (status) status.textContent = "Flying...";
-    if (plane) {
-      plane.classList.remove("crash-plane-crashed");
-      plane.classList.add("crash-plane-flying");
-      plane.style.transform = "translate(0px,0px)";
-    }
+    mult.textContent = "1.00x";
+    status.textContent = "Flying...";
+    plane.classList.remove("crash-plane-crashed");
+    plane.classList.add("crash-plane-flying");
+    plane.style.transform = "translate(0px,0px)";
 
     crashAnimationId = requestAnimationFrame(stepCrashAnimation);
   }
@@ -3673,12 +3530,6 @@
       plane.classList.remove("crash-plane-flying");
       plane.classList.add("crash-plane-crashed");
       crashGameActive = false;
-
-      crashHistory.unshift(crashCurrentMultiplier);
-      if (crashHistory.length > 10) crashHistory.pop();
-      renderCrashHistory();
-
-      startCrashCountdown(10);
       return;
     }
 
@@ -3699,9 +3550,6 @@
     clearInterval(spinCooldownTimer);
     clearInterval(redeemCountdownTimer);
     clearInterval(watchAdsCountdownTimer);
-    clearInterval(crashCountdownTimer);
-    cancelAnimationFrame(crashAnimationId);
-    crashGameActive = false;
     removeSpinPopup();
     removeCustomPopup();
 
@@ -4038,6 +3886,8 @@
       `;
     }
 
+    /* NEW: Crash / TicTac / Mine windows */
+
     if (type === "crash") {
       html = `
         <div class="fade-in">
@@ -4048,44 +3898,27 @@
           </div>
 
           <div class="crash-wrap">
-            <div class="content-card crash-history-strip">
-              <div style="font-size:14px;font-weight:bold;margin-bottom:6px;">Last 10 Crashes</div>
-              <div class="crash-history-bars" id="crashHistoryBars"></div>
-            </div>
-
             <div class="crash-graph-box">
               <div class="crash-plane" id="crashPlane">✈️</div>
-
-              <div class="crash-countdown-overlay" id="crashCountdownOverlay">
-                <div class="crash-countdown-icon">
-                  <div class="crash-propeller"></div>
-                </div>
-                <div class="crash-countdown-text" id="crashCountdownText">Next flight in 10s</div>
-              </div>
             </div>
-
             <div class="crash-multiplier-box">
               <div class="crash-multiplier-label">Multiplier</div>
               <div class="crash-multiplier-value" id="crashMultiplier">1.00x</div>
-              <div class="crash-status-text" id="crashStatus">Preparing next flight...</div>
+              <div class="crash-status-text" id="crashStatus">Tap "Start Flight" to begin</div>
             </div>
+            <button class="watchads-main-btn" id="crashStartBtn">Start Flight</button>
           </div>
 
           <div class="earn-guide">
-            <div class="earn-guide-title">💥 Crash Game (Auto)</div>
+            <div class="earn-guide-title">💥 Crash Game (Preview)</div>
             <ul class="earn-guide-list">
-              <li>The plane takes off automatically after every 10 second countdown.</li>
-              <li>The multiplier increases over time until the plane crashes at a random value.</li>
-              <li>The last 10 crash multipliers are shown at the top as a history strip.</li>
+              <li>The plane takes off and the multiplier increases over time.</li>
+              <li>The round ends randomly when the plane crashes.</li>
+              <li>Later you will be able to place bets and cash out before the crash to earn DOGS.</li>
             </ul>
           </div>
         </div>
       `;
-
-      content.innerHTML = html;
-      applyTelegramUserToHome();
-      initCrashGameUI();
-      return;
     }
 
     if (type === "tictac") {
@@ -4503,9 +4336,6 @@
     clearInterval(spinCooldownTimer);
     clearInterval(redeemCountdownTimer);
     clearInterval(watchAdsCountdownTimer);
-    clearInterval(crashCountdownTimer);
-    cancelAnimationFrame(crashAnimationId);
-    crashGameActive = false;
     removeSpinPopup();
     removeCustomPopup();
     await syncReferralDataFromFirebase();
@@ -4513,6 +4343,7 @@
     showTab('earn', earnNav);
   }
 
+  /* NEW: back to games helper */
   function backToGames() {
     openEarnWindow('games');
   }
