@@ -1003,6 +1003,77 @@
     color: #111;
   }
 
+  .top-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+
+  .notify-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border: none;
+    border-radius: 14px;
+    background: #232326;
+    color: #fff;
+    cursor: pointer;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .notify-badge {
+    position: absolute;
+    top: 6px;
+    right: 7px;
+    width: 8px;
+    height: 8px;
+    background: #f6c400;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(246,196,0,0.7);
+  }
+
+  .top-user-mini {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .top-user-mini-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #f6c400;
+    background: #232326;
+    flex-shrink: 0;
+  }
+
+  .top-user-mini-info {
+    min-width: 0;
+  }
+
+  .top-user-mini-name {
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .top-user-mini-welcome {
+    color: #b4b4b8;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
   .notify-list {
     display: flex;
     flex-direction: column;
@@ -1878,25 +1949,6 @@
     top: 7px;
   }
 
-  /* NEW: Withdraw confirm popup readonly inputs */
-  .confirm-readonly-input {
-    width: 100%;
-    background: #2d2d33;
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 14px;
-    padding: 14px 12px;
-    color: #fff;
-    font-size: 14px;
-    outline: none;
-    margin-top: 10px;
-  }
-  .confirm-readonly-label {
-    text-align: left;
-    color: #9fa4b5;
-    font-size: 12px;
-    margin-top: 12px;
-  }
-
   @media (max-width: 480px) {
     body {
       padding: 0;
@@ -2169,40 +2221,6 @@
       link: "https://example.com/task8"
     }
   ];
-
-  /* ===========================
-     Withdraw rules + fee
-     =========================== */
-  const withdrawMin = 1500;
-  const withdrawMax = 2500;
-  const withdrawMultiple = 10;
-  const withdrawFixedFee = 120;
-  const withdrawPercentFee = 0.05;
-
-  function parseWithdrawAmount(inputText) {
-    const raw = String(inputText || "").trim();
-    if (!raw) return NaN;
-    const n = Number(raw);
-    if (!Number.isFinite(n)) return NaN;
-    return Math.floor(n);
-  }
-
-  function isValidWithdrawAmount(amount) {
-    if (!Number.isFinite(amount)) return false;
-    if (amount < withdrawMin || amount > withdrawMax) return false;
-    if (amount % withdrawMultiple !== 0) return false;
-    return true;
-  }
-
-  function calcWithdrawFee(amount) {
-    const percent = Math.round(amount * withdrawPercentFee); // keep integer DOGS
-    return withdrawFixedFee + percent;
-  }
-
-  function calcNetWithdraw(amount) {
-    const fee = calcWithdrawFee(amount);
-    return Math.max(0, amount - fee);
-  }
 
   window.addEventListener("load", function() {
     initTelegramUser();
@@ -2572,13 +2590,8 @@
     appBox.appendChild(popup);
   }
 
-  function showWithdrawConfirmPopup(withdrawValue, walletAddress) {
+  function showWithdrawConfirmPopup(withdrawValue) {
     removeCustomPopup();
-
-    const amount = Number(withdrawValue) || 0;
-    const fee = calcWithdrawFee(amount);
-    const net = calcNetWithdraw(amount);
-
     var appBox = document.getElementById("miniAppBox");
     var popup = document.createElement("div");
     popup.className = "custom-popup-overlay";
@@ -2586,20 +2599,8 @@
     popup.innerHTML = `
       <div class="custom-popup-card">
         <div class="custom-popup-title">Confirm Withdrawal</div>
-
-        <div class="confirm-readonly-label">TON Wallet Address</div>
-        <input class="confirm-readonly-input" type="text" id="confirmWithdrawWallet" value="${escapeHtml(walletAddress)}" readonly>
-
-        <div class="confirm-readonly-label">Withdraw Amount (DOGS)</div>
-        <input class="confirm-readonly-input" type="text" id="confirmWithdrawAmount" value="${escapeHtml(String(amount))}" readonly>
-
-        <div class="confirm-readonly-label">Fee (120 + 5%)</div>
-        <input class="confirm-readonly-input" type="text" id="confirmWithdrawFee" value="${escapeHtml(String(fee))}" readonly>
-
-        <div class="confirm-readonly-label">You Will Receive (After Fees)</div>
-        <input class="confirm-readonly-input" type="text" id="confirmWithdrawNet" value="${escapeHtml(String(net))}" readonly>
-
-        <div class="confirm-popup-actions" style="margin-top:14px;">
+        <div class="custom-popup-text">${escapeHtml(withdrawValue)} confirm withdrawal</div>
+        <div class="confirm-popup-actions">
           <button class="confirm-cancel-btn" onclick="cancelWithdrawRequest()">Cancel</button>
           <button class="confirm-ok-btn" onclick="confirmWithdrawRequest()">Confirm</button>
         </div>
@@ -2618,59 +2619,11 @@
     removeCustomPopup();
   }
 
-  async function confirmWithdrawRequest() {
+  function confirmWithdrawRequest() {
     const pendingValue = localStorage.getItem("pendingWithdrawValue") || "";
-    const amount = Number(pendingValue);
-
-    if (!Number.isFinite(amount) || !isValidWithdrawAmount(amount)) {
-      localStorage.removeItem("pendingWithdrawValue");
-      removeCustomPopup();
-      showCustomPopup("Withdraw", "Invalid withdrawal amount.");
-      return;
-    }
-
-    const wallet = (localStorage.getItem("tonWalletAddress") || "").trim();
-    if (!wallet) {
-      localStorage.removeItem("pendingWithdrawValue");
-      removeCustomPopup();
-      showCustomPopup("Withdraw", "Wallet address not found.");
-      return;
-    }
-
-    const fee = calcWithdrawFee(amount);
-    const net = calcNetWithdraw(amount);
-
-    if (net > balance) {
-      localStorage.removeItem("pendingWithdrawValue");
-      removeCustomPopup();
-      showCustomPopup("Withdraw", "Insufficient balance.");
-      return;
-    }
-
-    balance = balance - net;
-    localStorage.setItem("dogsBalance", balance.toString());
-    renderHomeLiveValues();
-
-    try {
-      const user = window.currentTelegramUser || {};
-      const userId = String(user.telegramId || "guest_user");
-
-      if (typeof window.createWithdrawalInFirebase === "function") {
-        await window.createWithdrawalInFirebase({
-          userId: userId,
-          amount: amount,
-          address: wallet,
-          type: "",
-          createdAt: new Date().toISOString(),
-          fee: fee,
-          netAmount: net
-        });
-      }
-    } catch (e) {}
-
-    localStorage.removeItem("pendingWithdrawValue");
     removeCustomPopup();
-    showCustomPopup("Withdraw", "your withdrawal have been submited.");
+    localStorage.removeItem("pendingWithdrawValue");
+    showCustomPopup("Confirmed", pendingValue ? pendingValue + " withdrawal request confirmed." : "Withdrawal request confirmed.");
   }
 
   async function claimReferralCode() {
@@ -2933,13 +2886,13 @@
       return;
     }
 
-    const wallet = (localStorage.getItem("tonWalletAddress") || "").trim();
-    if (!wallet) {
+    const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
+    if (!walletSaved) {
       showCustomPopup("Withdraw", "Please save your TON wallet address first.");
       return;
     }
 
-    if (balance < withdrawMin) {
+    if (balance < 1500) {
       showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
       return;
     }
@@ -2950,25 +2903,14 @@
       return;
     }
 
-    const amount = parseWithdrawAmount(amountInput.value);
-
-    if (!Number.isFinite(amount)) {
-      showCustomPopup("Withdraw", "Please enter a valid number.");
+    const withdrawValue = amountInput.value.trim();
+    if (!withdrawValue) {
+      showCustomPopup("Withdraw", "Please enter withdrawal value.");
       return;
     }
 
-    if (!isValidWithdrawAmount(amount)) {
-      showCustomPopup("Withdraw", "Invalid amount. Amount must be a multiple of 10 and between 1500 and 2500 DOGS.");
-      return;
-    }
-
-    if (amount > balance) {
-      showCustomPopup("Withdraw", "Your entered amount is higher than your balance.");
-      return;
-    }
-
-    localStorage.setItem("pendingWithdrawValue", String(amount));
-    showWithdrawConfirmPopup(amount, wallet);
+    localStorage.setItem("pendingWithdrawValue", withdrawValue);
+    showWithdrawConfirmPopup(withdrawValue);
   }
 
   function openPaymentChannel() {
@@ -3019,6 +2961,77 @@
             <div class="home-balance-value" id="homeBalanceValue">${balance}</div>
             <div class="home-balance-unit">🐕 DOGS</div>
           </div>
+
+          <div class="home-stats-grid">
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Ads Watched</div>
+              <div class="home-stat-value" id="homeAdsWatchedValue">${totalAdsWatched}</div>
+            </div>
+
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Referrals</div>
+              <div class="home-stat-value" id="homeReferralsValue">${totalReferrals}</div>
+            </div>
+
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Withdrawn Balance</div>
+              <div class="home-stat-value">0</div>
+            </div>
+
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Tasks Completed</div>
+              <div class="home-stat-value" id="homeTasksCompletedValue">${totalTasksCompleted}</div>
+            </div>
+
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Spinned</div>
+              <div class="home-stat-value" id="homeSpinnedValue">${totalSpinned}</div>
+            </div>
+
+            <div class="home-stat-card">
+              <div class="home-stat-title">Total Earned</div>
+              <div class="home-stat-value" id="homeEarnedValue">${totalEarned}</div>
+            </div>
+          </div>
+
+          <div class="app-stats-card">
+            <div class="app-stats-title">📊 App Statistics</div>
+
+            <div class="app-stats-row">
+              <div class="app-stat-left">👤 Total Users</div>
+              <div class="app-stat-right">532</div>
+            </div>
+
+            <div class="app-stats-row">
+              <div class="app-stat-left">💎 Total Payment</div>
+              <div class="app-stat-right">126,550</div>
+            </div>
+
+            <div class="app-stats-row">
+              <div class="app-stat-left">🐕 Total Paid Dogs</div>
+              <div class="app-stat-right">126,550</div>
+            </div>
+
+            <div class="app-stats-row">
+              <div class="app-stat-left">📤 Total Withdraw Dogs</div>
+              <div class="app-stat-right">126,550</div>
+            </div>
+
+            <div class="app-stats-row">
+              <div class="app-stat-left">🏦 All User Balance</div>
+              <div class="app-stat-right">174,220</div>
+            </div>
+          </div>
+
+          <div class="home-guide-card">
+            <div class="home-guide-title">🏠 Home Guide</div>
+            <ul class="home-guide-list">
+              <li>View your current DOGS balance and earning stats.</li>
+              <li>Track your total earned, withdrawn, ads watched, tasks and spins.</li>
+              <li>App statistics show overall platform performance.</li>
+              <li>Go to Earn tab to start earning more DOGS.</li>
+            </ul>
+          </div>
         </div>
       `;
     } 
@@ -3027,7 +3040,84 @@
         <div class="fade-in">
           ${renderTopButton()}
           <h2>Earn Dogs</h2>
-          <p>Earn section</p>
+          <div class="earn-list">
+
+            <button class="earn-item" onclick="openEarnWindow('watchads')">
+              <div class="earn-left">
+                <div class="earn-icon">📺</div>
+                <div class="earn-text">
+                  <strong>Watch Ads</strong>
+                  <span>Earn 5 Dogs/Ad</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('tasks')">
+              <div class="earn-left">
+                <div class="earn-icon">📋</div>
+                <div class="earn-text">
+                  <strong>Tasks</strong>
+                  <span>Complete & Earn</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('refer')">
+              <div class="earn-left">
+                <div class="earn-icon">👥</div>
+                <div class="earn-text">
+                  <strong>Refer & Earn</strong>
+                  <span>200 Dogs/Refer</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('spin')">
+              <div class="earn-left">
+                <div class="earn-icon">🎰</div>
+                <div class="earn-text">
+                  <strong>Spin Wheel</strong>
+                  <span>Win 5-10 Dogs</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('redeem')">
+              <div class="earn-left">
+                <div class="earn-icon">🎁</div>
+                <div class="earn-text">
+                  <strong>Redeem Code</strong>
+                  <span>Enter promo code</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+
+            <button class="earn-item" onclick="openEarnWindow('daily')">
+              <div class="earn-left">
+                <div class="earn-icon">🦴</div>
+                <div class="earn-text">
+                  <strong>Daily Bonus</strong>
+                  <span>10 Dogs daily</span>
+                </div>
+              </div>
+              <div class="earn-arrow">›</div>
+            </button>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">💰 Earn Guide</div>
+            <ul class="earn-guide-list">
+              <li>Watch ads to earn DOGS coins instantly.</li>
+              <li>Complete tasks and upload proof for rewards.</li>
+              <li>Refer friends and earn bonus DOGS.</li>
+              <li>Spin the wheel or claim daily bonus for free DOGS.</li>
+            </ul>
+          </div>
         </div>
       `;
     } 
@@ -3054,8 +3144,30 @@
           </div>
 
           ${getWithdrawRequirementsHtml()}
+
           ${getWithdrawWalletHtml()}
+
           ${getWithdrawActionBoxHtml()}
+
+          <button class="withdraw-channel-btn" onclick="openPaymentChannel()">↗ Check Payment Channel</button>
+
+          <div class="withdraw-history-box">
+            <div class="withdraw-history-title">📜 Withdraw History</div>
+            <div class="withdraw-history-empty">No withdrawals yet</div>
+          </div>
+
+          <div class="withdraw-guide-box">
+            <div class="withdraw-guide-title">📤 Withdraw Guide</div>
+            <ul class="withdraw-guide-list">
+              <li>Withdraw fee: 120 DOGS + 5% of your withdrawal amount.</li>
+              <li>Min withdraw: 1500 Dogs, Max: 2500 Dogs.</li>
+              <li>Requirements: 10 daily ads (Watch tab), 3 tasks, 2 referrals.</li>
+              <li>Save your TON wallet address before withdrawing.</li>
+              <li>Withdraw hours: 8:00 AM - 22:00 PM Sri Lanka Time.</li>
+              <li>Only one pending withdrawal allowed at a time.</li>
+              <li>Withdrawals are processed within 24 hours.</li>
+            </ul>
+          </div>
         </div>
       `;
     } 
@@ -3065,6 +3177,11 @@
           ${renderTopButton()}
           <h2>Profile</h2>
           <p>Manage your account details and settings.</p>
+          <div class="content-card">
+            <p><strong>Name:</strong> John Doe</p>
+            <p><strong>User ID:</strong> 123456</p>
+            <p><strong>Status:</strong> Active</p>
+          </div>
         </div>
       `;
     }
@@ -3076,6 +3193,708 @@
     if (tab === "withdraw") {
       toggleWithdrawSaveButton();
     }
+  }
+
+  function renderTasksGrid() {
+    let cards = taskData.map(function(task) {
+      const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
+      return `
+        <div class="task-card" id="task-card-${task.id}">
+          <div class="task-top" onclick="toggleTaskCard('${task.id}')">
+            <div class="task-top-icon">📋</div>
+            <div class="task-title">${task.title}</div>
+            <div class="task-reward">${task.reward}</div>
+            ${task.progress ? `<div class="task-progress">${task.progress}</div>` : ``}
+          </div>
+
+          <div class="task-expand-content">
+            <div class="task-desc">${task.desc}</div>
+
+            <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
+
+            <input type="file" accept="image/*" class="task-file-input" id="file-${task.id}" onchange="handleTaskScreenshotUpload(event, '${task.id}')">
+
+            <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
+
+            <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
+
+            <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    return `<div class="tasks-grid">${cards}</div>`;
+  }
+
+  async function openEarnWindow(type) {
+    clearInterval(dailyTimerInterval);
+    clearInterval(spinUnlockTimer);
+    clearInterval(spinCooldownTimer);
+    clearInterval(redeemCountdownTimer);
+    clearInterval(watchAdsCountdownTimer);
+    removeSpinPopup();
+    removeCustomPopup();
+
+    await syncReferralDataFromFirebase();
+
+    var content = document.getElementById("content-area");
+    let html = "";
+
+    if (type === "watchads") {
+      const state = getWatchAdsState();
+
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Watch Ads</div>
+          </div>
+
+          <div class="watchads-panel">
+            <div class="watchads-big-icon">📺</div>
+            <div class="watchads-reward-title">5 DOGS</div>
+            <div class="watchads-reward-sub">per ad watched</div>
+
+            <div class="watchads-stats">
+              <div class="watchads-stat-box">
+                <div class="watchads-stat-value" id="watchAdsHourlyLeft">${state.hourlyLeft}</div>
+                <div class="watchads-stat-label">Hourly Left</div>
+              </div>
+              <div class="watchads-stat-box">
+                <div class="watchads-stat-value" id="watchAdsDailyLeft">${state.dailyLeft}</div>
+                <div class="watchads-stat-label">Daily Left</div>
+              </div>
+            </div>
+
+            <button class="watchads-main-btn" id="watchAdsBtn" onclick="startWatchAd()">▷ Watch Ad</button>
+            <div class="watchads-status" id="watchAdsStatusText"></div>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">📺 Watch Ads Guide</div>
+            <ul class="earn-guide-list">
+              <li>Watch ads to earn DOGS coins instantly.</li>
+              <li>You can watch up to 100 ads per hour and 1000 per day.</li>
+              <li>After watching, reward is added automatically after 10 seconds.</li>
+              <li>Hourly limit resets every 1 hour.</li>
+              <li>Daily limit resets after 24 hours.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+      applyTelegramUserToHome();
+      updateWatchAdsUI();
+      return;
+    }
+
+    if (type === "tasks") {
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Tasks</div>
+          </div>
+          ${renderTasksGrid()}
+        </div>
+      `;
+    }
+
+    if (type === "refer") {
+      const userReferralCode = getUserReferralCode();
+
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Refer & Earn</div>
+          </div>
+
+          <div class="refer-panel">
+            <div class="refer-big-icon">👥</div>
+            <div class="refer-reward-title">200</div>
+            <div class="refer-reward-sub">Dogs per Referral</div>
+          </div>
+
+          <div class="refer-stats">
+            <div class="refer-stat-box">
+              <div class="refer-stat-value">${totalReferrals}</div>
+              <div class="refer-stat-label">Total Refers</div>
+            </div>
+            <div class="refer-stat-box">
+              <div class="refer-stat-value">${totalReferrals * referralRewardPerReferral}</div>
+              <div class="refer-stat-label">Total Earned</div>
+            </div>
+          </div>
+
+          <div class="refer-link-card">
+            <div class="refer-link-title">Your Referral Link</div>
+
+            <div class="refer-link-row">
+              <input type="text" class="refer-link-input" id="referralLinkInput" value="https//:tm.bear earn" readonly>
+              <button class="refer-copy-btn" onclick="copyReferralLink()">⧉</button>
+            </div>
+
+            <div class="refer-link-row">
+              <input type="text" class="refer-link-input" id="referralLinkInput2" value="${userReferralCode}" readonly>
+              <button class="refer-copy-btn" onclick="copyReferralLink2()">⧉</button>
+            </div>
+
+            <div class="refer-claim-row">
+              <input type="text" class="refer-claim-input" id="referClaimInput" placeholder="Enter referral code">
+              <button class="refer-claim-btn" onclick="claimReferralCode()">Claim</button>
+            </div>
+
+            <button class="refer-share-btn" onclick="shareReferralLink()">⤴ Share via Telegram</button>
+          </div>
+
+          <div class="refer-history-card">
+            <div class="refer-history-title">📜 Refer History</div>
+            <div class="refer-empty-history">${totalReferrals > 0 ? totalReferrals + ' referrals counted' : 'No referrals yet'}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (type === "spin") {
+      spinUnlockReady = false;
+      spinInProgress = false;
+      pendingSpinPrize = 0;
+      pendingSpinClaimed = false;
+
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Spin Wheel</div>
+          </div>
+
+          <div class="spin-wrap">
+            <div class="wheel-area">
+              <div class="wheel-pointer"></div>
+              <div class="spin-wheel" id="spinWheel">
+                <div class="wheel-center"></div>
+
+                <div class="wheel-label" style="transform: rotate(22.5deg) translateY(-126px) rotate(67.5deg);">5</div>
+                <div class="wheel-label" style="transform: rotate(67.5deg) translateY(-126px) rotate(22.5deg);">10</div>
+                <div class="wheel-label" style="transform: rotate(112.5deg) translateY(-126px) rotate(-22.5deg);">5</div>
+                <div class="wheel-label" style="transform: rotate(157.5deg) translateY(-126px) rotate(-67.5deg);">10</div>
+                <div class="wheel-label" style="transform: rotate(202.5deg) translateY(-126px) rotate(-112.5deg);">5</div>
+                <div class="wheel-label" style="transform: rotate(247.5deg) translateY(-126px) rotate(-157.5deg);">10</div>
+                <div class="wheel-label" style="transform: rotate(292.5deg) translateY(-126px) rotate(-202.5deg);">5</div>
+                <div class="wheel-label" style="transform: rotate(337.5deg) translateY(-126px) rotate(-247.5deg);">10</div>
+              </div>
+            </div>
+
+            <button class="spin-dark-btn" id="spinUnlockBtn" onclick="unlockSpinByVisit()">🔒 Watch Ad to Unlock Spin</button>
+            <button class="spin-yellow-btn" id="spinActionBtn" disabled onclick="startSpin()">🔒 Locked</button>
+            <div class="spin-status" id="spinStatusText"></div>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">🎰 Spin Guide</div>
+            <ul class="earn-guide-list">
+              <li>Watch an ad to unlock each spin.</li>
+              <li>Win 5 or 10 DOGS with every spin.</li>
+              <li>Claim your reward by watching another ad.</li>
+              <li>2 minute cooldown between spins.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+
+      content.innerHTML = html;
+      restoreSpinCooldownUI();
+      applyTelegramUserToHome();
+      return;
+    }
+
+    if (type === "redeem") {
+      const redeemHistory = JSON.parse(localStorage.getItem("redeemHistory") || "[]");
+      let historyHtml = "";
+
+      if (redeemHistory.length === 0) {
+        historyHtml = `<div class="redeem-empty-history">No codes redeemed yet</div>`;
+      } else {
+        historyHtml = redeemHistory.map(function(item) {
+          return `
+            <div class="notify-item" style="margin-bottom:10px;">
+              <div class="notify-item-title">${item.code}</div>
+              <div class="notify-item-text">Reward: ${item.reward}</div>
+              <div class="notify-item-time">${item.time}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Redeem Code</div>
+          </div>
+
+          <div class="redeem-card">
+            <div class="redeem-icon">🎁</div>
+            <div class="redeem-title">Redeem Code</div>
+
+            <div class="redeem-row">
+              <input type="text" class="redeem-input" id="redeemCodeInput" placeholder="Enter code..." oninput="toggleRedeemButton()">
+              <button class="redeem-btn" id="redeemClaimBtn" onclick="startRedeemCountdown()" disabled>Claim</button>
+            </div>
+
+            <div class="redeem-channel-box">
+              💡 Get codes from our <a href="https://t.me/yourcommunitychannel" target="_blank">Community Channel</a>
+            </div>
+
+            <div class="redeem-history-title">Redeem History</div>
+            <div id="redeemHistoryBox">${historyHtml}</div>
+            <div class="redeem-status" id="redeemStatusText"></div>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">🎁 Redeem Guide</div>
+            <ul class="earn-guide-list">
+              <li>Enter a valid promo code to earn free DOGS.</li>
+              <li>Codes are shared in our Community Channel.</li>
+              <li>Each code has a claim limit. Be quick!</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    if (type === "daily") {
+      let now = Date.now();
+      let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
+      let canClaim = (now - lastClaim) >= dailyCooldown;
+      let statusText = canClaim ? "Bonus available now" : "";
+      let buttonText = canClaim ? "🦴 Claim 50 Dogs" : "⏳ Available in...";
+      let disabledAttr = canClaim ? "" : "disabled";
+
+      html = `
+        <div class="fade-in">
+          ${renderTopButton()}
+          <div class="sub-page-header">
+            <button class="back-btn" onclick="backToEarn()">←</button>
+            <div class="sub-page-title">Daily Bonus</div>
+          </div>
+
+          <div class="daily-bonus-card">
+            <div class="daily-bonus-icon">🦴</div>
+            <div class="daily-bonus-title">Daily Bonus</div>
+            <div class="daily-bonus-subtitle">Claim 50 Dogs every day!</div>
+            <div class="daily-bonus-time">Resets after 24 hours</div>
+            <button class="claim-btn" id="dailyClaimBtn" ${disabledAttr} onclick="claimDailyBonus()">${buttonText}</button>
+            <div class="daily-status" id="dailyStatusText">${statusText}</div>
+          </div>
+
+          <div class="earn-guide">
+            <div class="earn-guide-title">🦴 Daily Bonus Guide</div>
+            <ul class="earn-guide-list">
+              <li>Claim your free daily DOGS bonus once per day.</li>
+              <li>Click the claim button and complete the 10 second visit.</li>
+              <li>You will receive 50 DOGS after the countdown ends.</li>
+              <li>Bonus becomes active again after 24 hours.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    content.innerHTML = html;
+    applyTelegramUserToHome();
+  }
+
+  function toggleRedeemButton() {
+    const input = document.getElementById("redeemCodeInput");
+    const btn = document.getElementById("redeemClaimBtn");
+    if (!input || !btn) return;
+
+    if (input.value.trim() !== "") {
+      btn.disabled = false;
+      btn.classList.add("active");
+    } else {
+      btn.disabled = true;
+      btn.classList.remove("active");
+    }
+  }
+
+  function startRedeemCountdown() {
+    const input = document.getElementById("redeemCodeInput");
+    const btn = document.getElementById("redeemClaimBtn");
+    const status = document.getElementById("redeemStatusText");
+
+    if (!input || !btn || !status) return;
+
+    const codeValue = input.value.trim().toUpperCase();
+    if (!codeValue) {
+      status.textContent = "Please enter a code.";
+      return;
+    }
+
+    redeemPendingCode = codeValue;
+    btn.disabled = true;
+    btn.classList.add("active");
+
+    let seconds = 10;
+    btn.textContent = "Wait " + seconds + "s";
+    status.textContent = "Redirecting... complete the 10 second countdown.";
+
+    window.open(redeemRedirectUrl, "_blank");
+
+    clearInterval(redeemCountdownTimer);
+    redeemCountdownTimer = setInterval(async function() {
+      seconds--;
+      btn.textContent = "Wait " + seconds + "s";
+
+      if (seconds <= 0) {
+        clearInterval(redeemCountdownTimer);
+        btn.textContent = "Claim";
+        status.textContent = "Checking code...";
+        await claimRedeemCode();
+      }
+    }, 1000);
+  }
+
+  async function claimRedeemCode() {
+    const input = document.getElementById("redeemCodeInput");
+    const status = document.getElementById("redeemStatusText");
+    const btn = document.getElementById("redeemClaimBtn");
+
+    if (!input || !status || !btn) return;
+
+    const codeValue = redeemPendingCode || input.value.trim().toUpperCase();
+    if (!codeValue) {
+      status.textContent = "Please enter a code.";
+      toggleRedeemButton();
+      return;
+    }
+
+    status.textContent = "Checking code...";
+
+    if (!window.handleRedeemCodeFromFirebase) {
+      status.textContent = "Redeem system not ready.";
+      toggleRedeemButton();
+      return;
+    }
+
+    const success = await window.handleRedeemCodeFromFirebase(codeValue);
+
+    if (!success) {
+      toggleRedeemButton();
+    }
+  }
+
+  function toggleTaskCard(taskId) {
+    var cards = document.querySelectorAll(".task-card");
+    cards.forEach(function(card) {
+      if (card.id === "task-card-" + taskId) {
+        card.classList.toggle("expanded");
+      } else {
+        card.classList.remove("expanded");
+      }
+    });
+  }
+
+  function startTaskLink(url) {
+    window.open(url, "_blank");
+  }
+
+  function handleTaskScreenshotUpload(event, taskId) {
+    var file = event.target.files[0];
+    var status = document.getElementById("upload-status-" + taskId);
+    if (!status) return;
+
+    if (!file) {
+      status.textContent = "";
+      return;
+    }
+
+    status.textContent = "Screenshot selected: " + file.name + " (ready for admin panel submission later)";
+  }
+
+  function claimDailyBonus() {
+    let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
+    let now = Date.now();
+    if ((now - lastClaim) < dailyCooldown) return;
+
+    var btn = document.getElementById("dailyClaimBtn");
+    var status = document.getElementById("dailyStatusText");
+    if (!btn || !status) return;
+
+    btn.disabled = true;
+    let seconds = 10;
+    btn.textContent = "⏳ Wait " + seconds + "s";
+    status.textContent = "Redirecting... complete the countdown to receive 50 DOGS.";
+
+    window.open(dailyRedirectUrl, "_blank");
+
+    let rewardTimer = setInterval(function() {
+      seconds--;
+      btn.textContent = "⏳ Wait " + seconds + "s";
+
+      if (seconds <= 0) {
+        clearInterval(rewardTimer);
+        localStorage.setItem("dailyBonusLastClaim", Date.now().toString());
+        balance += dailyBonusAmount;
+        totalEarned += dailyBonusAmount;
+        localStorage.setItem("dogsBalance", balance.toString());
+        localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+        btn.textContent = "✅ Claimed";
+        status.textContent = "50 DOGS added successfully. Come back after 24 hours.";
+        startDailyCooldown(Date.now() + dailyCooldown);
+      }
+    }, 1000);
+  }
+
+  function startDailyCooldown(targetTime) {
+    clearInterval(dailyTimerInterval);
+    var btn = document.getElementById("dailyClaimBtn");
+    var status = document.getElementById("dailyStatusText");
+    if (!btn || !status) return;
+
+    btn.disabled = true;
+
+    dailyTimerInterval = setInterval(function() {
+      let now = Date.now();
+      let distance = targetTime - now;
+
+      if (distance <= 0) {
+        clearInterval(dailyTimerInterval);
+        btn.disabled = false;
+        btn.textContent = "🦴 Claim 50 Dogs";
+        status.textContent = "Bonus available now";
+        return;
+      }
+
+      let hours = Math.floor(distance / (1000 * 60 * 60));
+      let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      btn.textContent = "⏳ " + hours + "h " + minutes + "m " + seconds + "s";
+      status.textContent = "Next claim available after cooldown ends.";
+    }, 1000);
+  }
+
+  function unlockSpinByVisit() {
+    if (spinInProgress || spinCooldown) return;
+
+    var unlockBtn = document.getElementById("spinUnlockBtn");
+    var spinBtn = document.getElementById("spinActionBtn");
+    var status = document.getElementById("spinStatusText");
+
+    if (!unlockBtn || !spinBtn || !status) return;
+
+    unlockBtn.disabled = true;
+    let seconds = 10;
+    unlockBtn.textContent = "⏳ Wait " + seconds + "s";
+    status.textContent = "Redirecting... complete the 10 second countdown to unlock spin.";
+    window.open(spinRedirectUrl, "_blank");
+
+    clearInterval(spinUnlockTimer);
+    spinUnlockTimer = setInterval(function() {
+      seconds--;
+      unlockBtn.textContent = "⏳ Wait " + seconds + "s";
+
+      if (seconds <= 0) {
+        clearInterval(spinUnlockTimer);
+        spinUnlockReady = true;
+        unlockBtn.classList.add("hidden-spin-btn");
+        spinBtn.disabled = false;
+        spinBtn.textContent = "🎯 Spin Now";
+        status.textContent = "Spin unlocked. Click the yellow button to spin.";
+      }
+    }, 1000);
+  }
+
+  function startSpin() {
+    if (!spinUnlockReady || spinInProgress || spinCooldown) return;
+
+    var wheel = document.getElementById("spinWheel");
+    var spinBtn = document.getElementById("spinActionBtn");
+    var unlockBtn = document.getElementById("spinUnlockBtn");
+    var status = document.getElementById("spinStatusText");
+
+    if (!wheel || !spinBtn || !unlockBtn || !status) return;
+
+    spinInProgress = true;
+    spinUnlockReady = false;
+    pendingSpinPrize = 0;
+    pendingSpinClaimed = false;
+    spinBtn.disabled = true;
+    unlockBtn.classList.add("hidden-spin-btn");
+    status.textContent = "Spinning...";
+
+    const index = Math.floor(Math.random() * wheelValues.length);
+    const prize = wheelValues[index];
+    const segmentAngle = 360 / wheelValues.length;
+    const targetAngle = (index * segmentAngle) + (segmentAngle / 2);
+    const finalAngle = 360 - targetAngle;
+    const extraSpins = 360 * (5 + Math.floor(Math.random() * 3));
+    const totalRotation = extraSpins + finalAngle;
+
+    wheel.style.transition = "none";
+    const currentRotation = parseFloat(wheel.getAttribute("data-rotation") || "0");
+    wheel.style.transform = "rotate(" + currentRotation + "deg)";
+    wheel.offsetHeight;
+
+    const newRotation = currentRotation + totalRotation;
+    wheel.style.transition = "transform 5s cubic-bezier(0.17, 0.67, 0.14, 1)";
+    wheel.style.transform = "rotate(" + newRotation + "deg)";
+    wheel.setAttribute("data-rotation", newRotation);
+
+    setTimeout(function() {
+      pendingSpinPrize = prize;
+      totalSpinned += 1;
+      localStorage.setItem("dogsTotalSpinned", totalSpinned.toString());
+      renderHomeLiveValues();
+      status.textContent = "Spin finished.";
+      spinInProgress = false;
+      showSpinRewardPopup(prize);
+    }, 5200);
+  }
+
+  function showSpinRewardPopup(prize) {
+    removeSpinPopup();
+
+    var appBox = document.getElementById("miniAppBox");
+    var popup = document.createElement("div");
+    popup.className = "spin-popup-overlay";
+    popup.id = "spinRewardPopup";
+    popup.innerHTML = `
+      <div class="spin-popup-card">
+        <div class="spin-popup-icon">🎉</div>
+        <div class="spin-popup-title">Spin Reward!</div>
+        <div class="spin-popup-reward">+${prize} DOGS</div>
+        <div class="spin-popup-text">Watch an ad to claim your reward! 🐕</div>
+        <button class="spin-popup-claim" onclick="claimSpinReward()">📺 Claim Reward</button>
+        <button class="spin-popup-skip" onclick="skipSpinReward()">Skip</button>
+      </div>
+    `;
+    appBox.appendChild(popup);
+  }
+
+  function removeSpinPopup() {
+    var existing = document.getElementById("spinRewardPopup");
+    if (existing) existing.remove();
+  }
+
+  function claimSpinReward() {
+    if (!pendingSpinPrize || pendingSpinClaimed) return;
+
+    window.open(spinRedirectUrl, "_blank");
+    pendingSpinClaimed = true;
+
+    balance += pendingSpinPrize;
+    totalEarned += pendingSpinPrize;
+
+    localStorage.setItem("dogsBalance", balance.toString());
+    localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+
+    removeSpinPopup();
+    startSpinCooldown();
+    renderHomeLiveValues();
+  }
+
+  function skipSpinReward() {
+    pendingSpinPrize = 0;
+    pendingSpinClaimed = false;
+    removeSpinPopup();
+    startSpinCooldown();
+  }
+
+  function startSpinCooldown() {
+    spinCooldown = true;
+    const cooldownEnd = Date.now() + spinCooldownDuration;
+    localStorage.setItem("spinCooldownEnd", cooldownEnd.toString());
+    runSpinCooldown(cooldownEnd);
+  }
+
+  function restoreSpinCooldownUI() {
+    const cooldownEnd = parseInt(localStorage.getItem("spinCooldownEnd")) || 0;
+    var unlockBtn = document.getElementById("spinUnlockBtn");
+    var spinBtn = document.getElementById("spinActionBtn");
+    var status = document.getElementById("spinStatusText");
+
+    if (cooldownEnd > Date.now()) {
+      spinCooldown = true;
+      if (unlockBtn) unlockBtn.classList.add("hidden-spin-btn");
+      runSpinCooldown(cooldownEnd);
+    } else {
+      spinCooldown = false;
+      localStorage.removeItem("spinCooldownEnd");
+      if (unlockBtn) {
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = "🔒 Watch Ad to Unlock Spin";
+        unlockBtn.classList.remove("hidden-spin-btn");
+      }
+      if (spinBtn) {
+        spinBtn.disabled = true;
+        spinBtn.textContent = "🔒 Locked";
+      }
+      if (status) {
+        status.textContent = "";
+      }
+    }
+  }
+
+  function runSpinCooldown(cooldownEnd) {
+    clearInterval(spinCooldownTimer);
+
+    var unlockBtn = document.getElementById("spinUnlockBtn");
+    var spinBtn = document.getElementById("spinActionBtn");
+    var status = document.getElementById("spinStatusText");
+
+    if (!unlockBtn || !spinBtn || !status) return;
+
+    unlockBtn.classList.add("hidden-spin-btn");
+    spinBtn.disabled = true;
+
+    spinCooldownTimer = setInterval(function() {
+      let now = Date.now();
+      let distance = cooldownEnd - now;
+
+      if (distance <= 0) {
+        clearInterval(spinCooldownTimer);
+        spinCooldown = false;
+        localStorage.removeItem("spinCooldownEnd");
+        unlockBtn.disabled = false;
+        unlockBtn.textContent = "🔒 Watch Ad to Unlock Spin";
+        unlockBtn.classList.remove("hidden-spin-btn");
+        spinBtn.disabled = true;
+        spinBtn.textContent = "🔒 Locked";
+        status.textContent = "Cooldown finished. Watch ad to unlock next spin.";
+        return;
+      }
+
+      let minutes = Math.floor(distance / (1000 * 60));
+      let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      let formatted = minutes + ":" + (seconds < 10 ? "0" + seconds : seconds);
+
+      spinBtn.textContent = "🕒 " + formatted;
+      status.textContent = "Spin cooldown active.";
+    }, 1000);
+  }
+
+  async function backToEarn() {
+    clearInterval(dailyTimerInterval);
+    clearInterval(spinUnlockTimer);
+    clearInterval(spinCooldownTimer);
+    clearInterval(redeemCountdownTimer);
+    clearInterval(watchAdsCountdownTimer);
+    removeSpinPopup();
+    removeCustomPopup();
+    await syncReferralDataFromFirebase();
+    var earnNav = document.querySelectorAll(".nav-item")[1];
+    showTab('earn', earnNav);
   }
 </script>
 
@@ -3090,8 +3909,7 @@
     doc,
     getDoc,
     setDoc,
-    updateDoc,
-    addDoc
+    updateDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -3105,19 +3923,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-
-  // NEW: create withdrawal for admin panel (withdrawals collection)
-  window.createWithdrawalInFirebase = async function(data) {
-    await addDoc(collection(db, "withdrawals"), {
-      userId: String(data.userId || ""),
-      amount: Number(data.amount || 0),
-      address: String(data.address || ""),
-      type: String(data.type || ""),
-      createdAt: String(data.createdAt || new Date().toISOString()),
-      fee: Number(data.fee || 0),
-      netAmount: Number(data.netAmount || 0)
-    });
-  };
 
   window.saveTelegramUserToFirebase = async function() {
     try {
