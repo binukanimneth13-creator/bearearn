@@ -2619,56 +2619,13 @@
     removeCustomPopup();
   }
 
-  async function confirmWithdrawRequest() {
-  const pendingValue = parseInt(localStorage.getItem("pendingWithdrawValue") || "0");
-
-  if (!pendingValue || isNaN(pendingValue)) {
+  function confirmWithdrawRequest() {
+    const pendingValue = localStorage.getItem("pendingWithdrawValue") || "";
     removeCustomPopup();
-    showCustomPopup("Error", "Invalid withdrawal amount.");
-    return;
-  }
-
-  const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
-  const user = window.currentTelegramUser || {};
-  const userId = String(user.telegramId || "guest_user");
-
-  try {
-    // ✅ Deduct balance (without fees)
-    balance -= pendingValue;
-    if (balance < 0) balance = 0;
-
-    localStorage.setItem("dogsBalance", balance.toString());
-
-    // ✅ Update Firebase user balance
-    if (window.db) {
-      const userRef = doc(window.db, "users", userId);
-      await updateDoc(userRef, {
-        balance: balance,
-        lastSeen: new Date().toISOString()
-      });
-
-      // ✅ Create withdrawal record
-      const withdrawalRef = doc(window.db, "withdrawals", userId + "_" + Date.now());
-      await setDoc(withdrawalRef, {
-        userId: userId,
-        amount: pendingValue,
-        address: walletAddress,
-        type: "",
-        createdAt: new Date().toISOString()
-      });
-    }
-
     localStorage.removeItem("pendingWithdrawValue");
-    removeCustomPopup();
-    renderHomeLiveValues();
-
-    showCustomPopup("Success", "Your withdrawal has been submitted.");
-
-  } catch (error) {
-    removeCustomPopup();
-    showCustomPopup("Error", error.message || "Withdrawal failed.");
+    showCustomPopup("Confirmed", pendingValue ? pendingValue + " withdrawal request confirmed." : "Withdrawal request confirmed.");
   }
-}
+
   async function claimReferralCode() {
     const input = document.getElementById("referClaimInput");
     if (!input) return;
@@ -3966,7 +3923,6 @@
 
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
-  window.db = db;
 
   window.saveTelegramUserToFirebase = async function() {
     try {
