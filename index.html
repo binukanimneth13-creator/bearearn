@@ -1,3 +1,5 @@
+this is the full code in 20/04/2026(no withdrawal)
+
 <style>
   * {
     margin: 0;
@@ -2875,39 +2877,83 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
-  function withdrawDogsNow() {
-    if (!areWithdrawRequirementsCompleted()) {
-      showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
-      return;
-    }
+ function parseWithdrawAmount(raw) {
+  const cleaned = String(raw || "").trim();
 
-    if (!isWithdrawOpenNow()) {
-      showCustomPopup("Withdraw", "Withdrawal time is currently closed.");
-      return;
-    }
+  // allow only whole numbers
+  if (!/^\d+$/.test(cleaned)) {
+    return { ok: false, value: 0, error: "Please enter a valid number." };
+  }
 
-    const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
-    if (!walletSaved) {
-      showCustomPopup("Withdraw", "Please save your TON wallet address first.");
-      return;
-    }
+  const value = parseInt(cleaned, 10);
+  if (isNaN(value)) {
+    return { ok: false, value: 0, error: "Please enter a valid number." };
+  }
 
-    if (balance < 1500) {
-      showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
-      return;
-    }
+  return { ok: true, value };
+}
 
-    const amountInput = document.getElementById("withdrawAmountInput");
-    if (!amountInput) {
-      showCustomPopup("Withdraw", "Withdrawal input not found.");
-      return;
-    }
+function isMultipleOf10(n) {
+  return n % 10 === 0;
+}
 
-    const withdrawValue = amountInput.value.trim();
-    if (!withdrawValue) {
-      showCustomPopup("Withdraw", "Please enter withdrawal value.");
-      return;
-    }
+function withdrawDogsNow() {
+  if (!areWithdrawRequirementsCompleted()) {
+    showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
+    return;
+  }
+
+  if (!isWithdrawOpenNow()) {
+    showCustomPopup("Withdraw", "Withdrawal time is currently closed.");
+    return;
+  }
+
+  const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
+  if (!walletSaved) {
+    showCustomPopup("Withdraw", "Please save your TON wallet address first.");
+    return;
+  }
+
+  if (balance < 1500) {
+    showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
+    return;
+  }
+
+  const amountInput = document.getElementById("withdrawAmountInput");
+  if (!amountInput) {
+    showCustomPopup("Withdraw", "Withdrawal input not found.");
+    return;
+  }
+
+  const parsed = parseWithdrawAmount(amountInput.value);
+  if (!parsed.ok) {
+    showCustomPopup("Withdraw", parsed.error);
+    return;
+  }
+
+  const amount = parsed.value;
+
+  // ✅ must be between 1500 and 2500 (including)
+  if (amount < 1500 || amount > 2500) {
+    showCustomPopup("Withdraw", "Amount must be between 1500 and 2500 DOGS (including 1500 and 2500).");
+    return;
+  }
+
+  // ✅ must be multiple of 10
+  if (!isMultipleOf10(amount)) {
+    showCustomPopup("Withdraw", "Amount must be a multiple of 10 (example: 1500, 1510, 1520...).");
+    return;
+  }
+
+  // (recommended) user must have at least that amount
+  if (balance < amount) {
+    showCustomPopup("Withdraw", "Your balance is less than the withdrawal amount.");
+    return;
+  }
+
+  localStorage.setItem("pendingWithdrawValue", String(amount));
+  showWithdrawConfirmPopup(String(amount));
+}
 
     localStorage.setItem("pendingWithdrawValue", withdrawValue);
     showWithdrawConfirmPopup(withdrawValue);
