@@ -1,4 +1,3 @@
-
 <style>
   * {
     margin: 0;
@@ -2876,81 +2875,11 @@
     showCustomPopup("Saved", "TON wallet address saved successfully.");
   }
 
-function parseWithdrawAmount(raw) {
-  const cleaned = String(raw || "").trim();
-  if (!/^\d+$/.test(cleaned)) {
-    return { ok: false, value: 0, error: "Please enter a valid number." };
-  }
-  const value = parseInt(cleaned, 10);
-  if (isNaN(value)) {
-    return { ok: false, value: 0, error: "Please enter a valid number." };
-  }
-  return { ok: true, value };
-}
-
-function isMultipleOf10(n) {
-  return n % 10 === 0;
-}
-
-// ✅ REPLACE your existing withdrawDogsNow() with this:
-function withdrawDogsNow() {
-  if (!areWithdrawRequirementsCompleted()) {
-    showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
-    return;
-  }
-
-  if (!isWithdrawOpenNow()) {
-    showCustomPopup("Withdraw", "Withdrawal time is currently closed.");
-    return;
-  }
-
-  const walletSaved = (localStorage.getItem("tonWalletAddress") || "").trim() !== "";
-  if (!walletSaved) {
-    showCustomPopup("Withdraw", "Please save your TON wallet address first.");
-    return;
-  }
-
-  if (balance < 1500) {
-    showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
-    return;
-  }
-
-  const amountInput = document.getElementById("withdrawAmountInput");
-  if (!amountInput) {
-    showCustomPopup("Withdraw", "Withdrawal input not found.");
-    return;
-  }
-
-  const parsed = parseWithdrawAmount(amountInput.value);
-  if (!parsed.ok) {
-    showCustomPopup("Withdraw", parsed.error);
-    return;
-  }
-
-  const amount = parsed.value;
-
-  // ✅ between 1500 and 2500 (including)
-  if (amount < 1500 || amount > 2500) {
-    showCustomPopup("Withdraw", "Amount must be between 1500 and 2500 DOGS (including 1500 and 2500).");
-    return;
-  }
-
-  // ✅ multiple of 10
-  if (!isMultipleOf10(amount)) {
-    showCustomPopup("Withdraw", "Amount must be a multiple of 10 (example: 1500, 1510, 1520...).");
-    return;
-  }
-
-  // (optional but logical) user must have at least the entered amount
-  if (balance < amount) {
-    showCustomPopup("Withdraw", "Your balance is less than the withdrawal amount.");
-    return;
-  }
-
-  // keep your original behavior
-  localStorage.setItem("pendingWithdrawValue", String(amount));
-  showWithdrawConfirmPopup(String(amount));
-}
+  function withdrawDogsNow() {
+    if (!areWithdrawRequirementsCompleted()) {
+      showCustomPopup("Withdraw", "Please complete all withdrawal requirements first.");
+      return;
+    }
 
     if (!isWithdrawOpenNow()) {
       showCustomPopup("Withdraw", "Withdrawal time is currently closed.");
