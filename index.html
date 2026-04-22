@@ -2343,18 +2343,6 @@
     const withdrawRequiredTasks = 3;
     const withdrawRequiredReferrals = 2;
     const referralRewardPerReferral = 200;
-    
-    // Task reward mapping
-    const taskRewards = {
-      "task1": 100,
-      "task2": 500,
-      "task3": 100,
-      "task4": 100,
-      "task5": 50,
-      "task6": 100,
-      "task7": 200,
-      "task8": 50
-    };
 
     const taskData = [
       {
@@ -2447,20 +2435,6 @@
     let crashPropellerLastTs = 0;
     let crashPropellerStartTs = 0;
     let crashPropellerDuration = 10000;
-
-    // Helper function to sync balance with Firebase
-    async function syncBalanceWithFirebase() {
-      const user = window.currentTelegramUser || {};
-      const userId = String(user.telegramId || "guest_user");
-      if (window.updateUserBalanceInFirebase && userId !== "guest_user") {
-        try {
-          await window.updateUserBalanceInFirebase(userId, balance);
-          console.log("✅ Balance synced with Firebase:", balance);
-        } catch (e) {
-          console.error("❌ Failed to sync balance with Firebase:", e);
-        }
-      }
-    }
 
     window.addEventListener("load", function() {
       initTelegramUser();
@@ -2629,21 +2603,14 @@
 
           localStorage.setItem("dogsBalance", balance.toString());
           localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-          
-          // Sync with Firebase
-          await syncBalanceWithFirebase();
         }
 
         totalReferrals = newReferralCount;
         localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
-        // Only update from Firebase if the Firebase balance is lower (withdrawal happened)
-        if (typeof result.balance === "number") {
-          const localBalance = parseInt(localStorage.getItem("dogsBalance")) || 160;
-          if (result.balance < localBalance) {
-            balance = result.balance;
-            localStorage.setItem("dogsBalance", balance.toString());
-          }
+        if (typeof result.balance === "number" && result.balance >= balance) {
+          balance = result.balance;
+          localStorage.setItem("dogsBalance", balance.toString());
         }
 
         renderHomeLiveValues();
@@ -2905,7 +2872,6 @@
         return;
       }
 
-      // Deduct amount from balance
       balance -= amount;
       localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
@@ -2914,9 +2880,6 @@
       const userId = String(user.telegramId || "guest_user");
       const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
       const createdAt = new Date().toISOString();
-
-      // Sync with Firebase
-      await syncBalanceWithFirebase();
 
       if (window.createWithdrawalRequestToFirebase) {
         try {
@@ -2927,12 +2890,12 @@
             type: "",
             createdAt: createdAt
           });
-          showCustomPopup("Confirmed", amount + " withdrawal request submitted. Your balance has been reduced.");
+          showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
         } catch (e) {
           showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
         }
       } else {
-        showCustomPopup("Confirmed", amount + " withdrawal request confirmed. Your balance has been reduced.");
+        showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
       }
 
       if (window.loadUserWithdrawHistoryFromFirebase) {
@@ -3072,7 +3035,7 @@
       }, 1000);
     }
 
-    async function completeWatchAdReward() {
+    function completeWatchAdReward() {
       const btn = document.getElementById("watchAdsBtn");
       const status = document.getElementById("watchAdsStatusText");
 
@@ -3093,9 +3056,6 @@
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
       localStorage.setItem("dogsTotalAdsWatched", totalAdsWatched.toString());
-
-      // Sync with Firebase
-      await syncBalanceWithFirebase();
 
       renderHomeLiveValues();
 
@@ -3270,35 +3230,24 @@
       window.open("https://t.me/yourcommunitychannel", "_blank");
     }
 
-    async function completeTask(taskId) {
+    function completeTask(taskId) {
       const key = "taskCompleted_" + taskId;
       if (localStorage.getItem(key) === "1") {
         showCustomPopup("Task", "This task is already completed.");
         return;
       }
 
-      const reward = taskRewards[taskId] || 0;
-      
       localStorage.setItem(key, "1");
       totalTasksCompleted += 1;
-      balance += reward;
-      totalEarned += reward;
-      
       localStorage.setItem("dogsTotalTasksCompleted", totalTasksCompleted.toString());
-      localStorage.setItem("dogsBalance", balance.toString());
-      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-      
-      // Sync with Firebase
-      await syncBalanceWithFirebase();
-      
       renderHomeLiveValues();
 
       const status = document.getElementById("upload-status-" + taskId);
       if (status) {
-        status.textContent = "Task marked as completed successfully. +" + reward + " DOGS added!";
+        status.textContent = "Task marked as completed successfully.";
       }
 
-      showCustomPopup("Task Completed", "Task completion counted successfully. +" + reward + " DOGS added to your balance!");
+      showCustomPopup("Task Completed", "Task completion counted successfully.");
     }
 
     function showTab(tab, element) {
@@ -3428,7 +3377,7 @@
                 <div class="earn-arrow">›</div>
               </button>
 
-              <button class="earn-item" onclick="openEarnWindow('games')">
+              <button class="earn-item" >
                 <div class="earn-left">
                   <div class="earn-icon">🎮</div>
                   <div class="earn-text">
@@ -3477,7 +3426,7 @@
                   <div class="earn-icon">🦴</div>
                   <div class="earn-text">
                     <strong>Daily Bonus</strong>
-                    <span>50 Dogs daily</span>
+                    <span>10 Dogs daily</span>
                   </div>
                 </div>
                 <div class="earn-arrow">›</div>
@@ -3607,7 +3556,8 @@
       return `<div class="tasks-grid">${cards}</div>`;
     }
 
-    /* Crash game helpers - all unchanged */
+    /* Crash game helpers */
+
     function renderCrashHistory() {
       const box = document.getElementById("crashHistoryBars");
       if (!box) return;
@@ -3668,6 +3618,8 @@
       cancelAnimationFrame(crashPropellerAnimId);
       crashPropellerAnimId = null;
     }
+
+    /* === CRASH BET FUNCTIONS (NEW) === */
 
     function isCrashBetWindowOpen() {
       const overlay = document.getElementById("crashCountdownOverlay");
@@ -3831,7 +3783,7 @@
       updateCrashBetUI();
     }
 
-    async function cashoutCrashBet() {
+    function cashoutCrashBet() {
       if (!crashGameActive) return;
       if (!crashBetActive) return;
       if (crashBetRoundId !== crashRoundId) return;
@@ -3848,9 +3800,6 @@
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
 
-      // Sync with Firebase
-      await syncBalanceWithFirebase();
-
       renderHomeLiveValues();
 
       crashBetCashedOut = true;
@@ -3865,6 +3814,8 @@
 
       updateCrashBetUI();
     }
+
+    /* === UPDATED CRASH FUNCTIONS (REPLACED) === */
 
     function startCrashCountdown(seconds) {
       const overlay = document.getElementById("crashCountdownOverlay");
@@ -4634,7 +4585,7 @@
       status.textContent = "Screenshot selected: " + file.name + " (ready for admin panel submission later)";
     }
 
-    async function claimDailyBonus() {
+    function claimDailyBonus() {
       let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
       let now = Date.now();
       if ((now - lastClaim) < dailyCooldown) return;
@@ -4650,7 +4601,7 @@
 
       window.open(dailyRedirectUrl, "_blank");
 
-      let rewardTimer = setInterval(async function() {
+      let rewardTimer = setInterval(function() {
         seconds--;
         btn.textContent = "⏳ Wait " + seconds + "s";
 
@@ -4661,13 +4612,8 @@
           totalEarned += dailyBonusAmount;
           localStorage.setItem("dogsBalance", balance.toString());
           localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-          
-          // Sync with Firebase
-          await syncBalanceWithFirebase();
-          
           btn.textContent = "✅ Claimed";
           status.textContent = "50 DOGS added successfully. Come back after 24 hours.";
-          renderHomeLiveValues();
           startDailyCooldown(Date.now() + dailyCooldown);
         }
       }, 1000);
@@ -4805,7 +4751,7 @@
       if (existing) existing.remove();
     }
 
-    async function claimSpinReward() {
+    function claimSpinReward() {
       if (!pendingSpinPrize || pendingSpinClaimed) return;
 
       window.open(spinRedirectUrl, "_blank");
@@ -4816,9 +4762,6 @@
 
       localStorage.setItem("dogsBalance", balance.toString());
       localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-
-      // Sync with Firebase
-      await syncBalanceWithFirebase();
 
       removeSpinPopup();
       startSpinCooldown();
@@ -4954,31 +4897,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // CRITICAL: Function to permanently update user balance in Firestore
-    window.updateUserBalanceInFirebase = async function(userId, newBalance) {
-      try {
-        const userRef = doc(db, "users", String(userId));
-        await updateDoc(userRef, { 
-          balance: newBalance, 
-          lastSeen: new Date().toISOString() 
-        });
-        console.log("✅ Firebase balance updated to:", newBalance);
-        return true;
-      } catch (error) {
-        console.error("❌ Failed to update Firebase balance:", error);
-        // If updateDoc fails, try setDoc with merge
-        try {
-          const userRef = doc(db, "users", String(userId));
-          await setDoc(userRef, { balance: newBalance, lastSeen: new Date().toISOString() }, { merge: true });
-          console.log("✅ Firebase balance set with merge:", newBalance);
-          return true;
-        } catch (e2) {
-          console.error("❌ Complete failure to update Firebase:", e2);
-          throw e2;
-        }
-      }
-    };
-
     window.saveTelegramUserToFirebase = async function() {
       try {
         const user = window.currentTelegramUser;
@@ -5020,6 +4938,30 @@
         const userData = userSnap.data() || {};
         const referralCount = Number(userData.referrals || 0);
         const firebaseBalance = Number(userData.balance || 0);
+
+        const storedReferralCount = Number(localStorage.getItem("dogsTotalReferrals") || 0);
+
+        if (referralCount > storedReferralCount) {
+          const diff = referralCount - storedReferralCount;
+          const reward = diff * referralRewardPerReferral;
+
+          balance += reward;
+          totalEarned += reward;
+          totalReferrals = referralCount;
+
+          localStorage.setItem("dogsBalance", balance.toString());
+          localStorage.setItem("dogsTotalEarned", totalEarned.toString());
+          localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
+
+          await setDoc(userRef, {
+            balance: balance,
+            totalEarned: totalEarned,
+            lastSeen: new Date().toISOString()
+          }, { merge: true });
+        } else {
+          totalReferrals = referralCount;
+          localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
+        }
 
         return {
           referrals: referralCount,
@@ -5110,18 +5052,17 @@
           ownerBalanceAfter: ownerBalanceAfter
         }, { merge: true });
 
-        // Update global balance variables
         balance = currentUserBalance;
-        totalEarned = Number(localStorage.getItem("dogsTotalEarned")) + 100;
-        totalReferrals = ownerReferralsAfter;
+        totalEarned += 100;
 
         localStorage.setItem("dogsBalance", balance.toString());
         localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-        localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
         if (input) input.value = "";
 
+        await syncReferralDataFromFirebase();
         renderHomeLiveValues();
+
         openEarnWindow('refer');
 
         if (testUser) {
