@@ -2585,7 +2585,7 @@
       return referralTestMode && referralTestAllowedUsers.includes(userId);
     }
 
-   async function syncReferralDataFromFirebase() {
+    async function syncReferralDataFromFirebase() {
       if (!window.getUserReferralDataFromFirebase) return;
 
       try {
@@ -2603,13 +2603,6 @@
 
           localStorage.setItem("dogsBalance", balance.toString());
           localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-          
-          // Update Firebase balance after referral reward
-          const user = window.currentTelegramUser || {};
-          const userId = String(user.telegramId || "guest_user");
-          if (window.updateUserBalanceInFirebase) {
-            await window.updateUserBalanceInFirebase(userId, balance);
-          }
         }
 
         totalReferrals = newReferralCount;
