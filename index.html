@@ -2623,38 +2623,6 @@
     const pendingValue = localStorage.getItem("pendingWithdrawValue") || "";
     removeCustomPopup();
     localStorage.removeItem("pendingWithdrawValue");
-
-    // ====== CHANGE START (only change) ======
-    // Reduce withdrawn amount (without fees) from main balance
-    const match = String(pendingValue).match(/(\d+(\.\d+)?)/);
-    const withdrawAmount = match ? Number(match[1]) : NaN;
-
-    if (!isFinite(withdrawAmount) || withdrawAmount <= 0) {
-      showCustomPopup("Error", "Invalid withdrawal amount.");
-      return;
-    }
-
-    if (withdrawAmount > balance) {
-      showCustomPopup("Error", "Withdrawal amount is higher than your balance.");
-      return;
-    }
-
-    balance -= withdrawAmount;
-    localStorage.setItem("dogsBalance", balance.toString());
-
-    renderHomeLiveValues();
-
-    // If user is currently on Withdraw tab, re-render it to refresh displayed balance/cards
-    const activeNav = document.querySelector(".nav-item.active");
-    if (activeNav) {
-      const navItems = document.querySelectorAll(".nav-item");
-      // index 2 is Withdraw in your HTML
-      if (navItems[2] && activeNav === navItems[2]) {
-        showTab("withdraw", navItems[2]);
-      }
-    }
-    // ====== CHANGE END ======
-
     showCustomPopup("Confirmed", pendingValue ? pendingValue + " withdrawal request confirmed." : "Withdrawal request confirmed.");
   }
 
