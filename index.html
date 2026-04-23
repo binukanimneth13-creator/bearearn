@@ -2855,53 +2855,63 @@
       removeCustomPopup();
     }
 
-    async function confirmWithdrawRequest() {
-      const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
-      const amount = Number(pendingValueStr);
+async function confirmWithdrawRequest() {
+  const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
+  const amount = Number(pendingValueStr);
 
-      removeCustomPopup();
-      localStorage.removeItem("pendingWithdrawValue");
+  removeCustomPopup();
+  localStorage.removeItem("pendingWithdrawValue");
 
-      if (!amount || isNaN(amount)) {
-        showCustomPopup("Error", "Invalid withdrawal amount.");
-        return;
-      }
+  if (!amount || isNaN(amount)) {
+    showCustomPopup("Error", "Invalid withdrawal amount.");
+    return;
+  }
 
-      if (amount > balance) {
-        showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
-        return;
-      }
+  // Deduct ONLY the withdraw amount (fees are NOT taken from user balance)
+  if (amount > balance) {
+    showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
+    return;
+  }
 
-      balance -= amount;
-      localStorage.setItem("dogsBalance", balance.toString());
-      renderHomeLiveValues();
+  balance -= amount;
+  localStorage.setItem("dogsBalance", balance.toString());
+  renderHomeLiveValues();
 
-      const user = window.currentTelegramUser || {};
-      const userId = String(user.telegramId || "guest_user");
-      const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
-      const createdAt = new Date().toISOString();
+  const user = window.currentTelegramUser || {};
+  const userId = String(user.telegramId || "guest_user");
+  const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
+  const createdAt = new Date().toISOString();
 
-      if (window.createWithdrawalRequestToFirebase) {
-        try {
-          await window.createWithdrawalRequestToFirebase({
-            userId: userId,
-            amount: amount,
-            address: walletAddress,
-            type: "",
-            createdAt: createdAt
-          });
-          showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
-        } catch (e) {
-          showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
-        }
-      } else {
-        showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
-      }
+  // Optional: calculate fee just for displaying/saving (doesn't affect balance)
+  const feeFixed = 120;
+  const feePercent = amount * 0.05;
+  const totalFee = feeFixed + feePercent;
+  const receivable = Math.max(0, amount - totalFee);
 
-      if (window.loadUserWithdrawHistoryFromFirebase) {
-        window.loadUserWithdrawHistoryFromFirebase();
-      }
+  if (window.createWithdrawalRequestToFirebase) {
+    try {
+      await window.createWithdrawalRequestToFirebase({
+        userId: userId,
+        amount: amount,
+        address: walletAddress,
+        type: "",
+        createdAt: createdAt
+        // If you want, you can also save fee/receivable to Firebase:
+        // fee: totalFee,
+        // receivable: receivable
+      });
+      showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
+    } catch (e) {
+      showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
     }
+  } else {
+    showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
+  }
+
+  if (window.loadUserWithdrawHistoryFromFirebase) {
+    window.loadUserWithdrawHistoryFromFirebase();
+  }
+}
 
     async function claimReferralCode() {
       const input = document.getElementById("referClaimInput");
