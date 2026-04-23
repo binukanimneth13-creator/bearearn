@@ -6,7 +6,6 @@
   <title>FREE DOGS PAY</title>
 
   <style>
-    /* === ALL ORIGINAL STYLES (UNCHANGED) === */
     * {
       margin: 0;
       padding: 0;
@@ -1972,167 +1971,6 @@
       box-shadow: 0 0 10px rgba(239, 68, 68, 0.45);
     }
 
-    /* === NEW CRASH GAME STYLES === */
-    .crash-wrap {
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .crash-history-strip {
-      margin-top: 0;
-      padding: 12px 12px 10px;
-    }
-
-    .crash-history-bars {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      min-height: 24px;
-    }
-
-    .crash-history-item {
-      flex: 0 0 auto;
-    }
-
-    .crash-history-bar {
-      display: none;
-    }
-
-    .crash-history-label {
-      padding: 3px 7px;
-      border-radius: 999px;
-      font-size: 11px;
-      color: #e5e7eb;
-      background: rgba(15,23,42,0.9);
-      border: 1px solid rgba(148,163,184,0.7);
-      white-space: nowrap;
-    }
-
-    .crash-graph-box {
-      position: relative;
-      height: 190px;
-      border-radius: 22px;
-      background:
-        radial-gradient(circle at top, rgba(250,204,21,0.18), transparent 55%),
-        radial-gradient(circle at bottom right, rgba(59,130,246,0.25), transparent 60%),
-        #11131a;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .crash-graph-box::before {
-      content: "";
-      position: absolute;
-      inset: 16px 18px 18px 18px;
-      background-image:
-        linear-gradient(to right, rgba(148,163,184,0.16) 1px, transparent 1px),
-        linear-gradient(to top, rgba(148,163,184,0.16) 1px, transparent 1px);
-      background-size: 24px 24px;
-      opacity: 0.9;
-    }
-
-    .crash-plane {
-      position: absolute;
-      bottom: 22px;
-      left: 22px;
-      width: 32px;
-      height: 32px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      background: radial-gradient(circle, #fbbf24, #f97316);
-      box-shadow: 0 0 14px rgba(248,250,252,0.9);
-      transform: translate(0,0);
-      z-index: 2;
-    }
-
-    .crash-countdown-overlay {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: linear-gradient(rgba(15,23,42,0.80), rgba(15,23,42,0.85));
-      z-index: 3;
-    }
-
-    .crash-countdown-icon {
-      width: 90px;
-      height: 90px;
-      border-radius: 999px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: transparent;
-      border: none;
-      box-shadow: none;
-    }
-
-    .crash-propeller {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      transform-origin: 50% 50%;
-    }
-
-    .crash-countdown-text {
-      font-size: 14px;
-      color: #e5e7eb;
-      font-weight: bold;
-    }
-
-    .crash-multiplier-box {
-      text-align: center;
-    }
-
-    .crash-multiplier-label {
-      font-size: 13px;
-      color: #9fa4b5;
-      margin-bottom: 4px;
-    }
-
-    .crash-multiplier-value {
-      font-size: 34px;
-      font-weight: bold;
-      color: #f6c400;
-      margin-bottom: 4px;
-    }
-
-    .crash-status-text {
-      font-size: 13px;
-      color: #a8acba;
-      min-height: 18px;
-    }
-
-    .crash-plane-flying {
-      animation: crashPlaneGlow 1.2s ease-in-out infinite alternate;
-    }
-
-    .crash-plane-crashed {
-      animation: crashPlaneCrash 0.7s ease-out forwards;
-      box-shadow: 0 0 18px rgba(239,68,68,0.9);
-      background: radial-gradient(circle, #f97316, #ef4444);
-    }
-
-    @keyframes crashPlaneGlow {
-      from { box-shadow: 0 0 10px rgba(248,250,252,0.6); }
-      to   { box-shadow: 0 0 18px rgba(248,250,252,1); }
-    }
-
-    @keyframes crashPlaneCrash {
-      0%   { transform: translate(0,0) scale(1); opacity: 1; }
-      40%  { transform: translate(8px,-8px) scale(1.08); opacity: 1; }
-      100% { transform: translate(0,24px) scale(0.65); opacity: 0.2; }
-    }
-
     @media (max-width: 480px) {
       body {
         padding: 0;
@@ -2411,31 +2249,6 @@
       }
     ];
 
-    /* Crash game state */
-    let crashAnimationId = null;
-    let crashGameActive = false;
-    let crashStartTime = 0;
-    let crashTargetMultiplier = 0;
-    let crashCurrentMultiplier = 1;
-    let crashCountdownTimer = null;
-    let crashHistory = [];
-
-    /* === CRASH BET STATE (NEW) === */
-    let crashCountdownRemaining = 10;
-    let crashRoundId = 0;
-
-    let crashBetAmount = 0;
-    let crashBetActive = false;
-    let crashBetRoundId = 0;
-    let crashBetCashedOut = false;
-
-    /* Propeller animation state */
-    let crashPropellerAnimId = null;
-    let crashPropellerAngle = 0;
-    let crashPropellerLastTs = 0;
-    let crashPropellerStartTs = 0;
-    let crashPropellerDuration = 10000;
-
     window.addEventListener("load", function() {
       initTelegramUser();
       setTimeout(async function() {
@@ -2608,9 +2421,16 @@
         totalReferrals = newReferralCount;
         localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
-        if (typeof result.balance === "number" && result.balance >= balance) {
-          balance = result.balance;
-          localStorage.setItem("dogsBalance", balance.toString());
+        // IMPORTANT: Only update from Firebase if the Firebase balance is LOWER
+        // This ensures withdrawals are not overwritten by stale data
+        if (typeof result.balance === "number") {
+          const localBalance = parseInt(localStorage.getItem("dogsBalance")) || 160;
+          // If Firebase balance is lower, it means a withdrawal happened elsewhere
+          // We should use the lower balance
+          if (result.balance < localBalance) {
+            balance = result.balance;
+            localStorage.setItem("dogsBalance", balance.toString());
+          }
         }
 
         renderHomeLiveValues();
@@ -2854,7 +2674,8 @@
       localStorage.removeItem("pendingWithdrawValue");
       removeCustomPopup();
     }
- async function confirmWithdrawRequest() {
+
+    async function confirmWithdrawRequest() {
       const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
       const amount = Number(pendingValueStr);
 
@@ -2870,11 +2691,11 @@
         showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
         return;
       }
-// STEP 1: Deduct the amount from balance FIRST
-      const newBalance = balance - amount;
+
+      // STEP 1: Deduct the amount from balance FIRST
+      balance -= amount;
       
-      // STEP 2: Update local state
-      balance = newBalance;
+      // STEP 2: Update local storage
       localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
 
@@ -2886,11 +2707,10 @@
       // STEP 3: Update Firebase with the new balance (CRITICAL - This makes it permanent)
       if (window.updateUserBalanceInFirebase) {
         try {
-          await window.updateUserBalanceInFirebase(userId, newBalance);
-          console.log("✅ Balance updated in Firebase:", newBalance);
+          await window.updateUserBalanceInFirebase(userId, balance);
+          console.log("✅ Balance updated in Firebase:", balance);
         } catch (e) {
           console.error("❌ Failed to update Firebase balance:", e);
-          // Even if Firebase fails, local balance is correct
         }
       }
 
@@ -2912,12 +2732,11 @@
         showCustomPopup("Confirmed", amount + " withdrawal request confirmed. Your balance has been reduced.");
       }
 
-      // STEP 5: Refresh withdrawal history
+      // STEP 5: Refresh withdrawal history if available
       if (window.loadUserWithdrawHistoryFromFirebase) {
         window.loadUserWithdrawHistoryFromFirebase();
       }
     }
-   
 
     async function claimReferralCode() {
       const input = document.getElementById("referClaimInput");
@@ -3186,7 +3005,7 @@
       }
 
       if (balance < 1500) {
-        showCustomPopup("Withdraw", "Insufficient balance for withdrawal. Minimum is 1500 DOGS.");
+        showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
         return;
       }
 
@@ -3196,49 +3015,13 @@
         return;
       }
 
-      const withdrawValueRaw = amountInput.value.trim();
-      if (!withdrawValueRaw) {
-        showCustomPopup("Withdraw", "Please enter withdrawal amount.");
+      const withdrawValue = amountInput.value.trim();
+      if (!withdrawValue) {
+        showCustomPopup("Withdraw", "Please enter withdrawal value.");
         return;
       }
 
-      const withdrawValue = Number(withdrawValueRaw);
-
-      if (isNaN(withdrawValue)) {
-        showCustomPopup("Invalid Amount", "Please enter a valid numeric amount.");
-        return;
-      }
-
-      if (!Number.isInteger(withdrawValue)) {
-        showCustomPopup("Invalid Amount", "Withdrawal amount must be a whole number.");
-        return;
-      }
-
-      if (withdrawValue < 1500 || withdrawValue > 2500) {
-        showCustomPopup(
-          "Invalid Amount",
-          "Withdrawal amount must be equal to 1500, 2500, or any value in between 1500 and 2500 DOGS."
-        );
-        return;
-      }
-
-      if (withdrawValue % 10 !== 0) {
-        showCustomPopup(
-          "Invalid Amount",
-          "Withdrawal amount must be a multiple of 10 DOGS."
-        );
-        return;
-      }
-
-      if (withdrawValue > balance) {
-        showCustomPopup(
-          "Insufficient Balance",
-          "You do not have enough balance for this withdrawal."
-        );
-        return;
-      }
-
-      localStorage.setItem("pendingWithdrawValue", withdrawValue.toString());
+      localStorage.setItem("pendingWithdrawValue", withdrawValue);
       showWithdrawConfirmPopup(withdrawValue);
     }
 
@@ -3363,7 +3146,7 @@
             </div>
           </div>
         `;
-      }
+      } 
       else if (tab === "earn") {
         html = `
           <div class="fade-in">
@@ -3388,17 +3171,6 @@
                   <div class="earn-text">
                     <strong>Tasks</strong>
                     <span>Complete & Earn</span>
-                  </div>
-                </div>
-                <div class="earn-arrow">›</div>
-              </button>
-
-              <button class="earn-item" >
-                <div class="earn-left">
-                  <div class="earn-icon">🎮</div>
-                  <div class="earn-text">
-                    <strong>Play Games & Earn</strong>
-                    <span>Crash • Tic Tac Toe • Mine</span>
                   </div>
                 </div>
                 <div class="earn-arrow">›</div>
@@ -3460,7 +3232,7 @@
             </div>
           </div>
         `;
-      }
+      } 
       else if (tab === "withdraw") {
         html = `
           <div class="fade-in withdraw-screen">
@@ -3512,7 +3284,7 @@
             </div>
           </div>
         `;
-      }
+      } 
       else if (tab === "profile") {
         html = `
           <div class="fade-in">
@@ -3572,461 +3344,12 @@
       return `<div class="tasks-grid">${cards}</div>`;
     }
 
-    /* Crash game helpers */
-
-    function renderCrashHistory() {
-      const box = document.getElementById("crashHistoryBars");
-      if (!box) return;
-
-      if (!crashHistory.length) {
-        box.innerHTML = `<span style="font-size:12px;color:#9fa4b5;">No history yet</span>`;
-        return;
-      }
-
-      const itemsHtml = crashHistory.map(function(m) {
-        return `
-          <div class="crash-history-item">
-            <div class="crash-history-label">${m.toFixed(2)}x</div>
-          </div>
-        `;
-      }).join("");
-
-      box.innerHTML = itemsHtml;
-    }
-
-    function startPropellerSpin(durationMs) {
-      crashPropellerDuration = durationMs;
-      crashPropellerAngle = 0;
-      crashPropellerLastTs = 0;
-      crashPropellerStartTs = 0;
-      cancelAnimationFrame(crashPropellerAnimId);
-      crashPropellerAnimId = requestAnimationFrame(stepPropellerSpin);
-    }
-
-    function stepPropellerSpin(ts) {
-      const img = document.getElementById("crashPropellerImg");
-      const overlay = document.getElementById("crashCountdownOverlay");
-      if (!img || !overlay || overlay.style.display === "none") {
-        crashPropellerAnimId = null;
-        return;
-      }
-
-      if (!crashPropellerLastTs) crashPropellerLastTs = ts;
-      if (!crashPropellerStartTs) crashPropellerStartTs = ts;
-
-      const dt = ts - crashPropellerLastTs;
-      crashPropellerLastTs = ts;
-
-      const elapsed = ts - crashPropellerStartTs;
-      const t = Math.max(0, Math.min(elapsed / crashPropellerDuration, 1));
-
-      const minSpeed = 90;
-      const maxSpeed = 720;
-      const speed = minSpeed + (maxSpeed - minSpeed) * t;
-
-      crashPropellerAngle = (crashPropellerAngle + speed * (dt / 1000)) % 360;
-      img.style.transform = `rotate(${crashPropellerAngle}deg)`;
-
-      crashPropellerAnimId = requestAnimationFrame(stepPropellerSpin);
-    }
-
-    function stopPropellerSpin() {
-      cancelAnimationFrame(crashPropellerAnimId);
-      crashPropellerAnimId = null;
-    }
-
-    /* === CRASH BET FUNCTIONS (NEW) === */
-
-    function isCrashBetWindowOpen() {
-      const overlay = document.getElementById("crashCountdownOverlay");
-      const inCountdown = overlay && overlay.style.display !== "none";
-      return inCountdown && crashCountdownRemaining > 2;
-    }
-
-    function getCrashPayoutNow() {
-      if (!crashBetActive || crashBetAmount <= 0) return 0;
-      return crashBetAmount * crashCurrentMultiplier;
-    }
-
-    function setCrashBetStatus(msg) {
-      const el = document.getElementById("crashBetStatus");
-      if (el) el.textContent = msg || "";
-    }
-
-    function updateCrashBetUI() {
-      const betInput = document.getElementById("crashBetInput");
-      const betBtn = document.getElementById("crashBetBtn");
-      const payoutBox = document.getElementById("crashPayoutBox");
-      const cashoutBtn = document.getElementById("crashCashoutBtn");
-      const overlay = document.getElementById("crashCountdownOverlay");
-
-      if (!betBtn || !payoutBox || !cashoutBtn) return;
-
-      const inCountdown = overlay && overlay.style.display !== "none";
-      const betWindowOpen = isCrashBetWindowOpen();
-      const inFlight = crashGameActive === true;
-
-      if (betInput) {
-        betInput.disabled = crashBetActive || inFlight || !betWindowOpen;
-        betInput.style.opacity = betInput.disabled ? "0.75" : "1";
-      }
-
-      if (!crashBetActive) {
-        betBtn.textContent = "Bet";
-        betBtn.disabled = !betWindowOpen || inFlight;
-        betBtn.style.background = "linear-gradient(90deg,#ffcc00,#f59e0b)";
-        betBtn.style.color = "#111";
-        betBtn.style.cursor = betBtn.disabled ? "not-allowed" : "pointer";
-        betBtn.style.opacity = betBtn.disabled ? "0.75" : "1";
-      } else {
-        betBtn.textContent = "Cancel";
-        betBtn.disabled = !betWindowOpen || inFlight;
-        betBtn.style.background = "#ef4444";
-        betBtn.style.color = "#fff";
-        betBtn.style.cursor = betBtn.disabled ? "not-allowed" : "pointer";
-        betBtn.style.opacity = betBtn.disabled ? "0.75" : "1";
-      }
-
-      if (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut) {
-        const payout = getCrashPayoutNow();
-        payoutBox.value = payout.toFixed(2) + " DOGS";
-      } else {
-        payoutBox.value = "0.00 DOGS";
-      }
-
-      const canCashout = (crashBetActive && inFlight && crashBetRoundId === crashRoundId && !crashBetCashedOut);
-      cashoutBtn.disabled = !canCashout;
-      if (canCashout) {
-        cashoutBtn.style.background = "linear-gradient(90deg,#ffcc00,#f59e0b)";
-        cashoutBtn.style.color = "#111";
-        cashoutBtn.style.cursor = "pointer";
-        cashoutBtn.style.opacity = "1";
-      } else {
-        cashoutBtn.style.background = "#555";
-        cashoutBtn.style.color = "#111";
-        cashoutBtn.style.cursor = "not-allowed";
-        cashoutBtn.style.opacity = "0.85";
-      }
-    }
-
-    function toggleCrashBet() {
-      if (!crashBetActive) {
-        placeCrashBet();
-      } else {
-        cancelCrashBet();
-      }
-    }
-
-    function placeCrashBet() {
-      if (!isCrashBetWindowOpen()) {
-        setCrashBetStatus("Timeout: betting is closed for this round.");
-        showCustomPopup("Timeout", "You can only bet during the countdown (not in the last 2 seconds).");
-        updateCrashBetUI();
-        return;
-      }
-
-      if (crashBetActive) return;
-
-      const input = document.getElementById("crashBetInput");
-      if (!input) return;
-
-      const amt = Number(String(input.value || "").trim());
-
-      if (!amt || isNaN(amt)) {
-        setCrashBetStatus("Enter a valid bet amount.");
-        showCustomPopup("Error", "Please enter a valid numeric bet amount.");
-        return;
-      }
-
-      if (!Number.isInteger(amt)) {
-        setCrashBetStatus("Bet must be a whole number.");
-        showCustomPopup("Invalid", "Bet amount must be a whole number.");
-        return;
-      }
-
-      if (amt < 1000 || amt > 10000) {
-        setCrashBetStatus("Bet must be 1000 - 10000.");
-        showCustomPopup("Invalid Bet", "Minimum bet is 1000 and maximum bet is 10000.");
-        return;
-      }
-
-      if (amt > balance) {
-        setCrashBetStatus("Insufficient balance.");
-        showCustomPopup("Error", "Insufficient balance to place this bet.");
-        return;
-      }
-
-      balance -= amt;
-      localStorage.setItem("dogsBalance", balance.toString());
-      renderHomeLiveValues();
-
-      crashBetAmount = amt;
-      crashBetActive = true;
-      crashBetCashedOut = false;
-
-      crashBetRoundId = crashRoundId + 1;
-
-      setCrashBetStatus("Bet successful: " + amt + " DOGS");
-      showCustomPopup("Bet Successful", amt + " DOGS bet placed successfully.");
-
-      updateCrashBetUI();
-    }
-
-    function cancelCrashBet() {
-      if (!crashBetActive) return;
-
-      if (!isCrashBetWindowOpen()) {
-        setCrashBetStatus("Timeout: cannot cancel now.");
-        showCustomPopup("Timeout", "You can only cancel before the last 2 seconds of the countdown.");
-        updateCrashBetUI();
-        return;
-      }
-
-      balance += crashBetAmount;
-      localStorage.setItem("dogsBalance", balance.toString());
-      renderHomeLiveValues();
-
-      const refunded = crashBetAmount;
-
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-      crashBetCashedOut = false;
-
-      setCrashBetStatus("Bet cancelled. Refunded " + refunded + " DOGS");
-      showCustomPopup("Cancelled", "Bet cancelled and refunded.");
-
-      updateCrashBetUI();
-    }
-
-    function cashoutCrashBet() {
-      if (!crashGameActive) return;
-      if (!crashBetActive) return;
-      if (crashBetRoundId !== crashRoundId) return;
-      if (crashBetCashedOut) return;
-
-      const payout = getCrashPayoutNow();
-      const payoutFixed = Number(payout.toFixed(2));
-
-      balance += payoutFixed;
-
-      const profit = Math.max(0, payoutFixed - crashBetAmount);
-      totalEarned += profit;
-
-      localStorage.setItem("dogsBalance", balance.toString());
-      localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-
-      renderHomeLiveValues();
-
-      crashBetCashedOut = true;
-
-      const msg = "Congratulations! You cashed out " + payoutFixed.toFixed(2) + " DOGS.";
-      setCrashBetStatus(msg);
-      showCustomPopup("Congratulations", msg);
-
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-
-      updateCrashBetUI();
-    }
-
-    /* === UPDATED CRASH FUNCTIONS (REPLACED) === */
-
-    function startCrashCountdown(seconds) {
-      const overlay = document.getElementById("crashCountdownOverlay");
-      const countdownEl = document.getElementById("crashCountdownText");
-      const status = document.getElementById("crashStatus");
-      const plane = document.getElementById("crashPlane");
-
-      cancelAnimationFrame(crashAnimationId);
-      clearInterval(crashCountdownTimer);
-      crashGameActive = false;
-
-      if (plane) {
-        plane.classList.remove("crash-plane-flying");
-        plane.classList.remove("crash-plane-crashed");
-        plane.style.transform = "translate(0px,0px)";
-      }
-
-      let remaining = seconds;
-      crashCountdownRemaining = remaining;
-
-      if (overlay) overlay.style.display = "flex";
-      if (countdownEl) countdownEl.textContent = "Next flight in " + remaining + "s";
-      if (status) status.textContent = "Next flight starting soon...";
-
-      startPropellerSpin(seconds * 1000);
-      updateCrashBetUI();
-
-      crashCountdownTimer = setInterval(function() {
-        remaining--;
-        crashCountdownRemaining = remaining;
-
-        if (remaining >= 0 && countdownEl) {
-          countdownEl.textContent = "Next flight in " + remaining + "s";
-        }
-
-        updateCrashBetUI();
-
-        if (remaining <= 0) {
-          clearInterval(crashCountdownTimer);
-          crashCountdownRemaining = 0;
-          if (overlay) overlay.style.display = "none";
-          if (countdownEl) countdownEl.textContent = "Flight in progress...";
-          updateCrashBetUI();
-          startCrashRound();
-        }
-      }, 1000);
-    }
-
-    function initCrashGameUI() {
-      clearInterval(crashCountdownTimer);
-      cancelAnimationFrame(crashAnimationId);
-      stopPropellerSpin();
-      crashGameActive = false;
-      crashStartTime = 0;
-      crashCurrentMultiplier = 1;
-
-      crashCountdownRemaining = 10;
-      crashBetAmount = 0;
-      crashBetActive = false;
-      crashBetRoundId = 0;
-      crashBetCashedOut = false;
-
-      const plane = document.getElementById("crashPlane");
-      const mult = document.getElementById("crashMultiplier");
-      const status = document.getElementById("crashStatus");
-      const countdownEl = document.getElementById("crashCountdownText");
-      const overlay = document.getElementById("crashCountdownOverlay");
-
-      if (plane) {
-        plane.style.transform = "translate(0px,0px)";
-        plane.classList.remove("crash-plane-crashed");
-        plane.classList.remove("crash-plane-flying");
-      }
-      if (mult) mult.textContent = "1.00x";
-      if (status) status.textContent = "Preparing next flight...";
-      if (overlay) overlay.style.display = "flex";
-      if (countdownEl) countdownEl.textContent = "Next flight in 10s";
-
-      setCrashBetStatus("");
-      renderCrashHistory();
-      updateCrashBetUI();
-      startCrashCountdown(10);
-    }
-
-    function startCrashRound() {
-      if (crashGameActive) return;
-
-      const mult = document.getElementById("crashMultiplier");
-      const status = document.getElementById("crashStatus");
-      const plane = document.getElementById("crashPlane");
-
-      stopPropellerSpin();
-      cancelAnimationFrame(crashAnimationId);
-
-      crashGameActive = true;
-      crashStartTime = 0;
-      crashCurrentMultiplier = 1.0;
-      crashTargetMultiplier = 1.2 + Math.random() * 6.8;
-
-      crashRoundId += 1;
-
-      if (crashBetActive && crashBetRoundId !== crashRoundId) {
-        balance += crashBetAmount;
-        localStorage.setItem("dogsBalance", balance.toString());
-        renderHomeLiveValues();
-
-        crashBetAmount = 0;
-        crashBetActive = false;
-        crashBetRoundId = 0;
-        crashBetCashedOut = false;
-
-        setCrashBetStatus("Bet refunded (round changed). Please bet again.");
-      }
-
-      if (mult) mult.textContent = "1.00x";
-      if (status) status.textContent = "Flying...";
-      if (plane) {
-        plane.classList.remove("crash-plane-crashed");
-        plane.classList.add("crash-plane-flying");
-        plane.style.transform = "translate(0px,0px)";
-      }
-
-      updateCrashBetUI();
-      crashAnimationId = requestAnimationFrame(stepCrashAnimation);
-    }
-
-    function stepCrashAnimation(timestamp) {
-      const mult = document.getElementById("crashMultiplier");
-      const status = document.getElementById("crashStatus");
-      const plane = document.getElementById("crashPlane");
-
-      if (!mult || !status || !plane) {
-        crashGameActive = false;
-        return;
-      }
-
-      if (!crashStartTime) crashStartTime = timestamp;
-      const elapsed = (timestamp - crashStartTime) / 1000;
-
-      const baseGrowth = 1 + elapsed * 0.7 + elapsed * elapsed * 0.15;
-      crashCurrentMultiplier = baseGrowth;
-
-      updateCrashBetUI();
-
-      if (crashCurrentMultiplier >= crashTargetMultiplier) {
-        crashCurrentMultiplier = crashTargetMultiplier;
-
-        mult.textContent = crashCurrentMultiplier.toFixed(2) + "x";
-        status.textContent = "CRASHED at " + crashCurrentMultiplier.toFixed(2) + "x";
-        plane.classList.remove("crash-plane-flying");
-        plane.classList.add("crash-plane-crashed");
-        crashGameActive = false;
-
-        if (crashBetActive && crashBetRoundId === crashRoundId && !crashBetCashedOut) {
-          const lost = crashBetAmount;
-
-          crashBetAmount = 0;
-          crashBetActive = false;
-          crashBetRoundId = 0;
-          crashBetCashedOut = false;
-
-          setCrashBetStatus("Plane crashed! Lost " + lost + " DOGS. Try again.");
-          showCustomPopup("Try Again", "Plane crashed! You lost " + lost + " DOGS.");
-        }
-
-        crashHistory.unshift(crashCurrentMultiplier);
-        if (crashHistory.length > 10) crashHistory.pop();
-        renderCrashHistory();
-
-        updateCrashBetUI();
-        startCrashCountdown(10);
-        return;
-      }
-
-      mult.textContent = crashCurrentMultiplier.toFixed(2) + "x";
-      status.textContent = "Flying...";
-
-      const progress = Math.min((crashCurrentMultiplier - 1) / (crashTargetMultiplier - 1), 1);
-      const maxX = 220;
-      const maxY = -90;
-      plane.style.transform = `translate(${progress * maxX}px, ${progress * maxY}px)`;
-
-      crashAnimationId = requestAnimationFrame(stepCrashAnimation);
-    }
-
     async function openEarnWindow(type) {
       clearInterval(dailyTimerInterval);
       clearInterval(spinUnlockTimer);
       clearInterval(spinCooldownTimer);
       clearInterval(redeemCountdownTimer);
       clearInterval(watchAdsCountdownTimer);
-      clearInterval(crashCountdownTimer);
-      cancelAnimationFrame(crashAnimationId);
-      stopPropellerSpin();
-      crashGameActive = false;
       removeSpinPopup();
       removeCustomPopup();
 
@@ -4082,66 +3405,6 @@
         content.innerHTML = html;
         applyTelegramUserToHome();
         updateWatchAdsUI();
-        return;
-      }
-
-      if (type === "games") {
-        html = `
-          <div class="fade-in">
-            ${renderTopButton()}
-            <div class="sub-page-header">
-              <button class="back-btn" onclick="backToEarn()">←</button>
-              <div class="sub-page-title">Play Games & Earn</div>
-            </div>
-
-            <div class="earn-list">
-              <button class="earn-item" onclick="openEarnWindow('crash')">
-                <div class="earn-left">
-                  <div class="earn-icon">💥</div>
-                  <div class="earn-text">
-                    <strong>Crash</strong>
-                    <span>High risk, high reward</span>
-                  </div>
-                </div>
-                <div class="earn-arrow">›</div>
-              </button>
-
-              <button class="earn-item" onclick="openEarnWindow('tictac')">
-                <div class="earn-left">
-                  <div class="earn-icon">❌</div>
-                  <div class="earn-text">
-                    <strong>Tic Tac Toe</strong>
-                    <span>Win rounds & earn</span>
-                  </div>
-                </div>
-                <div class="earn-arrow">›</div>
-              </button>
-
-              <button class="earn-item" onclick="openEarnWindow('mine')">
-                <div class="earn-left">
-                  <div class="earn-icon">💣</div>
-                  <div class="earn-text">
-                    <strong>Mine</strong>
-                    <span>Find rewards safely</span>
-                  </div>
-                </div>
-                <div class="earn-arrow">›</div>
-              </button>
-            </div>
-
-            <div class="earn-guide">
-              <div class="earn-guide-title">🎮 Games Guide</div>
-              <ul class="earn-guide-list">
-                <li>Select any game to open its game window.</li>
-                <li>Each game will have its own earning rules.</li>
-                <li>Future updates will let you play and earn DOGS directly from these games.</li>
-              </ul>
-            </div>
-          </div>
-        `;
-
-        content.innerHTML = html;
-        applyTelegramUserToHome();
         return;
       }
 
@@ -4363,134 +3626,8 @@
         `;
       }
 
-      if (type === "crash") {
-        html = `
-          <div class="fade-in">
-            ${renderTopButton()}
-            <div class="sub-page-header">
-              <button class="back-btn" onclick="backToGames()">←</button>
-              <div class="sub-page-title">Crash</div>
-            </div>
-
-            <div class="crash-wrap">
-              <div class="content-card crash-history-strip">
-                <div style="font-size:14px;font-weight:bold;margin-bottom:6px;">Last 10 Crashes</div>
-                <div class="crash-history-bars" id="crashHistoryBars"></div>
-              </div>
-
-              <div class="crash-graph-box">
-                <div class="crash-plane" id="crashPlane">✈️</div>
-
-                <div class="crash-countdown-overlay" id="crashCountdownOverlay">
-                  <div class="crash-countdown-icon">
-                    <img src="propeller1.png" alt="Propeller" class="crash-propeller" id="crashPropellerImg">
-                  </div>
-                  <div class="crash-countdown-text" id="crashCountdownText">Next flight in 10s</div>
-                </div>
-              </div>
-
-              <div class="crash-multiplier-box">
-                <div class="crash-multiplier-label">Multiplier</div>
-                <div class="crash-multiplier-value" id="crashMultiplier">1.00x</div>
-                <div class="crash-status-text" id="crashStatus">Preparing next flight...</div>
-              </div>
-
-              <!-- === BET UI (NEW) === -->
-              <div class="content-card" style="margin-top:0;">
-                <div style="font-size:14px;font-weight:bold;margin-bottom:10px;">Bet</div>
-
-                <div style="display:flex;gap:10px;align-items:center;">
-                  <input
-                    type="number"
-                    id="crashBetInput"
-                    placeholder="1000 - 10000"
-                    style="flex:1;background:#2d2d33;border:none;border-radius:16px;padding:14px 14px;color:#fff;font-size:15px;outline:none;"
-                  >
-                  <button
-                    id="crashBetBtn"
-                    onclick="toggleCrashBet()"
-                    style="min-width:92px;border:none;border-radius:16px;padding:14px 16px;font-weight:bold;background:linear-gradient(90deg,#ffcc00,#f59e0b);color:#111;cursor:pointer;"
-                  >Bet</button>
-                </div>
-
-                <div style="display:flex;gap:10px;margin-top:12px;align-items:center;">
-                  <input
-                    type="text"
-                    readonly
-                    id="crashPayoutBox"
-                    value="0.00 DOGS"
-                    style="flex:1;border:none;border-radius:999px;padding:14px 16px;background:#2d2d33;color:#f6c400;font-weight:bold;text-align:center;outline:none;"
-                  >
-                  <button
-                    id="crashCashoutBtn"
-                    onclick="cashoutCrashBet()"
-                    disabled
-                    style="min-width:120px;border:none;border-radius:999px;padding:14px 16px;font-weight:bold;background:#555;color:#111;cursor:not-allowed;opacity:0.85;"
-                  >Cashout</button>
-                </div>
-
-                <div id="crashBetStatus" style="margin-top:10px;color:#f6c400;font-weight:bold;font-size:13px;min-height:18px;text-align:center;"></div>
-
-                <div style="margin-top:6px;color:#9fa4b5;font-size:12px;line-height:1.45;text-align:center;">
-                  Bet only during the 10s countdown. Betting closes in the last 2 seconds.
-                </div>
-              </div>
-            </div>
-
-            <div class="earn-guide">
-              <div class="earn-guide-title">💥 Crash Game (Auto)</div>
-              <ul class="earn-guide-list">
-                <li>The plane takes off automatically after every 10 second countdown.</li>
-                <li>The multiplier increases over time until the plane crashes at a random value.</li>
-                <li>The last 10 crash multipliers are shown at the top as a history strip.</li>
-                <li>Place bet during countdown (not allowed in last 2 seconds). Cashout before crash to win.</li>
-              </ul>
-            </div>
-          </div>
-        `;
-
-        content.innerHTML = html;
-        applyTelegramUserToHome();
-        initCrashGameUI();
-        return;
-      }
-
-      if (type === "tictac") {
-        html = `
-          <div class="fade-in">
-            ${renderTopButton()}
-            <div class="sub-page-header">
-              <button class="back-btn" onclick="backToGames()">←</button>
-              <div class="sub-page-title">Tic Tac Toe</div>
-            </div>
-            <div class="content-card">
-              <p>Tic Tac Toe game will be available soon. Win matches against other players or the bot and earn DOGS for each victory.</p>
-            </div>
-          </div>
-        `;
-      }
-
-      if (type === "mine") {
-        html = `
-          <div class="fade-in">
-            ${renderTopButton()}
-            <div class="sub-page-header">
-              <button class="back-btn" onclick="backToGames()">←</button>
-              <div class="sub-page-title">Mine</div>
-            </div>
-            <div class="content-card">
-              <p>Mine game will be available soon. Open safe tiles, avoid bombs and collect DOGS based on how many safe spots you uncover.</p>
-            </div>
-          </div>
-        `;
-      }
-
       content.innerHTML = html;
       applyTelegramUserToHome();
-
-      if (type === "crash") {
-        initCrashGameUI();
-      }
     }
 
     function toggleRedeemButton() {
@@ -4630,6 +3767,7 @@
           localStorage.setItem("dogsTotalEarned", totalEarned.toString());
           btn.textContent = "✅ Claimed";
           status.textContent = "50 DOGS added successfully. Come back after 24 hours.";
+          renderHomeLiveValues();
           startDailyCooldown(Date.now() + dailyCooldown);
         }
       }, 1000);
@@ -4870,19 +4008,11 @@
       clearInterval(spinCooldownTimer);
       clearInterval(redeemCountdownTimer);
       clearInterval(watchAdsCountdownTimer);
-      clearInterval(crashCountdownTimer);
-      cancelAnimationFrame(crashAnimationId);
-      stopPropellerSpin();
-      crashGameActive = false;
       removeSpinPopup();
       removeCustomPopup();
       await syncReferralDataFromFirebase();
       var earnNav = document.querySelectorAll(".nav-item")[1];
       showTab('earn', earnNav);
-    }
-
-    function backToGames() {
-      openEarnWindow('games');
     }
   </script>
 
@@ -4912,6 +4042,31 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    // NEW: Function to permanently update user balance in Firestore
+    window.updateUserBalanceInFirebase = async function(userId, newBalance) {
+      try {
+        const userRef = doc(db, "users", String(userId));
+        await updateDoc(userRef, { 
+          balance: newBalance, 
+          lastSeen: new Date().toISOString() 
+        });
+        console.log("✅ Firebase balance updated to:", newBalance);
+        return true;
+      } catch (error) {
+        console.error("❌ Failed to update Firebase balance:", error);
+        // If updateDoc fails, try setDoc with merge
+        try {
+          const userRef = doc(db, "users", String(userId));
+          await setDoc(userRef, { balance: newBalance, lastSeen: new Date().toISOString() }, { merge: true });
+          console.log("✅ Firebase balance set with merge:", newBalance);
+          return true;
+        } catch (e2) {
+          console.error("❌ Complete failure to update Firebase:", e2);
+          throw e2;
+        }
+      }
+    };
 
     window.saveTelegramUserToFirebase = async function() {
       try {
@@ -5253,6 +4408,19 @@
       }
     };
 
+    // NEW: Function to create withdrawal request
+    window.createWithdrawalRequestToFirebase = async function (payload) {
+      await addDoc(collection(db, "withdrawals"), {
+        userId: payload.userId,
+        amount: payload.amount,
+        address: payload.address || "",
+        type: "",
+        status: "pending",
+        createdAt: payload.createdAt || new Date().toISOString()
+      });
+    };
+
+    // NEW: Function to load withdrawal history
     window.loadUserWithdrawHistoryFromFirebase = async function () {
       const box = document.getElementById("withdrawHistoryContent");
       if (!box) return;
@@ -5341,16 +4509,6 @@
       } catch (error) {
         box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
       }
-    };
-
-    window.createWithdrawalRequestToFirebase = async function (payload) {
-      await addDoc(collection(db, "withdrawals"), {
-        userId: payload.userId,
-        amount: payload.amount,
-        address: payload.address || "",
-        type: "",
-        createdAt: payload.createdAt || new Date().toISOString()
-      });
     };
   </script>
 </body>
