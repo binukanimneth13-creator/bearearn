@@ -2450,12 +2450,10 @@
         totalReferrals = newReferralCount;
         localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
-        // IMPORTANT: Only update from Firebase if the Firebase balance is LOWER
+        // ONLY update from Firebase if the Firebase balance is LOWER
         // This ensures withdrawals are not overwritten by stale data
         if (typeof result.balance === "number") {
           const localBalance = parseInt(localStorage.getItem("dogsBalance")) || 160;
-          // If Firebase balance is lower, it means a withdrawal happened elsewhere
-          // We should use the lower balance
           if (result.balance < localBalance) {
             balance = result.balance;
             localStorage.setItem("dogsBalance", balance.toString());
@@ -3030,7 +3028,7 @@
       }
 
       if (balance < 1500) {
-        showCustomPopup("Withdraw", "Insufficient balance for withdrawal. Minimum is 1500 DOGS.");
+        showCustomPopup("Withdraw", "Insufficient balance for withdrawal.");
         return;
       }
 
@@ -3040,49 +3038,13 @@
         return;
       }
 
-      const withdrawValueRaw = amountInput.value.trim();
-      if (!withdrawValueRaw) {
-        showCustomPopup("Withdraw", "Please enter withdrawal amount.");
+      const withdrawValue = amountInput.value.trim();
+      if (!withdrawValue) {
+        showCustomPopup("Withdraw", "Please enter withdrawal value.");
         return;
       }
 
-      const withdrawValue = Number(withdrawValueRaw);
-
-      if (isNaN(withdrawValue)) {
-        showCustomPopup("Invalid Amount", "Please enter a valid numeric amount.");
-        return;
-      }
-
-      if (!Number.isInteger(withdrawValue)) {
-        showCustomPopup("Invalid Amount", "Withdrawal amount must be a whole number.");
-        return;
-      }
-
-      if (withdrawValue < 1500 || withdrawValue > 2500) {
-        showCustomPopup(
-          "Invalid Amount",
-          "Withdrawal amount must be equal to 1500, 2500, or any value in between 1500 and 2500 DOGS."
-        );
-        return;
-      }
-
-      if (withdrawValue % 10 !== 0) {
-        showCustomPopup(
-          "Invalid Amount",
-          "Withdrawal amount must be a multiple of 10 DOGS."
-        );
-        return;
-      }
-
-      if (withdrawValue > balance) {
-        showCustomPopup(
-          "Insufficient Balance",
-          "You do not have enough balance for this withdrawal."
-        );
-        return;
-      }
-
-      localStorage.setItem("pendingWithdrawValue", withdrawValue.toString());
+      localStorage.setItem("pendingWithdrawValue", withdrawValue);
       showWithdrawConfirmPopup(withdrawValue);
     }
 
@@ -3286,7 +3248,7 @@
                   <div class="earn-icon">🦴</div>
                   <div class="earn-text">
                     <strong>Daily Bonus</strong>
-                    <span>50 Dogs daily</span>
+                    <span>10 Dogs daily</span>
                   </div>
                 </div>
                 <div class="earn-arrow">›</div>
@@ -4263,31 +4225,47 @@
           lastSeen: new Date().toISOString()
         }, { merge: true });
 
+        const ownerSnapAfter = await getDoc(ownerRef);
+        const ownerDataAfter = ownerSnapAfter.exists() ? ownerSnapAfter.data() : {};
+        const ownerBalanceAfter = Number(ownerDataAfter.balance || 0);
+        const ownerReferralsAfter = Number(ownerDataAfter.referrals || 0);
+
         await setDoc(claimRef, {
           userId: currentUserId,
           ownerId: enteredCode,
           claimedAt: new Date().toISOString(),
-          testMode: testUser
+          testMode: testUser,
+          ownerBalanceBefore: ownerBalanceBefore,
+          ownerBalanceAfter: ownerBalanceAfter
         }, { merge: true });
 
-        // Update global balance variables
         balance = currentUserBalance;
-        totalEarned = Number(localStorage.getItem("dogsTotalEarned")) + 100;
-        totalReferrals = ownerReferralsBefore + 1;
+        totalEarned += 100;
 
         localStorage.setItem("dogsBalance", balance.toString());
         localStorage.setItem("dogsTotalEarned", totalEarned.toString());
-        localStorage.setItem("dogsTotalReferrals", totalReferrals.toString());
 
         // Sync with Firebase to ensure permanence
         await window.updateUserBalanceInFirebase(currentUserId, currentUserBalance);
 
         if (input) input.value = "";
 
+        await syncReferralDataFromFirebase();
         renderHomeLiveValues();
+
         openEarnWindow('refer');
 
-        showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS.");
+        if (testUser) {
+          showCustomPopup(
+            "Test Mode Success",
+            "Claimer got 100 DOGS | Owner referrals before: " +
+            ownerReferralsBefore +
+            " | Owner referrals after: " +
+            ownerReferralsAfter
+          );
+        } else {
+          showCustomPopup("Success", "Referral claimed successfully. You received 100 DOGS.");
+        }
 
         return true;
       } catch (error) {
