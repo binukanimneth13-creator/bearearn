@@ -2854,8 +2854,7 @@
       localStorage.removeItem("pendingWithdrawValue");
       removeCustomPopup();
     }
-
-    async function confirmWithdrawRequest() {
+ async function confirmWithdrawRequest() {
       const pendingValueStr = localStorage.getItem("pendingWithdrawValue") || "";
       const amount = Number(pendingValueStr);
 
@@ -2871,8 +2870,11 @@
         showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
         return;
       }
-
-      balance -= amount;
+// STEP 1: Deduct the amount from balance FIRST
+      const newBalance = balance - amount;
+      
+      // STEP 2: Update local state
+      balance = newBalance;
       localStorage.setItem("dogsBalance", balance.toString());
       renderHomeLiveValues();
 
@@ -2881,6 +2883,18 @@
       const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
       const createdAt = new Date().toISOString();
 
+      // STEP 3: Update Firebase with the new balance (CRITICAL - This makes it permanent)
+      if (window.updateUserBalanceInFirebase) {
+        try {
+          await window.updateUserBalanceInFirebase(userId, newBalance);
+          console.log("✅ Balance updated in Firebase:", newBalance);
+        } catch (e) {
+          console.error("❌ Failed to update Firebase balance:", e);
+          // Even if Firebase fails, local balance is correct
+        }
+      }
+
+      // STEP 4: Create withdrawal request in Firebase
       if (window.createWithdrawalRequestToFirebase) {
         try {
           await window.createWithdrawalRequestToFirebase({
@@ -2890,18 +2904,20 @@
             type: "",
             createdAt: createdAt
           });
-          showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
+          showCustomPopup("Confirmed", amount + " withdrawal request submitted. Your balance has been reduced.");
         } catch (e) {
           showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
         }
       } else {
-        showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
+        showCustomPopup("Confirmed", amount + " withdrawal request confirmed. Your balance has been reduced.");
       }
 
+      // STEP 5: Refresh withdrawal history
       if (window.loadUserWithdrawHistoryFromFirebase) {
         window.loadUserWithdrawHistoryFromFirebase();
       }
     }
+   
 
     async function claimReferralCode() {
       const input = document.getElementById("referClaimInput");
