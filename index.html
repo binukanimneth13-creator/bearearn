@@ -5257,95 +5257,107 @@ async function confirmWithdrawRequest() {
       }
     };
 
-    window.loadUserWithdrawHistoryFromFirebase = async function () {
-      const box = document.getElementById("withdrawHistoryContent");
-      if (!box) return;
+window.loadUserWithdrawHistoryFromFirebase = async function () {
+  const box = document.getElementById("withdrawHistoryContent");
+  if (!box) return;
 
-      const user = window.currentTelegramUser;
-      if (!user || !user.telegramId) {
-        box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
-        return;
-      }
+  const user = window.currentTelegramUser;
+  if (!user || !user.telegramId) {
+    box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
+    return;
+  }
 
+  try {
+    const userId = String(user.telegramId);
+
+    // Query only this user's withdrawals, newest first
+    const q = query(
+      collection(db, "withdrawals"),
+      where("userId", "==", userId),
+      orderBy("createdAt", "desc")
+    );
+
+    const snapshot = await getDocs(q);
+
+    const items = [];
+    snapshot.forEach((docSnap) => {
+      items.push({ id: docSnap.id, ...((docSnap.data() || {})) });
+    });
+
+    if (items.length === 0) {
+      box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
+      return;
+    }
+
+    // Keep only last 5, delete the rest from Firebase
+    const keep = items.slice(0, 5);
+    const toDelete = items.slice(5);
+
+    // Delete older ones (best-effort)
+    for (const w of toDelete) {
       try {
-        const userId = String(user.telegramId);
-        const snapshot = await getDocs(collection(db, "withdrawals"));
-
-        const items = [];
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data() || {};
-          if (String(data.userId || "") === userId) {
-            items.push(data);
-          }
-        });
-
-        if (items.length === 0) {
-          box.innerHTML = '<div class="withdraw-history-empty">No withdrawals yet</div>';
-          return;
-        }
-
-        items.sort((a, b) => {
-          const tA = new Date(a.createdAt || 0).getTime();
-          const tB = new Date(b.createdAt || 0).getTime();
-          return tB - tA;
-        });
-
-        const shortAddress = (addr) => {
-          if (!addr) return "-";
-          const s = String(addr);
-          if (s.length <= 10) return s;
-          return s.slice(0, 4) + "..." + s.slice(-4);
-        };
-
-        const shortTime = (ts) => {
-          if (!ts) return "";
-          const d = new Date(ts);
-          if (isNaN(d.getTime())) return "";
-          return d.toLocaleString(undefined, {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-          });
-        };
-
-        let rowsHtml = "";
-        items.forEach((w) => {
-          const amount = Number(w.amount || 0);
-          const address = shortAddress(w.address || "-");
-          const createdAt = shortTime(w.createdAt || "");
-          const t = (w.type || "").toString();
-
-          let statusText = "Pending";
-          let statusClass = "withdraw-history-status-pending";
-          if (t === "approved") {
-            statusText = "Paid";
-            statusClass = "withdraw-history-status-paid";
-          } else if (t === "rejected") {
-            statusText = "Rejected";
-            statusClass = "withdraw-history-status-rejected";
-          }
-
-          rowsHtml += `
-            <div class="withdraw-history-item">
-              <div class="withdraw-history-left">
-                <div class="withdraw-history-amount">${amount} DOGS</div>
-                <div class="withdraw-history-meta">
-                  <span class="withdraw-history-address">${address}</span>
-                  <span class="withdraw-history-dot">•</span>
-                  <span class="withdraw-history-time">${createdAt}</span>
-                </div>
-              </div>
-              <div class="withdraw-history-status-pill ${statusClass}">${statusText}</div>
-            </div>
-          `;
-        });
-
-        box.innerHTML = `<div class="withdraw-history-list">${rowsHtml}</div>`;
-      } catch (error) {
-        box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
+        await deleteDoc(doc(db, "withdrawals", w.id));
+      } catch (e) {
+        // ignore delete errors so UI still works
       }
+    }
+
+    const shortAddress = (addr) => {
+      if (!addr) return "-";
+      const s = String(addr);
+      if (s.length <= 10) return s;
+      return s.slice(0, 4) + "..." + s.slice(-4);
     };
+
+    const shortTime = (ts) => {
+      if (!ts) return "";
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return "";
+      return d.toLocaleString(undefined, {
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    };
+
+    let rowsHtml = "";
+    keep.forEach((w) => {
+      const amount = Number(w.amount || 0);
+      const address = shortAddress(w.address || "-");
+      const createdAt = shortTime(w.createdAt || "");
+      const t = (w.type || "").toString();
+
+      let statusText = "Pending";
+      let statusClass = "withdraw-history-status-pending";
+      if (t === "approved") {
+        statusText = "Paid";
+        statusClass = "withdraw-history-status-paid";
+      } else if (t === "rejected") {
+        statusText = "Rejected";
+        statusClass = "withdraw-history-status-rejected";
+      }
+
+      rowsHtml += `
+        <div class="withdraw-history-item">
+          <div class="withdraw-history-left">
+            <div class="withdraw-history-amount">${amount} DOGS</div>
+            <div class="withdraw-history-meta">
+              <span class="withdraw-history-address">${address}</span>
+              <span class="withdraw-history-dot">•</span>
+              <span class="withdraw-history-time">${createdAt}</span>
+            </div>
+          </div>
+          <div class="withdraw-history-status-pill ${statusClass}">${statusText}</div>
+        </div>
+      `;
+    });
+
+    box.innerHTML = `<div class="withdraw-history-list">${rowsHtml}</div>`;
+  } catch (error) {
+    box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
+  }
+};
 
     window.createWithdrawalRequestToFirebase = async function (payload) {
       await addDoc(collection(db, "withdrawals"), {
