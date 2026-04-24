@@ -299,7 +299,10 @@
 
     <div id="withdrawals" class="section hidden">
       <h1>Withdrawals</h1>
+
+      <!-- Pending withdrawals -->
       <div class="card">
+        <h3>Pending Withdrawals</h3>
         <table>
           <thead>
             <tr>
@@ -310,7 +313,24 @@
               <th>Date and Time</th>
             </tr>
           </thead>
-          <tbody id="withdrawalTable"></tbody>
+          <tbody id="withdrawalTablePending"></tbody>
+        </table>
+      </div>
+
+      <!-- Approved / Rejected withdrawals -->
+      <div class="card">
+        <h3>Approved / Rejected Withdrawals</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Withdrawn Balance</th>
+              <th>Address</th>
+              <th>Type</th>
+              <th>Date and Time</th>
+            </tr>
+          </thead>
+          <tbody id="withdrawalTableDone"></tbody>
         </table>
       </div>
     </div>
@@ -603,50 +623,52 @@
   }
 
   // NEW: update withdrawal type (approve / reject) + refund on rejected
-window.updateWithdrawalType = async function(id, newType) {
-  try {
-    const wRef = doc(db, "withdrawals", id);
-    const wSnap = await getDoc(wRef);
+  window.updateWithdrawalType = async function(id, newType) {
+    try {
+      const wRef = doc(db, "withdrawals", id);
+      const wSnap = await getDoc(wRef);
 
-    if (!wSnap.exists()) {
-      alert("Withdrawal request not found");
-      return;
-    }
-
-    const wData = wSnap.data() || {};
-    const userId = String(wData.userId || "");
-    const amount = Number(wData.amount || 0);
-    const oldType = String(wData.type || ""); // "" means pending
-
-    // Prevent doing refund multiple times:
-    // Refund only when moving from pending -> rejected
-    if (newType === "rejected" && oldType === "" && userId && amount > 0) {
-      const userRef = doc(db, "users", userId);
-      const userSnap = await getDoc(userRef);
-
-      let currentBalance = 0;
-      if (userSnap.exists()) {
-        currentBalance = Number(userSnap.data().balance || 0);
+      if (!wSnap.exists()) {
+        alert("Withdrawal request not found");
+        return;
       }
 
-      // Refund EXACT withdrawn amount (NO fees)
-      await updateDoc(userRef, {
-        balance: currentBalance + amount
-      });
-    }
+      const wData = wSnap.data() || {};
+      const userId = String(wData.userId || "");
+      const amount = Number(wData.amount || 0);
+      const oldType = String(wData.type || ""); // "" means pending
 
-    await updateDoc(wRef, { type: newType });
-    await loadWithdrawals();
-    await loadUsers();
-    await loadDashboard();
-  } catch (e) {
-    alert("Failed to update withdrawal: " + (e.message || e));
-  }
-};
+      // Prevent doing refund multiple times:
+      // Refund only when moving from pending -> rejected
+      if (newType === "rejected" && oldType === "" && userId && amount > 0) {
+        const userRef = doc(db, "users", userId);
+        const userSnap = await getDoc(userRef);
+
+        let currentBalance = 0;
+        if (userSnap.exists()) {
+          currentBalance = Number(userSnap.data().balance || 0);
+        }
+
+        // Refund EXACT withdrawn amount (NO fees)
+        await updateDoc(userRef, {
+          balance: currentBalance + amount
+        });
+      }
+
+      await updateDoc(wRef, { type: newType });
+      await loadWithdrawals();
+      await loadUsers();
+      await loadDashboard();
+    } catch (e) {
+      alert("Failed to update withdrawal: " + (e.message || e));
+    }
+  };
 
   async function loadWithdrawals() {
-    const withdrawalTable = document.getElementById("withdrawalTable");
-    withdrawalTable.innerHTML = "";
+    const pendingTable = document.getElementById("withdrawalTablePending");
+    const doneTable = document.getElementById("withdrawalTableDone");
+    pendingTable.innerHTML = "";
+    doneTable.innerHTML = "";
 
     const withdrawalsSnapshot = await getDocs(collection(db, "withdrawals"));
 
@@ -654,27 +676,51 @@ window.updateWithdrawalType = async function(id, newType) {
       const withdrawal = docSnap.data();
       const wType = withdrawal.type || "";
 
-      let typeCellHtml = "-";
       if (!wType) {
-        // show approve/reject buttons when no type yet
-        typeCellHtml = `
+        // Pending -> show buttons
+        const typeCellHtml = `
           <button class="small-btn" onclick="updateWithdrawalType('${docSnap.id}','approved')">Approve</button>
           <button class="danger-btn" onclick="updateWithdrawalType('${docSnap.id}','rejected')">Reject</button>
         `;
-      } else {
-        typeCellHtml = wType;
-      }
 
-      withdrawalTable.innerHTML += `
+        pendingTable.innerHTML += `
+          <tr>
+            <td>${withdrawal.userId || "-"}</td>
+            <td>${withdrawal.amount || 0}</td>
+            <td>${withdrawal.address || "-"}</td>
+            <td>${typeCellHtml}</td>
+            <td>${withdrawal.createdAt || "-"}</td>
+          </tr>
+        `;
+      } else {
+        // Approved/Rejected -> no buttons, just show type text
+        doneTable.innerHTML += `
+          <tr>
+            <td>${withdrawal.userId || "-"}</td>
+            <td>${withdrawal.amount || 0}</td>
+            <td>${withdrawal.address || "-"}</td>
+            <td>${wType}</td>
+            <td>${withdrawal.createdAt || "-"}</td>
+          </tr>
+        `;
+      }
+    });
+
+    // If empty, show a row (optional, but keeps table height nice)
+    if (pendingTable.innerHTML.trim() === "") {
+      pendingTable.innerHTML = `
         <tr>
-          <td>${withdrawal.userId || "-"}</td>
-          <td>${withdrawal.amount || 0}</td>
-          <td>${withdrawal.address || "-"}</td>
-          <td>${typeCellHtml}</td>
-          <td>${withdrawal.createdAt || "-"}</td>
+          <td colspan="5">No pending withdrawals</td>
         </tr>
       `;
-    });
+    }
+    if (doneTable.innerHTML.trim() === "") {
+      doneTable.innerHTML = `
+        <tr>
+          <td colspan="5">No approved/rejected withdrawals</td>
+        </tr>
+      `;
+    }
   }
 
   async function loadTasks() {
