@@ -4892,7 +4892,9 @@ async function confirmWithdrawRequest() {
       getDoc,
       setDoc,
       updateDoc,
-      addDoc
+      addDoc,
+      where,
+      deleteDoc
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -5255,7 +5257,7 @@ async function confirmWithdrawRequest() {
       }
     };
 
- window.loadUserWithdrawHistoryFromFirebase = async function () {
+    window.loadUserWithdrawHistoryFromFirebase = async function () {
       const box = document.getElementById("withdrawHistoryContent");
       if (!box) return;
 
@@ -5344,43 +5346,6 @@ async function confirmWithdrawRequest() {
         box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
       }
     };
-    let rowsHtml = "";
-    keep.forEach((w) => {
-      const amount = Number(w.amount || 0);
-      const address = shortAddress(w.address || "-");
-      const createdAt = shortTime(w.createdAt || "");
-      const t = (w.type || "").toString();
-
-      let statusText = "Pending";
-      let statusClass = "withdraw-history-status-pending";
-      if (t === "approved") {
-        statusText = "Paid";
-        statusClass = "withdraw-history-status-paid";
-      } else if (t === "rejected") {
-        statusText = "Rejected";
-        statusClass = "withdraw-history-status-rejected";
-      }
-
-      rowsHtml += `
-        <div class="withdraw-history-item">
-          <div class="withdraw-history-left">
-            <div class="withdraw-history-amount">${amount} DOGS</div>
-            <div class="withdraw-history-meta">
-              <span class="withdraw-history-address">${address}</span>
-              <span class="withdraw-history-dot">•</span>
-              <span class="withdraw-history-time">${createdAt}</span>
-            </div>
-          </div>
-          <div class="withdraw-history-status-pill ${statusClass}">${statusText}</div>
-        </div>
-      `;
-    });
-
-    box.innerHTML = `<div class="withdraw-history-list">${rowsHtml}</div>`;
-  } catch (error) {
-    box.innerHTML = '<div class="withdraw-history-empty">Failed to load history</div>';
-  }
-};
 
     window.createWithdrawalRequestToFirebase = async function (payload) {
       await addDoc(collection(db, "withdrawals"), {
