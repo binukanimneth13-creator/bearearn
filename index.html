@@ -2867,12 +2867,12 @@ async function confirmWithdrawRequest() {
     return;
   }
 
-  // Deduct ONLY the withdraw amount (fees are NOT taken from user balance)
   if (amount > balance) {
     showCustomPopup("Error", "Insufficient balance to complete this withdrawal.");
     return;
   }
 
+  // 1) Deduct ONLY the withdrawn amount
   balance -= amount;
   localStorage.setItem("dogsBalance", balance.toString());
   renderHomeLiveValues();
@@ -2882,12 +2882,7 @@ async function confirmWithdrawRequest() {
   const walletAddress = (localStorage.getItem("tonWalletAddress") || "").trim();
   const createdAt = new Date().toISOString();
 
-  // Optional: calculate fee just for displaying/saving (doesn't affect balance)
-  const feeFixed = 120;
-  const feePercent = amount * 0.05;
-  const totalFee = feeFixed + feePercent;
-  const receivable = Math.max(0, amount - totalFee);
-
+  // 2) Save withdrawal request
   if (window.createWithdrawalRequestToFirebase) {
     try {
       await window.createWithdrawalRequestToFirebase({
@@ -2896,21 +2891,26 @@ async function confirmWithdrawRequest() {
         address: walletAddress,
         type: "",
         createdAt: createdAt
-        // If you want, you can also save fee/receivable to Firebase:
-        // fee: totalFee,
-        // receivable: receivable
       });
-      showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
     } catch (e) {
       showCustomPopup("Error", "Withdrawal request could not be saved: " + (e.message || e));
+      return;
     }
-  } else {
-    showCustomPopup("Confirmed", amount + " withdrawal request confirmed.");
   }
 
-  if (window.loadUserWithdrawHistoryFromFirebase) {
-    window.loadUserWithdrawHistoryFromFirebase();
+  // 3) IMPORTANT: Update user balance in Firebase so refresh won't restore old balance
+  if (window.updateUserBalanceInFirebase) {
+    try {
+      await window.updateUserBalanceInFirebase(userId, balance);
+    } catch (e) {
+      // If this fails, refresh may restore balance again from Firebase
+      // but we keep localStorage reduced.
+      console.log("Balance sync failed:", e.message || e);
+    }
   }
+
+  showCustomPopup("Confirmed", amount + " withdrawal request submitted.");
+  if (window.loadUserWithdrawHistoryFromFirebase) window.loadUserWithdrawHistoryFromFirebase();
 }
 
     async function claimReferralCode() {
@@ -4906,6 +4906,14 @@ async function confirmWithdrawRequest() {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    window.updateUserBalanceInFirebase = async function(userId, newBalance) {
+  const userRef = doc(db, "users", String(userId));
+  await setDoc(userRef, {
+    balance: Number(newBalance),
+    lastSeen: new Date().toISOString()
+  }, { merge: true });
+};
 
     window.saveTelegramUserToFirebase = async function() {
       try {
