@@ -225,6 +225,20 @@
         <button class="btn" onclick="addEarning()">Add Earning</button>
         <p id="earningStatus"></p>
       </div>
+
+      <div class="card">
+        <h3>Earnings History</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>User ID</th>
+              <th>Amount</th>
+              <th>Date and Time</th>
+            </tr>
+          </thead>
+          <tbody id="earningsHistoryTable"></tbody>
+        </table>
+      </div>
     </div>
 
     <div id="announcement" class="section hidden">
@@ -300,7 +314,6 @@
     <div id="withdrawals" class="section hidden">
       <h1>Withdrawals</h1>
 
-      <!-- Pending withdrawals -->
       <div class="card">
         <h3>Pending Withdrawals</h3>
         <table>
@@ -317,7 +330,6 @@
         </table>
       </div>
 
-      <!-- Approved / Rejected withdrawals -->
       <div class="card">
         <h3>Approved / Rejected Withdrawals</h3>
         <table>
@@ -400,6 +412,7 @@
       loadReferrals();
       loadWithdrawals();
       loadTasks();
+      loadEarningsHistory();
     } else {
       document.getElementById("loginBox").classList.remove("hidden");
       document.getElementById("adminPanel").classList.add("hidden");
@@ -429,6 +442,9 @@
     if (sectionId === "redeemCodes") {
       loadRedeemCodes();
       loadRedeemClaims();
+    }
+    if (sectionId === "earnings") {
+      loadEarningsHistory();
     }
   }
 
@@ -470,11 +486,17 @@
 
   window.addEarning = async function() {
     const userId = document.getElementById("earnUserId").value.trim();
-    const amount = Number(document.getElementById("earnAmount").value);
+    const amountRaw = document.getElementById("earnAmount").value;
+    const amount = Number(amountRaw);
     const status = document.getElementById("earningStatus");
 
-    if (!userId || !amount) {
-      status.innerText = "Please enter user ID and amount";
+    if (!userId) {
+      status.innerText = "Please enter user ID";
+      return;
+    }
+
+    if (!amountRaw || isNaN(amount) || amount <= 0) {
+      status.innerText = "Please enter a valid amount";
       return;
     }
 
@@ -482,20 +504,66 @@
       const userRef = doc(db, "users", userId);
       const userSnap = await getDoc(userRef);
 
+      let currentBalance = 0;
       if (userSnap.exists()) {
-        const currentBalance = Number(userSnap.data().balance || 0);
-        await updateDoc(userRef, {
-          balance: currentBalance + amount
-        });
-        status.innerText = "Earning added successfully";
-        loadDashboard();
-        loadUsers();
-      } else {
-        status.innerText = "User not found";
+        currentBalance = Number(userSnap.data().balance || 0);
       }
+
+      const newBalance = currentBalance + amount;
+
+      await setDoc(userRef, {
+        balance: newBalance,
+        lastSeen: new Date().toISOString()
+      }, { merge: true });
+
+      await addDoc(collection(db, "earnings_history"), {
+        userId: userId,
+        amount: amount,
+        createdAt: new Date().toISOString()
+      });
+
+      status.innerText = "Earning added successfully";
+
+      document.getElementById("earnUserId").value = "";
+      document.getElementById("earnAmount").value = "";
+
+      loadDashboard();
+      loadUsers();
+      loadEarningsHistory();
     } catch (error) {
       status.innerText = error.message;
     }
+  }
+
+  async function loadEarningsHistory() {
+    const table = document.getElementById("earningsHistoryTable");
+    if (!table) return;
+
+    table.innerHTML = "";
+
+    const snapshot = await getDocs(collection(db, "earnings_history"));
+
+    const items = [];
+    snapshot.forEach((docSnap) => {
+      items.push(docSnap.data());
+    });
+
+    items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    if (items.length === 0) {
+      table.innerHTML = `<tr><td colspan="3">No history yet</td></tr>`;
+      return;
+    }
+
+    items.forEach((row) => {
+      table.innerHTML += `
+        <tr>
+          <td>${row.userId || "-"}</td>
+          <td>${row.amount || 0}</td>
+          <td>${row.createdAt || "-"}</td>
+        </tr>
+      `;
+    });
   }
 
   window.sendAnnouncement = async function() {
@@ -622,7 +690,6 @@
     });
   }
 
-  // NEW: update withdrawal type (approve / reject) + refund on rejected
   window.updateWithdrawalType = async function(id, newType) {
     try {
       const wRef = doc(db, "withdrawals", id);
@@ -636,10 +703,8 @@
       const wData = wSnap.data() || {};
       const userId = String(wData.userId || "");
       const amount = Number(wData.amount || 0);
-      const oldType = String(wData.type || ""); // "" means pending
+      const oldType = String(wData.type || "");
 
-      // Prevent doing refund multiple times:
-      // Refund only when moving from pending -> rejected
       if (newType === "rejected" && oldType === "" && userId && amount > 0) {
         const userRef = doc(db, "users", userId);
         const userSnap = await getDoc(userRef);
@@ -649,7 +714,6 @@
           currentBalance = Number(userSnap.data().balance || 0);
         }
 
-        // Refund EXACT withdrawn amount (NO fees)
         await updateDoc(userRef, {
           balance: currentBalance + amount
         });
@@ -677,7 +741,6 @@
       const wType = withdrawal.type || "";
 
       if (!wType) {
-        // Pending -> show buttons
         const typeCellHtml = `
           <button class="small-btn" onclick="updateWithdrawalType('${docSnap.id}','approved')">Approve</button>
           <button class="danger-btn" onclick="updateWithdrawalType('${docSnap.id}','rejected')">Reject</button>
@@ -693,7 +756,6 @@
           </tr>
         `;
       } else {
-        // Approved/Rejected -> no buttons, just show type text
         doneTable.innerHTML += `
           <tr>
             <td>${withdrawal.userId || "-"}</td>
@@ -706,20 +768,11 @@
       }
     });
 
-    // If empty, show a row (optional, but keeps table height nice)
     if (pendingTable.innerHTML.trim() === "") {
-      pendingTable.innerHTML = `
-        <tr>
-          <td colspan="5">No pending withdrawals</td>
-        </tr>
-      `;
+      pendingTable.innerHTML = `<tr><td colspan="5">No pending withdrawals</td></tr>`;
     }
     if (doneTable.innerHTML.trim() === "") {
-      doneTable.innerHTML = `
-        <tr>
-          <td colspan="5">No approved/rejected withdrawals</td>
-        </tr>
-      `;
+      doneTable.innerHTML = `<tr><td colspan="5">No approved/rejected withdrawals</td></tr>`;
     }
   }
 
