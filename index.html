@@ -2336,6 +2336,7 @@
 
     let referralTestMode = true;
     let referralTestAllowedUsers = ["5834429474", "guest_user"];
+    let taskScreenshotCache = {};
 
     const wheelValues = [5, 10, 5, 10, 5, 10, 5, 10];
     const spinCooldownDuration = 2 * 60 * 1000;
@@ -3555,6 +3556,8 @@ async function confirmWithdrawRequest() {
 
               <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
 
+              <button class="task-action-btn task-complete-btn" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
+
               <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
 
               <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
@@ -4583,17 +4586,43 @@ async function confirmWithdrawRequest() {
     }
 
     function handleTaskScreenshotUpload(event, taskId) {
-      var file = event.target.files[0];
-      var status = document.getElementById("upload-status-" + taskId);
-      if (!status) return;
+  var file = event.target.files[0];
+  var status = document.getElementById("upload-status-" + taskId);
+  if (!status) return;
 
-      if (!file) {
-        status.textContent = "";
-        return;
-      }
+  if (!file) {
+    status.textContent = "";
+    return;
+  }
 
-      status.textContent = "Screenshot selected: " + file.name + " (ready for admin panel submission later)";
-    }
+  async function submitTaskScreenshot(taskId) {
+  const status = document.getElementById("upload-status-" + taskId);
+  if (!status) return;
+
+  const img = taskScreenshotCache[taskId];
+  if (!img) {
+    status.textContent = "Please upload screenshot first.";
+    return;
+  }
+
+  try {
+    await window.submitTaskScreenshotToFirebase(taskId, img);
+    status.textContent = "Submitted successfully!";
+    showCustomPopup("Submitted", "Screenshot sent to admin.");
+    delete taskScreenshotCache[taskId];
+  } catch (e) {
+    status.textContent = "Submit failed.";
+    showCustomPopup("Error", e.message || String(e));
+  }
+}
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    taskScreenshotCache[taskId] = e.target.result; // base64 image
+    status.textContent = "Screenshot selected. Now press SUBMIT.";
+  };
+  reader.readAsDataURL(file);
+}
 
     function claimDailyBonus() {
       let lastClaim = parseInt(localStorage.getItem("dailyBonusLastClaim")) || 0;
@@ -4908,6 +4937,18 @@ async function confirmWithdrawRequest() {
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+
+    window.submitTaskScreenshotToFirebase = async function(taskId, screenshotDataUrl) {
+  const user = window.currentTelegramUser || {};
+  const userId = String(user.telegramId || "guest_user");
+
+  await addDoc(collection(db, "tasks"), {
+    userId: userId,
+    type: String(taskId || ""),
+    screenshot: String(screenshotDataUrl || ""),
+    createdAt: new Date().toISOString()
+  });
+};
 
     window.updateUserBalanceInFirebase = async function(userId, newBalance) {
   const userRef = doc(db, "users", String(userId));
