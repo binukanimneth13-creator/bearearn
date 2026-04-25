@@ -4907,6 +4907,33 @@ async function confirmWithdrawRequest() {
     function backToGames() {
       openEarnWindow('games');
     }
+
+    async function submitTaskScreenshot(taskId) {
+  const status = document.getElementById("upload-status-" + taskId);
+  if (!status) return;
+
+  const img = taskScreenshotCache[taskId];
+  if (!img) {
+    status.textContent = "Upload screenshot first.";
+    return;
+  }
+
+  if (!window.submitTaskScreenshotToFirebase) {
+    status.textContent = "Firebase submit function not loaded.";
+    return;
+  }
+
+  status.textContent = "Submitting...";
+
+  try {
+    await window.submitTaskScreenshotToFirebase(taskId, img);
+    status.textContent = "Submitted successfully!";
+    showCustomPopup("Submitted", "Screenshot sent to admin.");
+    delete taskScreenshotCache[taskId];
+  } catch (e) {
+    status.textContent = "Submit failed: " + (e.message || e);
+  }
+}
   </script>
 
   <script type="module">
@@ -4957,6 +4984,27 @@ async function confirmWithdrawRequest() {
     lastSeen: new Date().toISOString()
   }, { merge: true });
 };
+
+function handleTaskScreenshotUpload(event, taskId) {
+  var file = event.target.files[0];
+  var status = document.getElementById("upload-status-" + taskId);
+  if (!status) return;
+
+  if (!file) {
+    status.textContent = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    taskScreenshotCache[taskId] = e.target.result; // base64
+    status.textContent = "Screenshot selected. Now click Submit Screenshot.";
+  };
+  reader.onerror = function() {
+    status.textContent = "Could not read the image.";
+  };
+  reader.readAsDataURL(file);
+}
 
     window.saveTelegramUserToFirebase = async function() {
       try {
