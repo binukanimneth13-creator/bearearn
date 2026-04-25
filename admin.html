@@ -152,6 +152,46 @@
       border-radius: 8px;
       display: block;
     }
+
+    /* === Screenshot zoom modal === */
+.img-zoom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.img-zoom-box {
+  max-width: 95vw;
+  max-height: 90vh;
+  background: #0b1220;
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 0 25px rgba(0,0,0,0.5);
+}
+
+.img-zoom-box img {
+  max-width: 92vw;
+  max-height: 82vh;
+  display: block;
+  border-radius: 10px;
+}
+
+.img-zoom-close {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #ef4444;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
   </style>
 </head>
 <body>
@@ -566,6 +606,33 @@
     });
   }
 
+  window.openImageZoom = function(src) {
+  const existing = document.getElementById("imgZoomOverlay");
+  if (existing) existing.remove();
+
+  const overlay = document.createElement("div");
+  overlay.className = "img-zoom-overlay";
+  overlay.id = "imgZoomOverlay";
+
+  overlay.innerHTML = `
+    <div class="img-zoom-box">
+      <img src="${src}" alt="Screenshot">
+      <button class="img-zoom-close" onclick="closeImageZoom()">Close</button>
+    </div>
+  `;
+
+  overlay.addEventListener("click", function(e) {
+    if (e.target === overlay) closeImageZoom();
+  });
+
+  document.body.appendChild(overlay);
+};
+
+window.closeImageZoom = function() {
+  const overlay = document.getElementById("imgZoomOverlay");
+  if (overlay) overlay.remove();
+};
+
   window.sendAnnouncement = async function() {
     const text = document.getElementById("announcementText").value.trim();
     const status = document.getElementById("announceStatus");
@@ -789,7 +856,7 @@
 
       if (screenshot && screenshot !== "-") {
         if (String(screenshot).startsWith("data:image") || String(screenshot).startsWith("http")) {
-          screenshotHtml = `<a href="${screenshot}" target="_blank"><img src="${screenshot}" class="task-image-preview" alt="Screenshot"></a>`;
+          screenshotHtml = `<img src="${screenshot}" class="task-image-preview" alt="Screenshot" style="cursor:zoom-in;" onclick="openImageZoom('${screenshot}')">`;
         } else {
           screenshotHtml = `<span>${screenshot}</span>`;
         }
