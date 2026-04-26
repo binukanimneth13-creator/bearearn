@@ -2144,54 +2144,6 @@
         border-radius: 0;
       }
     }
-
-    /* TASKS HORIZONTAL LIST */
-.tasks-grid{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-
-.task-card{
-  width:100% !important;
-  min-height:auto;
-}
-
-.task-top{
-  display:flex;
-  align-items:center;
-  gap:12px;
-  text-align:left;
-  padding:14px 14px;
-}
-
-.task-top-icon{
-  margin:0;
-  width:54px;
-  height:54px;
-}
-
-.task-top-right{
-  flex:1;
-  min-width:0;
-}
-
-.task-subrow{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-}
-
-.task-reward-pill{
-  font-size:12px;
-  font-weight:bold;
-  color:#111;
-  background:linear-gradient(90deg,#ffcc00,#f59e0b);
-  padding:6px 10px;
-  border-radius:999px;
-  white-space:nowrap;
-}
   </style>
 </head>
 
@@ -3584,43 +3536,38 @@ async function confirmWithdrawRequest() {
     }
 
     function renderTasksGrid() {
-  let cards = taskData.map(function(task) {
-    const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
+      let cards = taskData.map(function(task) {
+        const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
+        return `
+          <div class="task-card" id="task-card-${task.id}">
+            <div class="task-top" onclick="toggleTaskCard('${task.id}')">
+              <div class="task-top-icon">📋</div>
+              <div class="task-title">${task.title}</div>
+              <div class="task-reward">${task.reward}</div>
+              ${task.progress ? `<div class="task-progress">${task.progress}</div>` : ``}
+            </div>
 
-    return `
-      <div class="task-card" id="task-card-${task.id}">
-        <div class="task-top" onclick="toggleTaskCard('${task.id}')">
-          <div class="task-top-icon">📋</div>
+            <div class="task-expand-content">
+              <div class="task-desc">${task.desc}</div>
 
-          <div class="task-top-right">
-            <div class="task-title">${task.title}</div>
+              <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
 
-            <div class="task-subrow">
-              <div class="task-progress">${task.progress ? task.progress : ""}</div>
-              <div class="task-reward-pill">${task.reward}</div>
+              <input type="file" accept="image/*" class="task-file-input" id="file-${task.id}" onchange="handleTaskScreenshotUpload(event, '${task.id}')">
+
+              <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
+
+              <button class="task-action-btn task-complete-btn" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
+
+              <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
+
+              <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
             </div>
           </div>
-        </div>
+        `;
+      }).join("");
 
-        <div class="task-expand-content">
-          <div class="task-desc">${task.desc}</div>
-
-          <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
-
-          <input type="file" accept="image/*" class="task-file-input" id="file-${task.id}" onchange="handleTaskScreenshotUpload(event, '${task.id}')">
-
-          <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
-
-          <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
-
-          <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  return `<div class="tasks-grid">${cards}</div>`;
-}
+      return `<div class="tasks-grid">${cards}</div>`;
+    }
 
     /* Crash game helpers */
 
