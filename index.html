@@ -2144,6 +2144,174 @@
         border-radius: 0;
       }
     }
+
+    /* === TASK UI v2 (like image 2) === */
+.tasks-grid{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+.task-card{
+  width:100% !important;
+  min-height:auto !important;
+  padding:14px !important;
+  border-radius:22px !important;
+  background: radial-gradient(circle at top, rgba(255,255,255,0.06), rgba(255,255,255,0.02) 55%), #141417 !important;
+  border:1px solid rgba(255,255,255,0.08) !important;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  overflow:hidden;
+}
+
+/* top row */
+.task-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.task-head-left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  min-width:0;
+  flex:1;
+}
+
+.task-tg-icon{
+  width:46px;
+  height:46px;
+  border-radius:16px;
+  background: rgba(59,130,246,0.16);
+  border: 1px solid rgba(59,130,246,0.22);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.task-tg-icon svg{
+  width:22px;
+  height:22px;
+  fill:#3b82f6;
+}
+
+.task-head-text{
+  min-width:0;
+}
+
+.task-head-title{
+  font-size:16px;
+  font-weight:800;
+  color:#fff;
+  line-height:1.2;
+  margin-bottom:4px;
+}
+
+.task-head-sub{
+  font-size:13px;
+  color: rgba(180,180,184,0.85);
+  line-height:1.35;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:240px;
+}
+
+/* reward pill right */
+.task-reward-pill{
+  flex-shrink:0;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 10px;
+  border-radius:999px;
+  background: rgba(250,204,21,0.12);
+  border:1px solid rgba(250,204,21,0.35);
+  color:#facc15;
+  font-weight:900;
+  font-size:13px;
+}
+
+.task-reward-pill .coin{
+  width:18px;
+  height:18px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(59,130,246,0.18);
+  border: 1px solid rgba(59,130,246,0.30);
+  color:#60a5fa;
+  font-size:12px;
+}
+
+/* big join button */
+.task-join-btn{
+  width:100%;
+  margin-top:12px;
+  border:none;
+  cursor:pointer;
+  border-radius:18px;
+  padding:16px 14px;
+  font-size:16px;
+  font-weight:900;
+  color:#fff;
+  background: linear-gradient(180deg, #2aa7e9, #1d8fd0);
+  box-shadow: 0 10px 22px rgba(29,143,208,0.22);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.task-join-btn:active{ transform:scale(0.99); }
+
+/* details area (all your buttons) */
+.task-details{
+  margin-top:12px;
+  padding-top:12px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.task-meta-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.task-meta-pill{
+  background:#2b2b31;
+  border: 1px solid rgba(255,255,255,0.06);
+  color:#a8acba;
+  font-size:12px;
+  padding:7px 10px;
+  border-radius:999px;
+}
+
+.task-actions{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+
+.task-actions .task-action-btn{
+  margin-top:0 !important;
+  border-radius:14px;
+  padding:14px 12px;
+  font-size:14px;
+}
+
+.task-actions .task-complete-btn{
+  grid-column: 1 / -1; /* make submit & mark complete full-width if you want */
+}
+
+.task-upload-status{
+  margin-top:10px;
+  text-align:center;
+}
   </style>
 </head>
 
@@ -3536,38 +3704,79 @@ async function confirmWithdrawRequest() {
     }
 
     function renderTasksGrid() {
-      let cards = taskData.map(function(task) {
-        const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
-        return `
-          <div class="task-card" id="task-card-${task.id}">
-            <div class="task-top" onclick="toggleTaskCard('${task.id}')">
-              <div class="task-top-icon">📋</div>
-              <div class="task-title">${task.title}</div>
-              <div class="task-reward">${task.reward}</div>
-              ${task.progress ? `<div class="task-progress">${task.progress}</div>` : ``}
-            </div>
+  const tgSvg = `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M9.04 15.56 8.9 19.2c.6 0 .86-.26 1.17-.57l2.8-2.68 5.8 4.24c1.06.59 1.82.28 2.09-.98l3.79-17.78c.31-1.45-.53-2.02-1.56-1.64L1.54 9.2C.14 9.74.16 10.52 1.28 10.87l5.77 1.8L20.4 4.4c.63-.42 1.2-.19.73.23L9.04 15.56z"/>
+    </svg>
+  `;
 
-            <div class="task-expand-content">
-              <div class="task-desc">${task.desc}</div>
+  let cards = taskData.map(function(task) {
+    const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
 
-              <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
+    // reward text cleanup (keeps +100 etc)
+    const rewardText = (task.reward || "").replace("🐕", "").trim() || "+0";
 
-              <input type="file" accept="image/*" class="task-file-input" id="file-${task.id}" onchange="handleTaskScreenshotUpload(event, '${task.id}')">
+    // short subtitle line: use progress if it exists, else use a short desc
+    const subtitle = task.progress && task.progress.trim() !== ""
+      ? task.progress
+      : (task.desc || "").replace(/\s+/g, " ").trim();
 
-              <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
-
-              <button class="task-action-btn task-complete-btn" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
-
-              <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">${completed ? '✅ Completed' : '✔ Mark Complete'}</button>
-
-              <div class="task-upload-status" id="upload-status-${task.id}">${completed ? 'Task already completed.' : ''}</div>
+    return `
+      <div class="task-card" id="task-card-${task.id}">
+        <div class="task-head">
+          <div class="task-head-left">
+            <div class="task-tg-icon">${tgSvg}</div>
+            <div class="task-head-text">
+              <div class="task-head-title">${escapeHtml(task.title)}</div>
+              <div class="task-head-sub">${escapeHtml(subtitle)}</div>
             </div>
           </div>
-        `;
-      }).join("");
 
-      return `<div class="tasks-grid">${cards}</div>`;
-    }
+          <div class="task-reward-pill">
+            <span class="coin">◈</span>
+            <span>${escapeHtml(rewardText)}</span>
+          </div>
+        </div>
+
+        <button class="task-join-btn" onclick="startTaskLink('${task.link}')">
+          ${tgSvg}
+          <span>${completed ? "Joined" : "Join"}</span>
+        </button>
+
+        <div class="task-details">
+          <div class="task-meta-row">
+            ${task.reward ? `<div class="task-meta-pill">Reward: ${escapeHtml(task.reward)}</div>` : ``}
+            ${task.progress ? `<div class="task-meta-pill">${escapeHtml(task.progress)}</div>` : ``}
+            <div class="task-meta-pill">${completed ? "✅ Completed" : "⌛ Not completed"}</div>
+          </div>
+
+          <div style="color:#a8acba;font-size:13px;line-height:1.6;margin-bottom:12px;">
+            ${escapeHtml(task.desc || "")}
+          </div>
+
+          <input type="file" accept="image/*" class="task-file-input" id="file-${task.id}"
+                 onchange="handleTaskScreenshotUpload(event, '${task.id}')">
+
+          <div class="task-actions">
+            <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
+            <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
+
+            <button class="task-action-btn task-complete-btn" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
+            <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">
+              ${completed ? '✅ Completed' : '✔ Mark Complete'}
+            </button>
+          </div>
+
+          <div class="task-upload-status" id="upload-status-${task.id}">
+            ${completed ? 'Task already completed.' : ''}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `<div class="tasks-grid">${cards}</div>`;
+}
 
     /* Crash game helpers */
 
