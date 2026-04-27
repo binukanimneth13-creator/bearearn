@@ -2304,6 +2304,31 @@
   margin-top:10px;
   text-align:center;
 }
+
+/* smaller icon inside the blue Start button */
+.task-join-btn svg{
+  width:18px;
+  height:18px;
+  fill:#ffffff;
+  flex-shrink:0;
+}
+
+/* make the blue button content neat */
+.task-join-btn{
+  gap:10px;
+}
+
+/* OPTIONAL: make the left icon a bit smaller too (header icon) */
+.task-tg-icon{
+  width:40px;
+  height:40px;
+  border-radius:14px;
+}
+
+.task-tg-icon svg{
+  width:20px;
+  height:20px;
+}
   </style>
 </head>
 
@@ -2670,7 +2695,7 @@
     if (card.id === "task-card-" + taskId) {
       card.classList.toggle("expanded");
     } else {
-      card.classList.remove("expanded");
+      card.classList.remove("expanded"); // only one open at a time
     }
   });
 }
@@ -3740,9 +3765,9 @@ async function confirmWithdrawRequest() {
         </div>
 
         <!-- clicking this expands dropdown + opens link -->
-        <button class="task-join-btn" onclick="openTaskAndExpand('${task.id}', '${task.link}')">
+        <button class="task-join-btn" onclick="toggleTaskDropdown('${task.id}')">
           ${tgSvg}
-          <span>${completed ? "Open" : "Start"}</span>
+          <span>${completed ? "Details" : "Start"}</span>
         </button>
 
         <!-- dropdown details (hidden until expanded) -->
