@@ -2145,7 +2145,8 @@
       }
     }
 
-    /* === TASK UI v2 (like image 2) === */
+    /* === TASK DROPDOWN UI (collapsed -> expanded) === */
+
 .tasks-grid{
   display:flex;
   flex-direction:column;
@@ -2163,7 +2164,7 @@
   overflow:hidden;
 }
 
-/* top row */
+/* header row */
 .task-head{
   display:flex;
   align-items:center;
@@ -2197,29 +2198,13 @@
   fill:#3b82f6;
 }
 
-.task-head-text{
-  min-width:0;
-}
-
 .task-head-title{
   font-size:16px;
   font-weight:800;
   color:#fff;
   line-height:1.2;
-  margin-bottom:4px;
 }
 
-.task-head-sub{
-  font-size:13px;
-  color: rgba(180,180,184,0.85);
-  line-height:1.35;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  max-width:240px;
-}
-
-/* reward pill right */
 .task-reward-pill{
   flex-shrink:0;
   display:inline-flex;
@@ -2247,7 +2232,7 @@
   font-size:12px;
 }
 
-/* big join button */
+/* start/join button */
 .task-join-btn{
   width:100%;
   margin-top:12px;
@@ -2268,11 +2253,17 @@
 
 .task-join-btn:active{ transform:scale(0.99); }
 
-/* details area (all your buttons) */
+/* dropdown details */
 .task-details{
+  display:none;
   margin-top:12px;
   padding-top:12px;
   border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.task-card.expanded .task-details{
+  display:block;
+  animation: fadeIn 0.25s ease;
 }
 
 .task-meta-row{
@@ -2295,6 +2286,7 @@
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:10px;
+  margin-top:12px;
 }
 
 .task-actions .task-action-btn{
@@ -2304,8 +2296,8 @@
   font-size:14px;
 }
 
-.task-actions .task-complete-btn{
-  grid-column: 1 / -1; /* make submit & mark complete full-width if you want */
+.task-actions .task-wide{
+  grid-column: 1 / -1;
 }
 
 .task-upload-status{
@@ -2671,6 +2663,22 @@
 
       window.currentTelegramUser = tgUser;
     }
+
+    function toggleTaskDropdown(taskId) {
+  const cards = document.querySelectorAll(".task-card");
+  cards.forEach(function(card) {
+    if (card.id === "task-card-" + taskId) {
+      card.classList.toggle("expanded");
+    } else {
+      card.classList.remove("expanded");
+    }
+  });
+}
+
+function openTaskAndExpand(taskId, link) {
+  toggleTaskDropdown(taskId);
+  if (link) window.open(link, "_blank");
+}
 
     function renderTopButton() {
       const user = window.currentTelegramUser || {
@@ -3712,23 +3720,16 @@ async function confirmWithdrawRequest() {
 
   let cards = taskData.map(function(task) {
     const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
-
-    // reward text cleanup (keeps +100 etc)
     const rewardText = (task.reward || "").replace("🐕", "").trim() || "+0";
-
-    // short subtitle line: use progress if it exists, else use a short desc
-    const subtitle = task.progress && task.progress.trim() !== ""
-      ? task.progress
-      : (task.desc || "").replace(/\s+/g, " ").trim();
 
     return `
       <div class="task-card" id="task-card-${task.id}">
+        <!-- collapsed header -->
         <div class="task-head">
           <div class="task-head-left">
             <div class="task-tg-icon">${tgSvg}</div>
-            <div class="task-head-text">
+            <div style="min-width:0;">
               <div class="task-head-title">${escapeHtml(task.title)}</div>
-              <div class="task-head-sub">${escapeHtml(subtitle)}</div>
             </div>
           </div>
 
@@ -3738,19 +3739,21 @@ async function confirmWithdrawRequest() {
           </div>
         </div>
 
-        <button class="task-join-btn" onclick="startTaskLink('${task.link}')">
+        <!-- clicking this expands dropdown + opens link -->
+        <button class="task-join-btn" onclick="openTaskAndExpand('${task.id}', '${task.link}')">
           ${tgSvg}
-          <span>${completed ? "Joined" : "Join"}</span>
+          <span>${completed ? "Open" : "Start"}</span>
         </button>
 
-        <div class="task-details">
+        <!-- dropdown details (hidden until expanded) -->
+        <div class="task-details" id="task-details-${task.id}">
           <div class="task-meta-row">
             ${task.reward ? `<div class="task-meta-pill">Reward: ${escapeHtml(task.reward)}</div>` : ``}
             ${task.progress ? `<div class="task-meta-pill">${escapeHtml(task.progress)}</div>` : ``}
             <div class="task-meta-pill">${completed ? "✅ Completed" : "⌛ Not completed"}</div>
           </div>
 
-          <div style="color:#a8acba;font-size:13px;line-height:1.6;margin-bottom:12px;">
+          <div style="color:#a8acba;font-size:13px;line-height:1.6;">
             ${escapeHtml(task.desc || "")}
           </div>
 
@@ -3761,8 +3764,8 @@ async function confirmWithdrawRequest() {
             <button class="task-action-btn task-start-btn" onclick="startTaskLink('${task.link}')">↗ Start Task</button>
             <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
 
-            <button class="task-action-btn task-complete-btn" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
-            <button class="task-action-btn task-complete-btn" onclick="completeTask('${task.id}')">
+            <button class="task-action-btn task-complete-btn task-wide" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
+            <button class="task-action-btn task-complete-btn task-wide" onclick="completeTask('${task.id}')">
               ${completed ? '✅ Completed' : '✔ Mark Complete'}
             </button>
           </div>
@@ -3777,6 +3780,8 @@ async function confirmWithdrawRequest() {
 
   return `<div class="tasks-grid">${cards}</div>`;
 }
+
+
 
     /* Crash game helpers */
 
