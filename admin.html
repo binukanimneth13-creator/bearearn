@@ -397,7 +397,6 @@
               <th>Date and Time</th>
               <th>Screenshot</th>
               <th>Type</th>
-              <th>Status</th>
             </tr>
           </thead>
           <tbody id="taskTable"></tbody>
@@ -459,19 +458,6 @@
       document.getElementById("adminPanel").classList.add("hidden");
     }
   });
-
-  window.updateTaskStatus = async function(taskDocId, newStatus) {
-  try {
-    const tRef = doc(db, "tasks", taskDocId);
-    await updateDoc(tRef, {
-      status: newStatus,
-      reviewedAt: new Date().toISOString()
-    });
-    await loadTasks();
-  } catch (e) {
-    alert("Failed to update task: " + (e.message || e));
-  }
-};
 
   window.showSection = function(sectionId) {
     const sections = document.querySelectorAll(".section");
@@ -858,47 +844,34 @@ window.closeImageZoom = function() {
   }
 
   async function loadTasks() {
-  const taskTable = document.getElementById("taskTable");
-  taskTable.innerHTML = "";
+    const taskTable = document.getElementById("taskTable");
+    taskTable.innerHTML = "";
 
-  const tasksSnapshot = await getDocs(collection(db, "tasks"));
+    const tasksSnapshot = await getDocs(collection(db, "tasks"));
 
-  tasksSnapshot.forEach(docSnap => {
-    const task = docSnap.data();
-    const screenshot = task.screenshot || "-";
-    const statusVal = task.status || ""; // pending if empty
-    let screenshotHtml = "-";
+    tasksSnapshot.forEach(docSnap => {
+      const task = docSnap.data();
+      const screenshot = task.screenshot || "-";
+      let screenshotHtml = "-";
 
-    if (screenshot && screenshot !== "-") {
-      if (String(screenshot).startsWith("data:image") || String(screenshot).startsWith("http")) {
-        // if you already added zoom, keep your zoom version here
-        screenshotHtml = `<img src="${screenshot}" class="task-image-preview" alt="Screenshot" style="cursor:zoom-in;" onclick="openImageZoom('${screenshot}')">`;
-      } else {
-        screenshotHtml = `<span>${screenshot}</span>`;
+      if (screenshot && screenshot !== "-") {
+        if (String(screenshot).startsWith("data:image") || String(screenshot).startsWith("http")) {
+          screenshotHtml = `<img src="${screenshot}" class="task-image-preview" alt="Screenshot" style="cursor:zoom-in;" onclick="openImageZoom('${screenshot}')">`;
+        } else {
+          screenshotHtml = `<span>${screenshot}</span>`;
+        }
       }
-    }
 
-    let statusHtml = "-";
-    if (!statusVal) {
-      statusHtml = `
-        <button class="small-btn" onclick="updateTaskStatus('${docSnap.id}','accepted')">Accept</button>
-        <button class="danger-btn" onclick="updateTaskStatus('${docSnap.id}','rejected')">Reject</button>
+      taskTable.innerHTML += `
+        <tr>
+          <td>${task.userId || "-"}</td>
+          <td>${task.createdAt || "-"}</td>
+          <td>${screenshotHtml}</td>
+          <td>${task.type || "-"}</td>
+        </tr>
       `;
-    } else {
-      statusHtml = statusVal;
-    }
-
-    taskTable.innerHTML += `
-      <tr>
-        <td>${task.userId || "-"}</td>
-        <td>${task.createdAt || "-"}</td>
-        <td>${screenshotHtml}</td>
-        <td>${task.type || "-"}</td>
-        <td>${statusHtml}</td>
-      </tr>
-    `;
-  });
-}
+    });
+  }
 </script>
 
 </body>
