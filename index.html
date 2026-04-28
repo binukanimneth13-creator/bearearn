@@ -3442,26 +3442,6 @@ async function confirmWithdrawRequest() {
       window.open("https://t.me/yourcommunitychannel", "_blank");
     }
 
-    function completeTask(taskId) {
-      const key = "taskCompleted_" + taskId;
-      if (localStorage.getItem(key) === "1") {
-        showCustomPopup("Task", "This task is already completed.");
-        return;
-      }
-
-      localStorage.setItem(key, "1");
-      totalTasksCompleted += 1;
-      localStorage.setItem("dogsTotalTasksCompleted", totalTasksCompleted.toString());
-      renderHomeLiveValues();
-
-      const status = document.getElementById("upload-status-" + taskId);
-      if (status) {
-        status.textContent = "Task marked as completed successfully.";
-      }
-
-      showCustomPopup("Task Completed", "Task completion counted successfully.");
-    }
-
     function showTab(tab, element) {
       var content = document.getElementById("content-area");
       var navItems = document.querySelectorAll(".nav-item");
@@ -3744,7 +3724,6 @@ async function confirmWithdrawRequest() {
   `;
 
   let cards = taskData.map(function(task) {
-    const completed = localStorage.getItem("taskCompleted_" + task.id) === "1";
     const rewardText = (task.reward || "").replace("🐕", "").trim() || "+0";
 
     return `
@@ -3775,7 +3754,6 @@ async function confirmWithdrawRequest() {
           <div class="task-meta-row">
             ${task.reward ? `<div class="task-meta-pill">Reward: ${escapeHtml(task.reward)}</div>` : ``}
             ${task.progress ? `<div class="task-meta-pill">${escapeHtml(task.progress)}</div>` : ``}
-            <div class="task-meta-pill">${completed ? "✅ Completed" : "⌛ Not completed"}</div>
           </div>
 
           <div style="color:#a8acba;font-size:13px;line-height:1.6;">
@@ -3790,13 +3768,9 @@ async function confirmWithdrawRequest() {
             <button class="task-action-btn task-upload-btn" onclick="document.getElementById('file-${task.id}').click()">⇪ Upload Screenshot</button>
 
             <button class="task-action-btn task-complete-btn task-wide" onclick="submitTaskScreenshot('${task.id}')">📤 Submit Screenshot</button>
-            <button class="task-action-btn task-complete-btn task-wide" onclick="completeTask('${task.id}')">
-              ${completed ? '✅ Completed' : '✔ Mark Complete'}
-            </button>
           </div>
 
           <div class="task-upload-status" id="upload-status-${task.id}">
-            ${completed ? 'Task already completed.' : ''}
           </div>
         </div>
       </div>
